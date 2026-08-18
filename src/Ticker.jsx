@@ -205,7 +205,7 @@ export default function Ticker() {
         {/* pack math mini */}
         {feed.packMath?.priciest?.length > 0 && (
           <>
-            <div className="tk-sec">Pack math — $ per sealed pack</div>
+            <div className="tk-sec">Pack math — what each pack costs INSIDE the sealed product</div>
             <div className="tk-card">
               {feed.packMath.priciest.slice(0, 3).map((r) => (
                 <div className="tk-row" key={r.id} style={{ marginBottom: 6 }}>
@@ -220,7 +220,7 @@ export default function Ticker() {
                 </div>
               ))}
               <div className="tk-sub">
-                Arithmetic on today's ask medians — traceable to inputs.{" "}
+                Sealed ask median ÷ packs in the box — NOT loose-pack prices. Founder-misread-tested.{" "}
                 <Chip cls="MEASURED" onTap={() => showReceipts("Pack Math", "price ÷ era-aware pack count; variable-count products excluded by name")} />
               </div>
             </div>

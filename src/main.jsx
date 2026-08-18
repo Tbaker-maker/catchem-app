@@ -1,9 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import CatchEm from "./CatchEm.jsx";
+import Ticker from "./Ticker.jsx"; // THE TICKER is the opening screen (app-specs-v1 §1); CatchEm.jsx prototype preserved unmodified
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <CatchEm />
+    <Ticker />
   </React.StrictMode>
 );

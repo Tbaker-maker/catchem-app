@@ -1,0 +1,549 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Board — Catch'em</title><style>
+:root{--bg:#0b0d14;--panel:#12141d;--line:#232736;--txt:#d8dde8;--dim:#8a93a8;--gold:#F5C842;--green:#36d399;--red:#ff6b7a}
+*{box-sizing:border-box;margin:0}body{background:var(--bg);color:var(--txt);font:15px/1.5 'Trebuchet MS',system-ui,sans-serif;padding:0 0 60px}
+header{padding:34px 24px 18px;max-width:1080px;margin:0 auto}
+h1{font-size:30px;letter-spacing:-.5px}h1 em{color:var(--gold);font-style:normal}
+.tag{color:var(--dim);font-size:13px;margin-top:4px}
+.calib{max-width:1080px;margin:14px auto 0;padding:12px 24px;display:flex;align-items:center;gap:14px}
+.calib .bar{flex:1;height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.calib .fill{height:100%;width:13%;background:linear-gradient(90deg,var(--gold),var(--green))}
+.calib .lbl{font:12px 'Courier New',monospace;color:var(--dim);white-space:nowrap}
+.stats{max-width:1080px;margin:10px auto 0;padding:0 24px;display:flex;gap:26px;font:13px 'Courier New',monospace;color:var(--dim)}
+.stats b{color:var(--txt)}
+main{max-width:1080px;margin:20px auto 0;padding:0 24px}
+table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+th{font:11px 'Courier New',monospace;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);text-align:left;padding:12px 14px;border-bottom:1px solid var(--line)}
+td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+.name{font-weight:600}.sub{display:block;font-size:11px;color:var(--dim);font-weight:400}
+.pill{font:10px 'Courier New',monospace;border:1px solid var(--line);border-radius:20px;padding:3px 8px;color:var(--dim)}
+.num{font:14px 'Courier New',monospace}
+.spread{font:12px 'Courier New',monospace;border-radius:6px;padding:3px 8px}
+.spread.sig{background:rgba(245,200,66,.14);color:var(--gold);border:1px solid rgba(245,200,66,.35)}
+.spread.ok{color:var(--dim)}.spread.na{color:#4a5065}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px}
+.dot.live{background:var(--green);box-shadow:0 0 6px var(--green)}
+footer{max-width:1080px;margin:22px auto 0;padding:0 24px;font:12px 'Courier New',monospace;color:var(--dim)}
+</style></head><body>
+<header><h1>The <em>Board</em></h1>
+<div class="tag">Every sealed product. Two markets. Honest instruments. — Catch'em</div></header>
+<div class="calib"><span class="lbl">HEAT READS CALIBRATING</span><div class="bar"><div class="fill"></div></div><span class="lbl">day 1 of 8 · live ~Aug 26</span></div>
+<div class="stats"><span><b>70</b> SKUs tracked</span><span><b>64</b> live</span><span><b>7</b> spread signals</span><span>run <b>2026-08-18T09:03Z</b></span></div>
+<main><table><thead><tr><th>Product</th><th>Type</th><th>Ask Median</th><th>Active Listings</th><th>Spread vs TCG</th><th>Status</th></tr></thead>
+<tbody>
+<tr>
+  <td class="name">Lost Origin Elite Trainer Box<span class="sub">Lost Origin</span></td>
+  <td><span class="pill">ETB</span></td>
+  <td class="num">$250</td>
+  <td class="num">138</td>
+  <td><span class="spread sig">+15.9%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Prismatic Evolutions Surprise Box<span class="sub">Prismatic Evolutions</span></td>
+  <td><span class="pill">SPECIAL COLLECTION</span></td>
+  <td class="num">$99</td>
+  <td class="num">117</td>
+  <td><span class="spread sig">+44.5%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Shrouded Fable Elite Trainer Box<span class="sub">Shrouded Fable</span></td>
+  <td><span class="pill">ETB</span></td>
+  <td class="num">$135</td>
+  <td class="num">112</td>
+  <td><span class="spread sig">+22.8%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Evolving Skies Booster Box<span class="sub">Evolving Skies</span></td>
+  <td><span class="pill">BOOSTER BOX</span></td>
+  <td class="num">$2,899</td>
+  <td class="num">91</td>
+  <td><span class="spread sig">+18.6%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Paldea Evolved Booster Box<span class="sub">Paldea Evolved</span></td>
+  <td><span class="pill">BOOSTER BOX</span></td>
+  <td class="num">$533</td>
+  <td class="num">49</td>
+  <td><span class="spread sig">+15.7%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Temporal Forces Booster Box<span class="sub">Temporal Forces</span></td>
+  <td><span class="pill">BOOSTER BOX</span></td>
+  <td class="num">$350</td>
+  <td class="num">46</td>
+  <td><span class="spread sig">+15.6%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Paldean Fates Booster Bundle<span class="sub">Paldean Fates</span></td>
+  <td><span class="pill">BOOSTER BUNDLE</span></td>
+  <td class="num">$199</td>
+  <td class="num">45</td>
+  <td><span class="spread sig">+15.9%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Destined Rivals Elite Trainer Box<span class="sub">Destined Rivals</span></td>
+  <td><span class="pill">ETB</span></td>
+  <td class="num">$135</td>
+  <td class="num">141</td>
+  <td><span class="spread ok">+8%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Prismatic Evolutions Booster Bundle<span class="sub">Prismatic Evolutions</span></td>
+  <td><span class="pill">BOOSTER BUNDLE</span></td>
+  <td class="num">$85</td>
+  <td class="num">140</td>
+  <td><span class="spread ok">-3.6%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">151 Booster Bundle<span class="sub">151</span></td>
+  <td><span class="pill">BOOSTER BUNDLE</span></td>
+  <td class="num">$194</td>
+  <td class="num">140</td>
+  <td><span class="spread ok">+6.7%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">151 Ultra Premium Collection<span class="sub">151</span></td>
+  <td><span class="pill">UPC</span></td>
+  <td class="num">$950</td>
+  <td class="num">135</td>
+  <td><span class="spread ok">+1.3%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Twilight Masquerade Elite Trainer Box<span class="sub">Twilight Masquerade</span></td>
+  <td><span class="pill">ETB</span></td>
+  <td class="num">$119</td>
+  <td class="num">132</td>
+  <td><span class="spread ok">+11.4%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">151 Elite Trainer Box<span class="sub">151</span></td>
+  <td><span class="pill">ETB</span></td>
+  <td class="num">$600</td>
+  <td class="num">132</td>
+  <td><span class="spread ok">+3.9%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Perfect Order Booster Bundle<span class="sub">Perfect Order</span></td>
+  <td><span class="pill">BOOSTER BUNDLE</span></td>
+  <td class="num">$41</td>
+  <td class="num">131</td>
+  <td><span class="spread ok">+1.9%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Prismatic Evolutions Elite Trainer Box<span class="sub">Prismatic Evolutions</span></td>
+  <td><span class="pill">ETB</span></td>
+  <td class="num">$165</td>
+  <td class="num">127</td>
+  <td><span class="spread ok">-1.9%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Pitch Black Pokemon Center Elite Trainer Box<span class="sub">Pitch Black</span></td>
+  <td><span class="pill">PC ETB</span></td>
+  <td class="num">$135</td>
+  <td class="num">125</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Chaos Rising Booster Bundle<span class="sub">Chaos Rising</span></td>
+  <td><span class="pill">BOOSTER BUNDLE</span></td>
+  <td class="num">$42</td>
+  <td class="num">125</td>
+  <td><span class="spread ok">+9.7%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Ascended Heroes Elite Trainer Box<span class="sub">Ascended Heroes</span></td>
+  <td><span class="pill">ETB</span></td>
+  <td class="num">$175</td>
+  <td class="num">123</td>
+  <td><span class="spread ok">+2.5%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Crown Zenith Special Collection<span class="sub">Crown Zenith</span></td>
+  <td><span class="pill">SPECIAL COLLECTION</span></td>
+  <td class="num">$200</td>
+  <td class="num">123</td>
+  <td><span class="spread ok">+12.5%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Temporal Forces Elite Trainer Box<span class="sub">Temporal Forces</span></td>
+  <td><span class="pill">ETB</span></td>
+  <td class="num">$140</td>
+  <td class="num">121</td>
+  <td><span class="spread ok">+5.8%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Phantasmal Flames Pokemon Center Elite Trainer Box<span class="sub">Phantasmal Flames</span></td>
+  <td><span class="pill">PC ETB</span></td>
+  <td class="num">$325</td>
+  <td class="num">119</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Evolving Skies Elite Trainer Box<span class="sub">Evolving Skies</span></td>
+  <td><span class="pill">ETB</span></td>
+  <td class="num">$550</td>
+  <td class="num">119</td>
+  <td><span class="spread ok">-5%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Ascended Heroes Pokemon Center Elite Trainer Box<span class="sub">Ascended Heroes</span></td>
+  <td><span class="pill">PC ETB</span></td>
+  <td class="num">$470</td>
+  <td class="num">117</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Perfect Order Elite Trainer Box<span class="sub">Perfect Order</span></td>
+  <td><span class="pill">ETB</span></td>
+  <td class="num">$72</td>
+  <td class="num">116</td>
+  <td><span class="spread ok">+2.1%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Journey Together Elite Trainer Box<span class="sub">Journey Together</span></td>
+  <td><span class="pill">ETB</span></td>
+  <td class="num">$138</td>
+  <td class="num">116</td>
+  <td><span class="spread ok">+6.6%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Ascended Heroes Booster Bundle<span class="sub">Ascended Heroes</span></td>
+  <td><span class="pill">BOOSTER BUNDLE</span></td>
+  <td class="num">$85</td>
+  <td class="num">112</td>
+  <td><span class="spread ok">-3.7%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Chaos Rising Pokemon Center Elite Trainer Box<span class="sub">Chaos Rising</span></td>
+  <td><span class="pill">PC ETB</span></td>
+  <td class="num">$153</td>
+  <td class="num">111</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Chaos Rising Booster Box<span class="sub">Chaos Rising</span></td>
+  <td><span class="pill">BOOSTER BOX</span></td>
+  <td class="num">$200</td>
+  <td class="num">108</td>
+  <td><span class="spread ok">+5.8%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Crown Zenith Elite Trainer Box<span class="sub">Crown Zenith</span></td>
+  <td><span class="pill">ETB</span></td>
+  <td class="num">$335</td>
+  <td class="num">107</td>
+  <td><span class="spread ok">+1.7%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Pitch Black Booster Bundle<span class="sub">Pitch Black</span></td>
+  <td><span class="pill">BOOSTER BUNDLE</span></td>
+  <td class="num">$40</td>
+  <td class="num">106</td>
+  <td><span class="spread ok">-4.1%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Pitch Black Booster Box<span class="sub">Pitch Black</span></td>
+  <td><span class="pill">BOOSTER BOX</span></td>
+  <td class="num">$200</td>
+  <td class="num">104</td>
+  <td><span class="spread ok">+5.4%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Surging Sparks Elite Trainer Box<span class="sub">Surging Sparks</span></td>
+  <td><span class="pill">ETB</span></td>
+  <td class="num">$135</td>
+  <td class="num">104</td>
+  <td><span class="spread ok">+6.5%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Silver Tempest Elite Trainer Box<span class="sub">Silver Tempest</span></td>
+  <td><span class="pill">ETB</span></td>
+  <td class="num">$175</td>
+  <td class="num">104</td>
+  <td><span class="spread ok">+12.3%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Perfect Order Pokemon Center Elite Trainer Box<span class="sub">Perfect Order</span></td>
+  <td><span class="pill">PC ETB</span></td>
+  <td class="num">$135</td>
+  <td class="num">103</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Phantasmal Flames Booster Bundle<span class="sub">Phantasmal Flames</span></td>
+  <td><span class="pill">BOOSTER BUNDLE</span></td>
+  <td class="num">$86</td>
+  <td class="num">102</td>
+  <td><span class="spread ok">+7.2%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Paldean Fates Elite Trainer Box<span class="sub">Paldean Fates</span></td>
+  <td><span class="pill">ETB</span></td>
+  <td class="num">$480</td>
+  <td class="num">101</td>
+  <td><span class="spread ok">+3.8%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Phantasmal Flames Elite Trainer Box<span class="sub">Phantasmal Flames</span></td>
+  <td><span class="pill">ETB</span></td>
+  <td class="num">$155</td>
+  <td class="num">99</td>
+  <td><span class="spread ok">+3.4%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Chaos Rising Elite Trainer Box<span class="sub">Chaos Rising</span></td>
+  <td><span class="pill">ETB</span></td>
+  <td class="num">$74</td>
+  <td class="num">95</td>
+  <td><span class="spread ok">+14.2%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Perfect Order Booster Box<span class="sub">Perfect Order</span></td>
+  <td><span class="pill">BOOSTER BOX</span></td>
+  <td class="num">$195</td>
+  <td class="num">94</td>
+  <td><span class="spread ok">+14%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Surging Sparks Booster Box<span class="sub">Surging Sparks</span></td>
+  <td><span class="pill">BOOSTER BOX</span></td>
+  <td class="num">$310</td>
+  <td class="num">90</td>
+  <td><span class="spread ok">+4.1%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Destined Rivals Booster Box<span class="sub">Destined Rivals</span></td>
+  <td><span class="pill">BOOSTER BOX</span></td>
+  <td class="num">$490</td>
+  <td class="num">89</td>
+  <td><span class="spread ok">+12.3%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Fusion Strike Elite Trainer Box<span class="sub">Fusion Strike</span></td>
+  <td><span class="pill">ETB</span></td>
+  <td class="num">$350</td>
+  <td class="num">88</td>
+  <td><span class="spread ok">+0.6%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Pitch Black Elite Trainer Box<span class="sub">Pitch Black</span></td>
+  <td><span class="pill">ETB</span></td>
+  <td class="num">$78</td>
+  <td class="num">76</td>
+  <td><span class="spread ok">+5.4%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Shrouded Fable Booster Bundle<span class="sub">Shrouded Fable</span></td>
+  <td><span class="pill">BOOSTER BUNDLE</span></td>
+  <td class="num">$60</td>
+  <td class="num">76</td>
+  <td><span class="spread ok">+14.9%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Phantasmal Flames Booster Box<span class="sub">Phantasmal Flames</span></td>
+  <td><span class="pill">BOOSTER BOX</span></td>
+  <td class="num">$430</td>
+  <td class="num">75</td>
+  <td><span class="spread ok">+12.3%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Hidden Fates Elite Trainer Box<span class="sub">Hidden Fates</span></td>
+  <td><span class="pill">ETB</span></td>
+  <td class="num">$591</td>
+  <td class="num">74</td>
+  <td><span class="spread ok">+6.2%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Stellar Crown Elite Trainer Box<span class="sub">Stellar Crown</span></td>
+  <td><span class="pill">ETB</span></td>
+  <td class="num">$170</td>
+  <td class="num">73</td>
+  <td><span class="spread ok">+5.8%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Celebrations Ultra Premium Collection<span class="sub">Celebrations</span></td>
+  <td><span class="pill">UPC</span></td>
+  <td class="num">$1,320</td>
+  <td class="num">70</td>
+  <td><span class="spread ok">+3.6%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Astral Radiance Booster Box<span class="sub">Astral Radiance</span></td>
+  <td><span class="pill">BOOSTER BOX</span></td>
+  <td class="num">$415</td>
+  <td class="num">69</td>
+  <td><span class="spread ok">-1.1%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Brilliant Stars Booster Box<span class="sub">Brilliant Stars</span></td>
+  <td><span class="pill">BOOSTER BOX</span></td>
+  <td class="num">$640</td>
+  <td class="num">64</td>
+  <td><span class="spread ok">+5.7%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Celebrations Elite Trainer Box<span class="sub">Celebrations</span></td>
+  <td><span class="pill">ETB</span></td>
+  <td class="num">$375</td>
+  <td class="num">63</td>
+  <td><span class="spread ok">+1.6%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Journey Together Booster Box<span class="sub">Journey Together</span></td>
+  <td><span class="pill">BOOSTER BOX</span></td>
+  <td class="num">$290</td>
+  <td class="num">62</td>
+  <td><span class="spread ok">-3.4%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Paradox Rift Booster Box<span class="sub">Paradox Rift</span></td>
+  <td><span class="pill">BOOSTER BOX</span></td>
+  <td class="num">$317</td>
+  <td class="num">58</td>
+  <td><span class="spread ok">+15%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Silver Tempest Booster Box<span class="sub">Silver Tempest</span></td>
+  <td><span class="pill">BOOSTER BOX</span></td>
+  <td class="num">$555</td>
+  <td class="num">56</td>
+  <td><span class="spread ok">+8.8%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Stellar Crown Booster Box<span class="sub">Stellar Crown</span></td>
+  <td><span class="pill">BOOSTER BOX</span></td>
+  <td class="num">$366</td>
+  <td class="num">55</td>
+  <td><span class="spread ok">+13.9%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Twilight Masquerade Booster Box<span class="sub">Twilight Masquerade</span></td>
+  <td><span class="pill">BOOSTER BOX</span></td>
+  <td class="num">$380</td>
+  <td class="num">52</td>
+  <td><span class="spread ok">+5%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Obsidian Flames Booster Box<span class="sub">Obsidian Flames</span></td>
+  <td><span class="pill">BOOSTER BOX</span></td>
+  <td class="num">$406</td>
+  <td class="num">41</td>
+  <td><span class="spread ok">+10.8%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Mega Evolution Elite Trainer Box<span class="sub">Mega Evolution</span></td>
+  <td><span class="pill">ETB</span></td>
+  <td class="num">$120</td>
+  <td class="num">38</td>
+  <td><span class="spread ok">-2%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Scarlet & Violet Base Booster Box<span class="sub">Scarlet & Violet</span></td>
+  <td><span class="pill">BOOSTER BOX</span></td>
+  <td class="num">$330</td>
+  <td class="num">34</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Mega Evolution Enhanced Booster Box<span class="sub">Mega Evolution</span></td>
+  <td><span class="pill">BOOSTER BOX</span></td>
+  <td class="num">$332</td>
+  <td class="num">27</td>
+  <td><span class="spread ok">+8%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Mega Evolution Booster Box<span class="sub">Mega Evolution</span></td>
+  <td><span class="pill">BOOSTER BOX</span></td>
+  <td class="num">$342</td>
+  <td class="num">25</td>
+  <td><span class="spread ok">+4.7%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Lost Origin Booster Box<span class="sub">Lost Origin</span></td>
+  <td><span class="pill">BOOSTER BOX</span></td>
+  <td class="num">$779</td>
+  <td class="num">25</td>
+  <td><span class="spread ok">+7.2%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Mega Evolution Pokemon Center Elite Trainer Box<span class="sub">Mega Evolution</span></td>
+  <td><span class="pill">PC ETB</span></td>
+  <td class="num">$230</td>
+  <td class="num">13</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name">Sword & Shield Base Elite Trainer Box<span class="sub">Sword & Shield</span></td>
+  <td><span class="pill">ETB</span></td>
+  <td class="num">$180</td>
+  <td class="num">12</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr></tbody></table></main>
+<footer>Prices: Catchem-data, eBay active listings (measured) · Spread: vs TCG-side ask (PPT), internal instrument · Buy Pressure &amp; heat states arrive with calibration · Generated 2026-08-18T09:46Z · Catch'em. Catch Feels.</footer>
+</body></html>

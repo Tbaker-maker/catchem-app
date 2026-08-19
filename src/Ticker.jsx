@@ -10,6 +10,11 @@ import React, { useEffect, useState, useCallback, useMemo, useRef } from "react"
 
 const FEED_URL =
   "https://raw.githubusercontent.com/Tbaker-maker/Catchem-data/main/research/assets/pulse-feed.json";
+// Deal Check (§13) reads the FULL tape — same repo, same client-side/zero-
+// backend posture; lazy-fetched only when the Check tab opens, then cached
+// to localStorage so checks work in convention halls with dead signal.
+const TAPE_URL =
+  "https://raw.githubusercontent.com/Tbaker-maker/Catchem-data/main/data/sealed-prices.json";
 const STALE_HOURS = 36;
 const DISCORD_ALERTS_URL = ""; // TODO(Tyler): discord.gg invite or #alerts channel link — 🔔 hidden while empty
 
@@ -83,7 +88,7 @@ border-radius:10px;padding:10px 12px;font:400 13px var(--sans);margin-bottom:8px
 padding:6px 12px;font-size:11px;cursor:pointer;min-height:32px}
 .fchip.on{color:var(--green);border-color:var(--green)}
 .tabs{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;
-display:grid;grid-template-columns:repeat(4,1fr);background:#0e1018;border-top:1px solid var(--line);
+display:grid;grid-template-columns:repeat(5,1fr);background:#0e1018;border-top:1px solid var(--line);
 padding-bottom:env(safe-area-inset-bottom);z-index:20}
 .tab{background:none;border:none;color:var(--dim);font:600 10.5px var(--sans);padding:10px 0 8px;
 min-height:52px;cursor:pointer}
@@ -365,6 +370,143 @@ export default function Ticker() {
     </>);
   };
 
+  /* ── Deal Check (§13): the in-pocket reference ── */
+  const DealCheck = () => {
+    const [tape, setTape] = useState(() => lsGet("tape:v1", null));
+    const [tq, setTq] = useState("");
+    const [sel, setSel] = useState(null);
+    const [shareImg, setShareImg] = useState(null);
+    const [tapeState, setTapeState] = useState("idle");
+
+    useEffect(() => {
+      let dead = false;
+      (async () => {
+        setTapeState("loading");
+        try {
+          const r = await fetch(TAPE_URL, { cache: "no-store" });
+          if (!r.ok) throw new Error("tape " + r.status);
+          const full = await r.json();
+          const slim = {
+            date: full.updatedAt,
+            products: full.products.map(x => ({
+              id: x.id, name: x.name, set: x.set, subtype: x.subtype, vintage: !!x.vintage,
+              median: x.priceMedian, floorClean: x.priceFloorClean, high: x.priceHigh,
+              listings: x.listingCount, dataStatus: x.dataStatus, img: x.representativeImage,
+              hist: (x.priceHistory || []).slice(-30).map(h => h.price),
+            })),
+          };
+          if (!dead) { setTape(slim); setTapeState("live"); lsSet("tape:v1", slim); }
+        } catch {
+          if (!dead) setTapeState(tape ? "cached" : "offline-empty");
+        }
+      })();
+      return () => { dead = true; };
+    }, []); // eslint-disable-line
+
+    const results = !tape ? [] : tape.products.filter(x =>
+      tq.length >= 2 && (x.name.toLowerCase().includes(tq.toLowerCase()) || x.id.includes(tq.toLowerCase()))).slice(0, 8);
+
+    const renderShare = (x) => {
+      const cv = document.createElement("canvas");
+      cv.width = 500; cv.height = 620;
+      const g = cv.getContext("2d");
+      const draw = (photo) => {
+        g.fillStyle = "#0b0d14"; g.fillRect(0, 0, 500, 620);
+        g.fillStyle = "#141824"; g.strokeStyle = "rgba(255,255,255,.12)";
+        g.fillRect(20, 20, 460, 580); g.strokeRect(20, 20, 460, 580);
+        g.fillStyle = "#f4f5f8"; g.font = "800 26px Syne, sans-serif";
+        g.fillText("⚡CATCH", 40, 62);
+        g.fillStyle = "#36d399"; g.fillText("'EM", 158, 62);
+        g.fillStyle = "#8a93a8"; g.font = "700 11px 'JetBrains Mono', monospace";
+        g.fillText("DEAL CHECK · " + (tape.date || "").slice(0, 10), 40, 84);
+        if (photo) { try { g.drawImage(photo, 150, 100, 200, 200); } catch {} }
+        g.fillStyle = "#f4f5f8"; g.font = "600 19px Sora, sans-serif";
+        const nm = x.name.length > 38 ? x.name.slice(0, 36) + "…" : x.name;
+        g.fillText(nm, 40, photo ? 336 : 150);
+        const y0 = photo ? 360 : 180;
+        g.fillStyle = "#36d399"; g.font = "700 44px 'JetBrains Mono', monospace";
+        g.fillText(fmt(x.median), 40, y0 + 44);
+        g.fillStyle = "#8a93a8"; g.font = "700 11px 'JetBrains Mono', monospace";
+        g.fillText("TODAY'S EBAY MEDIAN (DELIVERED, BIN-ONLY)", 40, y0 + 64);
+        g.fillStyle = "#f4f5f8"; g.font = "700 20px 'JetBrains Mono', monospace";
+        g.fillText(fmt(x.floorClean), 40, y0 + 104);
+        g.fillStyle = "#8a93a8"; g.font = "700 11px 'JetBrains Mono', monospace";
+        g.fillText("CHEAPEST CLEAN LISTING", 40, y0 + 122);
+        g.fillText(String(x.listings ?? "—") + " ACTIVE LISTINGS" + (x.vintage ? "  ·  EBAY-NATIVE VENUE" : ""), 40, y0 + 148);
+        g.fillStyle = "#ffb84d"; g.font = "600 12px Sora, sans-serif";
+        g.fillText("asks cluster between clean floor and median", 40, y0 + 176);
+        g.fillStyle = "#5c637a"; g.font = "600 11px Sora, sans-serif";
+        g.fillText("catchemtcg.com — every number carries its receipts", 40, 578);
+        try { setShareImg(cv.toDataURL("image/png")); }
+        catch { if (photo) draw(null); else setShareImg(null); }
+      };
+      if (x.img) {
+        const im = new Image();
+        im.crossOrigin = "anonymous";
+        im.onload = () => draw(im);
+        im.onerror = () => draw(null);
+        im.src = x.img;
+      } else draw(null);
+    };
+
+    const Check = ({ x }) => {
+      const d = x.hist && x.hist.length >= 2
+        ? { pct: ((x.hist[x.hist.length - 1] - x.hist[x.hist.length - 2]) / x.hist[x.hist.length - 2]) * 100 } : null;
+      const nam = x.dataStatus === "no-active-market";
+      const pctIn = x.median != null && x.high > (x.floorClean ?? 0)
+        ? Math.min(96, Math.max(4, 100 * ((x.median - x.floorClean) / (x.high - x.floorClean)))) : 50;
+      return (
+        <div className="c3" style={{ flexDirection: "column" }}>
+          <div style={{ display: "flex", gap: 12 }}>
+            {x.img ? <img src={x.img} alt="" loading="lazy" width="76" height="76" /> : null}
+            <div className="c3b">
+              <div className="c3t"><span className="lbl">{x.subtype}{x.vintage ? " · eBay-native venue" : ""}</span><Star id={x.id} /></div>
+              <span className="nm">{x.name}</span>
+              {nam ? null : <div className="hero">{fmt(x.median)} <Delta d={d} /><Spark pts={x.hist} /></div>}
+            </div>
+          </div>
+          {nam ? (
+            <div className="why" style={{ marginTop: 8 }}>
+              No active listings — this market trades via auctions and sold comps, so there's no honest fair-range to print. We show gaps, not guesses.
+            </div>
+          ) : (<>
+            <div className="strip" style={{ marginTop: 10 }}>
+              <span className="st">Clean floor<b>{fmt(x.floorClean)}</b></span>
+              <span className="st">Median<b>{fmt(x.median)}</b></span>
+              <span className="st">Active Listings<b>{x.listings ?? "—"}</b></span>
+              {!x.vintage && ix.get(x.id)?.spreadPct != null && <span className="st">Spread<b>{pctFmt(ix.get(x.id).spreadPct)}</b></span>}
+            </div>
+            <div style={{ position: "relative", height: 6, background: "var(--raised)", borderRadius: 99, margin: "14px 0 4px" }}>
+              <div style={{ position: "absolute", left: 0, width: `${pctIn}%`, top: 0, bottom: 0, background: "linear-gradient(90deg,rgba(54,211,153,.5),var(--green))", borderRadius: 99 }} />
+            </div>
+            <div className="why">Asks cluster between the clean floor and the median — offers under the floor are reaching; asks past the median need a reason.</div>
+            <button className="fchip on" style={{ marginTop: 10 }} onClick={() => renderShare(x)}>Render share card 📸</button>
+            {shareImg && (<>
+              <img src={shareImg} alt="Deal check share card" style={{ width: "100%", borderRadius: 12, marginTop: 10 }} />
+              <div className="note">Long-press (or right-click) the card to save · sized for group posts.</div>
+            </>)}
+          </>)}
+        </div>);
+    };
+
+    return (<>
+      <div className="tk-sec">Deal Check <span className="lbl">{tapeState === "cached" ? "offline — cached tape" : tapeState === "live" ? `${tape?.products.length ?? 0} products` : ""}</span></div>
+      {tapeState === "offline-empty"
+        ? <div className="tk-banner">Can't reach the tape and nothing's cached yet — open this tab once with signal and it works offline after.</div>
+        : (<>
+          <input className="search" placeholder="Search any tracked product… (show-floor speed)" value={tq} onChange={e => { setTq(e.target.value); setSel(null); setShareImg(null); }} />
+          {sel ? <Check x={sel} /> : results.map(x => (
+            <div className="brow" key={x.id} onClick={() => { setSel(x); setShareImg(null); }} style={{ cursor: "pointer" }}>
+              {x.img ? <img src={x.img} alt="" loading="lazy" width="42" height="42" /> : null}
+              <div className="bmid"><b>{x.name}</b><span>{x.subtype}{x.vintage ? " · vintage" : ""}</span></div>
+              <div className="bnum">{fmt(x.median)}</div>
+            </div>))}
+          {!sel && tq.length >= 2 && results.length === 0 && tape && <div className="note">Nothing tracked matches "{tq}" — the tape covers {tape.products.length} sealed products.</div>}
+          {!sel && tq.length < 2 && <div className="note">Type two letters — built for deciding on a $1,400 ask in ten seconds, works offline once loaded.</div>}
+        </>)}
+    </>);
+  };
+
   const Compare = () => {
     const A = ix.get(cmpA), B = ix.get(cmpB);
     const life = (x) => feed.lifecycle?.[x?.setId];
@@ -409,6 +551,7 @@ export default function Ticker() {
         {tab === "movers" && <Movers />}
         {tab === "board" && <Board />}
         {tab === "compare" && <Compare />}
+        {tab === "check" && <DealCheck />}
         {receipt && (<>
           <div className="drawer-back" onClick={() => setReceipt(null)} />
           <div className="drawer" role="dialog" aria-label="Receipts">
@@ -417,7 +560,7 @@ export default function Ticker() {
             <div className="disc">{feed.disclosure}</div>
           </div></>)}
         <nav className="tabs">
-          {[["home", "⚡", "Ticker"], ["movers", "▲▼", "Movers"], ["board", "▦", "Board"], ["compare", "⇄", "Compare"]].map(([id, icon, name]) =>
+          {[["home", "⚡", "Ticker"], ["movers", "▲▼", "Movers"], ["board", "▦", "Board"], ["compare", "⇄", "Compare"], ["check", "✓", "Check"]].map(([id, icon, name]) =>
             <button className={`tab ${tab === id ? "on" : ""}`} key={id} onClick={() => setTab(id)}><i>{icon}</i>{name}</button>)}
         </nav>
       </div>

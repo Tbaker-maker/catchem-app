@@ -52,6 +52,22 @@ try {
 const products = tape.products;
 const day = (tape.updatedAt || "").slice(0, 10);
 
+// Feed (canonical CI-committed path): lifecycle + premium columns for the
+// set hubs. Hub generation degrades gracefully if this fetch fails.
+const FEED_URL =
+  "https://raw.githubusercontent.com/Tbaker-maker/Catchem-data/main/research/pulse/pulse-feed.json";
+let feed = null;
+try { const r = await fetch(FEED_URL); if (r.ok) feed = await r.json(); }
+catch { console.warn("landers: feed fetch failed — hubs get no lifecycle/premium columns this build"); }
+const feedById = new Map((feed?.products ?? []).map(p => [p.id, p]));
+
+// Mirror the public methodology page onto the app domain at build time —
+// gives the link mesh (and the newsletter) a stable app.catchemtcg.com URL.
+try {
+  const r = await fetch("https://raw.githubusercontent.com/Tbaker-maker/Catchem-data/main/research/assets/methodology.html");
+  if (r.ok) await writeFile(join(OUT, "methodology.html"), await r.text());
+} catch { console.warn("landers: methodology mirror fetch failed — keeping prior copy if any"); }
+
 // Era-aware pack counts — mirrors packsFor() in Catchem-data/scripts/
 // compute-derived.mjs exactly (same instrument, same exclusions); a per-SKU
 // packs field on the tape wins when present.
@@ -166,7 +182,7 @@ img.ph{max-width:220px;width:100%;border-radius:10px;background:#070910;display:
 .sib{font-size:12px;color:var(--dim);margin-top:22px;line-height:2}
 footer{margin-top:28px;font:11px 'JetBrains Mono',monospace;color:var(--dim)}</style></head><body>
 <a class="wm" href="/">⚡CATCH<b>'EM</b></a>
-<div class="crumb"><a href="/p/">all tracked products</a> · ${esc(p.set)} · ${esc(label)}</div>
+<div class="crumb"><a href="/p/">all tracked products</a> · <a href="/sets/${esc(p.setId)}.html">${esc(p.set)}</a> · ${esc(label)}</div>
 <h1>${esc(p.name)}</h1>
 ${img ? `<img class="ph" src="${esc(img)}" alt="${esc(p.name)}" loading="lazy">` : ""}
 ${stats}
@@ -174,6 +190,7 @@ ${stats}
 <a class="cta" href="/product/${p.id}">See the live read →</a>
 <p class="read">The live page adds the price chart, range bar, movers Δ and a shareable stat card — every number carries its receipts. Or open <a href="/">the full ticker</a>.</p>
 ${siblings ? `<div class="sib">More from ${esc(p.set)}: ${siblings}</div>` : ""}
+<div class="sib">All of ${esc(p.set)} at a glance: <a href="/sets/${esc(p.setId)}.html">the set page</a> · how we measure: <a href="/methodology.html">methodology</a></div>
 <footer>Catch'em · catchemtcg.com — observational data, not financial advice. Prices are asks, not sales.</footer>
 </body></html>`;
 }
@@ -181,6 +198,57 @@ ${siblings ? `<div class="sib">More from ${esc(p.set)}: ${siblings}</div>` : ""}
 // ── emit ────────────────────────────────────────────────────────────────
 await mkdir(join(OUT, "p"), { recursive: true });
 for (const p of products) await writeFile(join(OUT, "p", `${p.id}.html`), page(p));
+
+// ── Set hubs: /sets/{setId}.html — logo, lifecycle + legality, products
+// table with premiums; links down to landers, up to methodology + studio.
+await mkdir(join(OUT, "sets"), { recursive: true });
+const bySetId = new Map();
+for (const p of products) { if (!bySetId.has(p.setId)) bySetId.set(p.setId, []); bySetId.get(p.setId).push(p); }
+for (const [setId, ps] of bySetId) {
+  const setName = ps[0].set;
+  const life = feed?.lifecycle?.[setId];
+  const logo = ps[0].image || null; // pokemontcg.io set logo from the catalog
+  const liveCt = ps.filter(x => x.dataStatus === "live").length;
+  const rows = ps.map(p => {
+    const f = feedById.get(p.id) || {};
+    const liveRow = p.dataStatus === "live";
+    return `<tr><td><a href="/p/${p.id}.html">${esc(p.name)}</a></td><td>${esc(SUBTYPE_LABEL[p.subtype] || p.subtype)}</td>` +
+      (liveRow
+        ? `<td class="m">${usd(p.priceMedian)}</td><td class="m">${usd(p.priceFloorClean)}</td><td class="m">${p.listingCount ?? "—"}</td><td class="m">${f.perPack != null ? usd(f.perPack) : "—"}</td><td class="m">${f.vsLoosePct != null ? (f.vsLoosePct > 0 ? "+" : "") + f.vsLoosePct + "%" : "—"}</td>`
+        : `<td class="m dim" colspan="5">no active listings — auctions & sold comps venue; we show gaps, not guesses</td>`) +
+      `</tr>`;
+  }).join("\n");
+  const title = `${setName} sealed prices — every tracked product, live eBay stats`;
+  const desc = `${ps.length} tracked ${setName} sealed products: eBay ask medians, clean floors, listing depth${life ? `, ${life.legalTag}` : ""}. Updated ${day}.`;
+  const hubHtml = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${esc(title)}</title>
+<meta name="description" content="${esc(desc)}">
+<link rel="canonical" href="${SITE}/sets/${setId}.html">
+<meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}">
+<meta property="og:type" content="website"><meta property="og:url" content="${SITE}/sets/${setId}.html">${logo ? `\n<meta property="og:image" content="${esc(logo)}">` : ""}
+<style>:root{--bg:#0b0d14;--panel:#141824;--line:rgba(255,255,255,.07);--txt:#f4f5f8;--dim:#98a1b5;--gold:#ffb84d;--green:#36d399}
+*{box-sizing:border-box;margin:0}body{background:var(--bg);color:var(--txt);font:14px/1.55 'Sora',system-ui,sans-serif;max-width:760px;margin:0 auto;padding:28px 18px 48px}
+a{color:var(--green)}.crumb{font:11px 'JetBrains Mono',monospace;color:var(--dim);margin:14px 0 4px}.crumb a{color:var(--dim)}
+h1{font-size:24px;margin:2px 0 10px}img.logo{max-width:200px;background:#070910;border-radius:10px;padding:8px;display:block;margin:6px 0 12px}
+.life{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:12.5px;color:var(--dim);margin:0 0 16px}.life b{color:var(--txt)}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;background:var(--panel);border-radius:10px;overflow:hidden;font-size:12.5px}
+th{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);text-align:left;padding:9px 10px;border-bottom:1px solid var(--line)}
+td{padding:9px 10px;border-bottom:1px solid var(--line)}.m{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;white-space:nowrap}.dim{color:var(--dim)}
+.mesh{font-size:12px;color:var(--dim);margin-top:20px;line-height:2}footer{margin-top:24px;font:11px 'JetBrains Mono',monospace;color:var(--dim)}</style></head><body>
+<a href="/" style="font:800 20px 'Syne',sans-serif;color:var(--txt);text-decoration:none">⚡CATCH<span style="color:var(--green)">'EM</span></a>
+<div class="crumb"><a href="/p/">all tracked products</a> · ${esc(setName)}</div>
+<h1>${esc(setName)} — sealed, on the tape</h1>
+${logo ? `<img class="logo" src="${esc(logo)}" alt="${esc(setName)} logo" loading="lazy">` : ""}
+<div class="life">${liveCt} of ${ps.length} tracked products live today${life ? ` · <b>${life.ageMonths}mo old</b> · ${esc(life.phase)} · ⚖ ${esc(life.legalTag)}` : ""} · updated ${day}</div>
+<div class="tw"><table>
+<tr><th>Product</th><th>Type</th><th>Median ask</th><th>Clean floor</th><th>Listings</th><th>Per pack</th><th>Vs loose</th></tr>
+${rows}
+</table></div>
+<div class="mesh">Numbers: eBay active asks, BIN-only, delivered — <a href="/methodology.html">how we measure</a> · live app: <a href="/">the ticker</a> · today's stories: <a href="/studio">Studio</a></div>
+<footer>Catch'em · catchemtcg.com — observational data, not financial advice. Prices are asks, not sales.</footer>
+</body></html>`;
+  await writeFile(join(OUT, "sets", `${setId}.html`), hubHtml);
+}
 
 // crawl hub: /p/index.html grouped by set
 const bySet = new Map();
@@ -195,7 +263,7 @@ a{color:var(--green)}h1{font-size:22px;margin:12px 0}h2{font-size:13px;color:var
 <a href="/" style="font-weight:800;font-size:18px;color:var(--txt);text-decoration:none">⚡CATCH<span style="color:var(--green)">'EM</span></a>
 <h1>Every tracked sealed product (${products.length}) — updated ${day}</h1>
 ${[...bySet.entries()].map(([set, ps]) =>
-  `<h2>${esc(set)}</h2>${ps.map((p) => `<a href="/p/${p.id}.html">${esc(p.name)}</a>${p.dataStatus === "live" && p.priceMedian != null ? ` — ${usd(p.priceMedian)}` : ""}`).join("<br>")}`).join("")}
+  `<h2><a href="/sets/${esc(ps[0].setId)}.html">${esc(set)}</a></h2>${ps.map((p) => `<a href="/p/${p.id}.html">${esc(p.name)}</a>${p.dataStatus === "live" && p.priceMedian != null ? ` — ${usd(p.priceMedian)}` : ""}`).join("<br>")}`).join("")}
 </body></html>`;
 await writeFile(join(OUT, "p", "index.html"), hub);
 
@@ -204,6 +272,7 @@ const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url><loc>${SITE}/</loc><lastmod>${lastmod}</lastmod><changefreq>daily</changefreq></url>
 <url><loc>${SITE}/p/</loc><lastmod>${lastmod}</lastmod><changefreq>daily</changefreq></url>
+${[...bySetId.keys()].map((s) => `<url><loc>${SITE}/sets/${s}.html</loc><lastmod>${lastmod}</lastmod><changefreq>daily</changefreq></url>`).join("\n")}
 ${products.map((p) => `<url><loc>${SITE}/p/${p.id}.html</loc><lastmod>${lastmod}</lastmod><changefreq>daily</changefreq></url>`).join("\n")}
 </urlset>
 `;

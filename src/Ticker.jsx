@@ -1,15 +1,19 @@
-// CATCH'EM — The Ticker + Retention v0 (app-specs §1 + §12, mockup v3 grammar).
-// All client-side off pulse-feed.json. No auth, no backend, no new deps.
+// CATCH'EM — The Ticker + Retention v0 + product detail (app-specs §1 + §12,
+// mockup v3 grammar). All client-side off pulse-feed.json. No auth, no
+// backend, no new deps.
 // Truth rules honored in code:
-//  - Sparklines + Δ movers come from THIS DEVICE's visit snapshots
-//    (localStorage) — the feed carries no history yet. Empty states say so
-//    in voice; nothing is faked.
+//  - Sparklines + Δ come from the feed's committed market history (heat-history,
+//    post-2026-08-18 clean cut) — same lines for every visitor, first visit
+//    included. Depth grows daily; short lines say how young the tape is.
 //  - dailyThree.graded ships gated:true → renders locked, no numbers.
 //  - Every number keeps its provenance chip → receipts drawer.
 import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
 
+// Canonical feed path: research/pulse/ is in the daily run's commit list, so
+// this URL updates every CI run (the old research/assets/ copy only moved
+// when a human session committed it).
 const FEED_URL =
-  "https://raw.githubusercontent.com/Tbaker-maker/Catchem-data/main/research/assets/pulse-feed.json";
+  "https://raw.githubusercontent.com/Tbaker-maker/Catchem-data/main/research/pulse/pulse-feed.json";
 // Deal Check (§13) reads the FULL tape — same repo, same client-side/zero-
 // backend posture; lazy-fetched only when the Check tab opens, then cached
 // to localStorage so checks work in convention halls with dead signal.
@@ -125,6 +129,11 @@ background:linear-gradient(90deg,transparent,rgba(255,184,77,.06),transparent);a
 border-radius:10px;padding:10px;font:400 12.5px var(--sans);margin-bottom:8px}
 .cap{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:18px 0}
 .cap b{font-size:13.5px}
+.eras{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:10px;-webkit-overflow-scrolling:touch}
+.era{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;min-width:150px;flex:none}
+.elvl{font:700 18px var(--mono);font-variant-numeric:tabular-nums;margin:2px 0}
+.esub{font:400 9.5px var(--mono);color:var(--dim)}
+.dt-name{font:700 20px/1.25 var(--disp);margin:4px 0 0}
 .grid6{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:12px}
 .grid6 .st{padding:7px 9px}
 `;
@@ -140,6 +149,12 @@ const pctFmt = (n) => n == null ? "" : (n >= 0 ? "+" : "") + n.toFixed(1) + "%";
 function buildIndex(feed) {
   const ix = new Map();
   const put = (id, patch) => { if (!id) return; ix.set(id, { id, ...ix.get(id), ...patch }); };
+  // Base layer: the full 168-product catalog (feed.products) — gives Board,
+  // detail pages and search the whole tracked tape, not just today's signals.
+  for (const p of feed.products || [])
+    put(p.id, { name: p.name, set: p.set, setId: p.setId, subtype: p.subtype, status: p.status,
+      vintage: !!p.vintage, price: p.median, floor: p.floor, high: p.high, listings: p.listings,
+      imageUrl: p.img, perPack: p.perPack, loosePack: p.loosePack, vsLoosePct: p.vsLoosePct, packs: p.packs });
   for (const s of feed.signals || [])
     put(s.id, { name: s.name, price: s.ebay?.ask, listings: s.ebay?.listings, spreadPct: s.spreadPct,
       tcg: s.tcg?.market, imageUrl: s.imageUrl, chip: s.class, provenance: s.provenance, why: s.read });
@@ -149,31 +164,19 @@ function buildIndex(feed) {
     for (const r of feed.packMath?.[bucket] || [])
       put(r.id, { name: r.name, subtype: r.subtype, price: r.price, listings: r.listings, perPack: r.perPack, packs: r.packs });
   for (const p of ix.values()) {
-    p.setId = p.id.split("-")[0];
+    p.setId = p.setId || p.id.split("-")[0];
     p.subtype = p.subtype || p.id.split("-").slice(1).join("-");
   }
   return ix;
 }
 
-/* Visit snapshots: {date: {id: price}} — this device's own history. */
-function recordSnapshot(feed, ix) {
-  const snaps = lsGet("snap:v1", {});
-  const today = feed.date;
-  const day = snaps[today] || {};
-  for (const p of ix.values()) if (p.price != null) day[p.id] = p.price;
-  snaps[today] = day;
-  const dates = Object.keys(snaps).sort();
-  while (dates.length > 30) delete snaps[dates.shift()];
-  lsSet("snap:v1", snaps);
-  return snaps;
-}
-const seriesFor = (snaps, id) =>
-  Object.keys(snaps).sort().map(d => snaps[d][id]).filter(v => v != null);
-function deltaFor(snaps, id, today) {
-  const dates = Object.keys(snaps).sort().filter(d => d < today && snaps[d][id] != null);
-  if (!dates.length) return null;
-  const prev = snaps[dates[dates.length - 1]][id];
-  const cur = snaps[today]?.[id];
+/* Market history from the feed: history[id] = [[date, price, listings], …]
+   (committed heat-history, post-2026-08-18 clean cut — same for everyone). */
+const seriesFor = (feed, id) => (feed?.history?.[id] ?? []).map(r => r[1]);
+function deltaFor(feed, id) {
+  const h = feed?.history?.[id];
+  if (!h || h.length < 2) return null;
+  const prev = h[h.length - 2][1], cur = h[h.length - 1][1];
   if (prev == null || cur == null || prev === 0) return null;
   return { pct: ((cur - prev) / prev) * 100, prev };
 }
@@ -205,6 +208,52 @@ const Chip = ({ cls, onTap }) => {
   const tone = cls === "VERIFIED" ? "v" : cls === "MEASURED" ? "p" : "g";
   return <span className={`chip ${tone}`} onClick={onTap} role="button">{cls === "VERIFIED" ? "VERIFIED" : cls === "MEASURED" ? "MEASURED" : "READ"}</span>;
 };
+
+/* Branded share card (canvas PNG). One renderer powers Deal Check (§13) and
+   the product detail page; Studio (§14) rides it later. x needs {name, median,
+   floorClean, listings, vintage, img}. */
+function renderShareCard(x, dateStr, setShareImg) {
+  const cv = document.createElement("canvas");
+  cv.width = 500; cv.height = 620;
+  const g = cv.getContext("2d");
+  const draw = (photo) => {
+    g.fillStyle = "#0b0d14"; g.fillRect(0, 0, 500, 620);
+    g.fillStyle = "#141824"; g.strokeStyle = "rgba(255,255,255,.12)";
+    g.fillRect(20, 20, 460, 580); g.strokeRect(20, 20, 460, 580);
+    g.fillStyle = "#f4f5f8"; g.font = "800 26px Syne, sans-serif";
+    g.fillText("⚡CATCH", 40, 62);
+    g.fillStyle = "#36d399"; g.fillText("'EM", 158, 62);
+    g.fillStyle = "#8a93a8"; g.font = "700 11px 'JetBrains Mono', monospace";
+    g.fillText("DEAL CHECK · " + dateStr, 40, 84);
+    if (photo) { try { g.drawImage(photo, 150, 100, 200, 200); } catch {} }
+    g.fillStyle = "#f4f5f8"; g.font = "600 19px Sora, sans-serif";
+    const nm = x.name.length > 38 ? x.name.slice(0, 36) + "…" : x.name;
+    g.fillText(nm, 40, photo ? 336 : 150);
+    const y0 = photo ? 360 : 180;
+    g.fillStyle = "#36d399"; g.font = "700 44px 'JetBrains Mono', monospace";
+    g.fillText(fmt(x.median), 40, y0 + 44);
+    g.fillStyle = "#8a93a8"; g.font = "700 11px 'JetBrains Mono', monospace";
+    g.fillText("TODAY'S EBAY MEDIAN (DELIVERED, BIN-ONLY)", 40, y0 + 64);
+    g.fillStyle = "#f4f5f8"; g.font = "700 20px 'JetBrains Mono', monospace";
+    g.fillText(fmt(x.floorClean), 40, y0 + 104);
+    g.fillStyle = "#8a93a8"; g.font = "700 11px 'JetBrains Mono', monospace";
+    g.fillText("CHEAPEST CLEAN LISTING", 40, y0 + 122);
+    g.fillText(String(x.listings ?? "—") + " ACTIVE LISTINGS" + (x.vintage ? "  ·  EBAY-NATIVE VENUE" : ""), 40, y0 + 148);
+    g.fillStyle = "#ffb84d"; g.font = "600 12px Sora, sans-serif";
+    g.fillText("asks cluster between clean floor and median", 40, y0 + 176);
+    g.fillStyle = "#5c637a"; g.font = "600 11px Sora, sans-serif";
+    g.fillText("catchemtcg.com — every number carries its receipts", 40, 578);
+    try { setShareImg(cv.toDataURL("image/png")); }
+    catch { if (photo) draw(null); else setShareImg(null); }
+  };
+  if (x.img) {
+    const im = new Image();
+    im.crossOrigin = "anonymous";
+    im.onload = () => draw(im);
+    im.onerror = () => draw(null);
+    im.src = x.img;
+  } else draw(null);
+}
 
 /* Email capture (module-level: keeps its own state so typing never re-renders
    the app shell). Subscribed devices collapse it permanently — never nag. */
@@ -253,8 +302,18 @@ export default function Ticker() {
   const [ftype, setFtype] = useState(null);
   const [cmpA, setCmpA] = useState(""); const [cmpB, setCmpB] = useState("");
   const [streak, setStreak] = useState(0);
-  const [snaps, setSnaps] = useState({});
+  // /product/{id} route (mockup v3 detail page). Deep-linkable: landers point
+  // here; CF Pages serves the SPA via public/_redirects.
+  const [productId, setProductId] = useState(() => (window.location.pathname.match(/^\/product\/([\w.'-]+)/) || [])[1] || null);
   const touchY = useRef(null);
+
+  const openProduct = (id) => { window.history.pushState({}, "", `/product/${id}`); setProductId(id); window.scrollTo(0, 0); };
+  const closeProduct = () => { window.history.pushState({}, "", "/"); setProductId(null); };
+  useEffect(() => {
+    const onPop = () => setProductId((window.location.pathname.match(/^\/product\/([\w.'-]+)/) || [])[1] || null);
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -270,7 +329,6 @@ export default function Ticker() {
   useEffect(() => { load(); }, [load]);
 
   const ix = useMemo(() => feed ? buildIndex(feed) : new Map(), [feed]);
-  useEffect(() => { if (feed && ix.size) setSnaps(recordSnapshot(feed, ix)); }, [feed, ix]);
 
   useEffect(() => {
     const start = (e) => { if (window.scrollY === 0) touchY.current = e.touches[0].clientY; };
@@ -301,7 +359,7 @@ export default function Ticker() {
   const products = [...ix.values()].sort((a, b) => (a.name || "").localeCompare(b.name || ""));
   const subtypes = [...new Set(products.map(x => x.subtype).filter(Boolean))].slice(0, 6);
   const movers = products
-    .map(x => ({ ...x, delta: deltaFor(snaps, x.id, today) }))
+    .map(x => ({ ...x, delta: deltaFor(feed, x.id) }))
     .filter(x => x.delta != null)
     .sort((a, b) => b.delta.pct - a.delta.pct);
 
@@ -315,8 +373,8 @@ export default function Ticker() {
       <div className="c3b">
         <div className="c3t"><span className="lbl">{x.subtype || "sealed"}</span>
           {x.chip ? <Chip cls={x.chip} onTap={() => showReceipts(x.name, x.provenance)} /> : null}<Star id={x.id} /></div>
-        <span className="nm">{x.name}</span>
-        <div className="hero">{fmt(x.price)} <Delta d={deltaFor(snaps, x.id, today)} /><Spark pts={seriesFor(snaps, x.id)} /></div>
+        <span className="nm" onClick={() => ix.has(x.id) && openProduct(x.id)} style={ix.has(x.id) ? { cursor: "pointer" } : null}>{x.name}</span>
+        <div className="hero">{fmt(x.price)} <Delta d={deltaFor(feed, x.id)} /><Spark pts={seriesFor(feed, x.id)} /></div>
         <div className="strip">
           {x.listings != null && <span className="st">Active Listings<b>{x.listings}</b></span>}
           {x.spreadPct != null && <span className="st">Spread<b>{pctFmt(x.spreadPct)}</b></span>}
@@ -332,6 +390,22 @@ export default function Ticker() {
     const watched = watch.map(id => ix.get(id)).filter(Boolean);
     const d3 = feed.dailyThree || {};
     return (<>
+      {(feed.eraIndexes || []).length > 0 && (<>
+        <div className="tk-sec" style={{ margin: "4px 0 10px" }}>Sealed Index — era levels</div>
+        <div className="eras">
+          {feed.eraIndexes.map(e => {
+            const s = (feed.eraHistory?.[e.era] || []).map(r => r[1]);
+            const ed = s.length >= 2 && s[s.length - 2] ? { pct: ((s[s.length - 1] - s[s.length - 2]) / s[s.length - 2]) * 100 } : null;
+            return (
+              <div className="era" key={e.era}>
+                <div className="lbl">{e.era}</div>
+                <div className="elvl">{fmt(e.level)}</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}><Delta d={ed} /><Spark pts={s} w={62} h={18} /></div>
+                <div className="esub">{e.products} products · {e.listingsPerProduct} l/p</div>
+              </div>);
+          })}
+        </div>
+      </>)}
       <div className="tk-idx">
         <div className="cell"><div className="big">{p.skusTracked ?? "—"}</div><div className="lbl">sealed tracked</div></div>
         <div className="cell"><div className="big">{p.signals ?? 0}</div><div className="lbl">signals</div></div>
@@ -385,16 +459,16 @@ export default function Ticker() {
   };
 
   const Movers = () => (<>
-    <div className="tk-sec">Movers — your view's overnight Δ</div>
+    <div className="tk-sec">Movers — overnight Δ on the tape</div>
     {movers.length === 0
-      ? <div className="c3"><div className="c3b"><div className="why">First visit on this device — movers appear once the app has seen two different days of the tape. Come back tomorrow; the Δs will be real, not invented.</div></div></div>
+      ? <div className="c3"><div className="c3b"><div className="why">The clean tape is one day old — movers appear when it has two. Nothing invented in the meantime.</div></div></div>
       : (<>
-        <div className="lbl" style={{ margin: "8px 0" }}>▲ up since your last visit</div>
+        <div className="lbl" style={{ margin: "8px 0" }}>▲ up vs yesterday</div>
         {movers.filter(m => m.delta.pct > 0).slice(0, 8).map(x => <ProductCard x={x} key={x.id} />)}
-        <div className="lbl" style={{ margin: "8px 0" }}>▼ down since your last visit</div>
+        <div className="lbl" style={{ margin: "8px 0" }}>▼ down vs yesterday</div>
         {movers.filter(m => m.delta.pct < 0).slice(-8).reverse().map(x => <ProductCard x={x} key={x.id} />)}
       </>)}
-    <div className="note">Δ compares this device's snapshots of the daily feed — it becomes richer the more days you check.</div>
+    <div className="note">Δ compares the last two committed days of market history — the same lines for every visitor, first visit included.</div>
   </>);
 
   const Board = () => {
@@ -409,11 +483,11 @@ export default function Ticker() {
       {rows.map(x => (
         <div className="brow" key={x.id}>
           {x.imageUrl ? <img src={x.imageUrl} alt="" loading="lazy" width="42" height="42" /> : null}
-          <div className="bmid"><b>{x.name}</b><span>{x.subtype}{x.listings != null ? ` · ${x.listings} listings` : ""}</span></div>
-          <div className="bnum">{fmt(x.price)}<Delta d={deltaFor(snaps, x.id, today)} /></div>
+          <div className="bmid" onClick={() => openProduct(x.id)} style={{ cursor: "pointer" }}><b>{x.name}</b><span>{x.subtype}{x.listings != null ? ` · ${x.listings} listings` : ""}</span></div>
+          <div className="bnum">{fmt(x.price)}<Delta d={deltaFor(feed, x.id)} /></div>
           <Star id={x.id} />
         </div>))}
-      <div className="note">Board shows every product the daily feed carries data for ({products.length}); the full 168-product tape lives in the data engine.</div>
+      <div className="note">The Board carries the full tracked tape ({products.length} products) — tap any row for its detail page.</div>
     </>);
   };
 
@@ -453,48 +527,7 @@ export default function Ticker() {
     const results = !tape ? [] : tape.products.filter(x =>
       tq.length >= 2 && (x.name.toLowerCase().includes(tq.toLowerCase()) || x.id.includes(tq.toLowerCase()))).slice(0, 8);
 
-    const renderShare = (x) => {
-      const cv = document.createElement("canvas");
-      cv.width = 500; cv.height = 620;
-      const g = cv.getContext("2d");
-      const draw = (photo) => {
-        g.fillStyle = "#0b0d14"; g.fillRect(0, 0, 500, 620);
-        g.fillStyle = "#141824"; g.strokeStyle = "rgba(255,255,255,.12)";
-        g.fillRect(20, 20, 460, 580); g.strokeRect(20, 20, 460, 580);
-        g.fillStyle = "#f4f5f8"; g.font = "800 26px Syne, sans-serif";
-        g.fillText("⚡CATCH", 40, 62);
-        g.fillStyle = "#36d399"; g.fillText("'EM", 158, 62);
-        g.fillStyle = "#8a93a8"; g.font = "700 11px 'JetBrains Mono', monospace";
-        g.fillText("DEAL CHECK · " + (tape.date || "").slice(0, 10), 40, 84);
-        if (photo) { try { g.drawImage(photo, 150, 100, 200, 200); } catch {} }
-        g.fillStyle = "#f4f5f8"; g.font = "600 19px Sora, sans-serif";
-        const nm = x.name.length > 38 ? x.name.slice(0, 36) + "…" : x.name;
-        g.fillText(nm, 40, photo ? 336 : 150);
-        const y0 = photo ? 360 : 180;
-        g.fillStyle = "#36d399"; g.font = "700 44px 'JetBrains Mono', monospace";
-        g.fillText(fmt(x.median), 40, y0 + 44);
-        g.fillStyle = "#8a93a8"; g.font = "700 11px 'JetBrains Mono', monospace";
-        g.fillText("TODAY'S EBAY MEDIAN (DELIVERED, BIN-ONLY)", 40, y0 + 64);
-        g.fillStyle = "#f4f5f8"; g.font = "700 20px 'JetBrains Mono', monospace";
-        g.fillText(fmt(x.floorClean), 40, y0 + 104);
-        g.fillStyle = "#8a93a8"; g.font = "700 11px 'JetBrains Mono', monospace";
-        g.fillText("CHEAPEST CLEAN LISTING", 40, y0 + 122);
-        g.fillText(String(x.listings ?? "—") + " ACTIVE LISTINGS" + (x.vintage ? "  ·  EBAY-NATIVE VENUE" : ""), 40, y0 + 148);
-        g.fillStyle = "#ffb84d"; g.font = "600 12px Sora, sans-serif";
-        g.fillText("asks cluster between clean floor and median", 40, y0 + 176);
-        g.fillStyle = "#5c637a"; g.font = "600 11px Sora, sans-serif";
-        g.fillText("catchemtcg.com — every number carries its receipts", 40, 578);
-        try { setShareImg(cv.toDataURL("image/png")); }
-        catch { if (photo) draw(null); else setShareImg(null); }
-      };
-      if (x.img) {
-        const im = new Image();
-        im.crossOrigin = "anonymous";
-        im.onload = () => draw(im);
-        im.onerror = () => draw(null);
-        im.src = x.img;
-      } else draw(null);
-    };
+    const renderShare = (x) => renderShareCard(x, (tape.date || "").slice(0, 10), setShareImg);
 
     const Check = ({ x }) => {
       const d = x.hist && x.hist.length >= 2
@@ -554,6 +587,86 @@ export default function Ticker() {
     </>);
   };
 
+  /* Product detail (/product/{id}) — mockup v3 parity: photo, price+Δ, range
+     bar, 6-stat grid, history chart, share card. Landers deep-link here. */
+  const ProductDetail = ({ id }) => {
+    const [shareImg, setShareImg] = useState(null);
+    const x = ix.get(id);
+    if (!x) return (<>
+      <button className="fchip" onClick={closeProduct} style={{ marginTop: 8 }}>← back to the tape</button>
+      <div className="c3" style={{ marginTop: 12 }}><div className="c3b"><div className="why">"{id}" isn't on the tracked tape ({ix.size} products). Search the Board for what we do track.</div></div></div>
+    </>);
+    const life = feed.lifecycle?.[x.setId];
+    const hist = feed.history?.[id] || [];
+    const d = deltaFor(feed, id);
+    const nam = x.status === "no-active-market" || x.price == null;
+    const pctIn = !nam && x.floor != null && x.high > x.floor
+      ? Math.min(96, Math.max(4, 100 * ((x.price - x.floor) / (x.high - x.floor)))) : null;
+    const Chart = () => {
+      if (hist.length < 2)
+        return <div className="note" style={{ margin: "14px 0" }}>Price history accrues from the clean tape (born 2026-08-18) — this product has {hist.length || "no"} day{hist.length === 1 ? "" : "s"} so far; the line grows every morning.</div>;
+      const W = 352, H = 120, pr = hist.map(r => r[1]);
+      const min = Math.min(...pr), max = Math.max(...pr), span = max - min || 1;
+      const step = (W - 8) / (pr.length - 1);
+      const dd = pr.map((v, i) => `${i ? "L" : "M"}${(4 + i * step).toFixed(1)},${(H - 10 - ((v - min) / span) * (H - 24)).toFixed(1)}`).join(" ");
+      return (
+        <div className="c3" style={{ flexDirection: "column", marginTop: 12 }}>
+          <div className="lbl">price — last {pr.length} days · eBay ask median</div>
+          <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%" }} role="img" aria-label={`price history, ${pr.length} days`}>
+            <path d={dd} fill="none" stroke={pr[pr.length - 1] >= pr[0] ? "var(--green)" : "var(--red)"} strokeWidth="2" />
+          </svg>
+          <div style={{ display: "flex", justifyContent: "space-between" }} className="esub">
+            <span>{hist[0][0]}</span><span>low {fmt(min)} · high {fmt(max)}</span><span>{hist[hist.length - 1][0]}</span>
+          </div>
+        </div>);
+    };
+    return (<>
+      <button className="fchip" onClick={closeProduct} style={{ margin: "8px 0 14px" }}>← back to the tape</button>
+      <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
+        {x.imageUrl && <img src={x.imageUrl} alt={x.name} width="104" height="104" style={{ width: 104, height: 104, objectFit: "contain", borderRadius: 12, background: "#070910", flex: "none" }} />}
+        <div style={{ minWidth: 0 }}>
+          <div className="lbl">{x.set || x.setId} · {x.subtype}{x.vintage ? " · eBay-native venue" : ""}</div>
+          <div className="dt-name">{x.name}</div>
+          <div style={{ marginTop: 6 }}><Star id={x.id} /></div>
+        </div>
+      </div>
+      {nam ? (
+        <div className="c3" style={{ marginTop: 14 }}><div className="c3b"><div className="why">
+          No active listings — this market trades via auctions and sold comps, so there's no honest fair-range to print. We show gaps, not guesses.
+        </div></div></div>
+      ) : (<>
+        <div className="hero" style={{ fontSize: 30, marginTop: 14 }}>{fmt(x.price)} <Delta d={d} /></div>
+        <div className="lbl" style={{ marginTop: 2 }}>today's eBay ask median · delivered, BIN-only</div>
+        {pctIn != null && (
+          <div style={{ margin: "16px 0 2px" }}>
+            <div style={{ position: "relative", height: 6, background: "var(--raised)", borderRadius: 99 }}>
+              <div style={{ position: "absolute", left: 0, width: `${pctIn}%`, top: 0, bottom: 0, background: "linear-gradient(90deg,rgba(54,211,153,.5),var(--green))", borderRadius: 99 }} />
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }} className="esub">
+              <span>clean floor {fmt(x.floor)}</span><span>median {fmt(x.price)}</span><span>high {fmt(x.high)}</span>
+            </div>
+          </div>)}
+        <div className="grid6" style={{ marginTop: 14 }}>
+          <span className="st">Active Listings<b>{x.listings ?? "—"}</b><span style={{ display: "block", fontSize: 9.5 }}>after title + price filters</span></span>
+          <span className="st">Clean floor<b>{fmt(x.floor)}</b><span style={{ display: "block", fontSize: 9.5 }}>cheapest clean listing</span></span>
+          <span className="st">Per pack<b>{x.perPack != null ? fmt(x.perPack) : "—"}</b><span style={{ display: "block", fontSize: 9.5 }}>{x.packs ? `median ÷ ${x.packs} packs` : "count varies — not printed"}</span></span>
+          <span className="st">Vs loose pack<b>{x.vsLoosePct != null ? (x.vsLoosePct > 0 ? "+" : "") + x.vsLoosePct + "%" : "—"}</b><span style={{ display: "block", fontSize: 9.5 }}>{x.loosePack ? `loose lane ${fmt(x.loosePack)}/pack` : "no loose lane tracked"}</span></span>
+          <span className="st">Age · phase<b>{life?.ageMonths != null ? life.ageMonths + "mo" : "—"}</b><span style={{ display: "block", fontSize: 9.5 }}>{life?.phase ?? "lifecycle read pending"}</span></span>
+          <span className="st">⚖ Legality<b>{life?.legalTag ?? "—"}</b><span style={{ display: "block", fontSize: 9.5 }}>{life?.standardLegal ? "Standard-legal" : life ? "rotated / non-Standard" : ""}</span></span>
+        </div>
+        <Chart />
+        <button className="fchip on" style={{ marginTop: 12 }}
+          onClick={() => renderShareCard({ name: x.name, median: x.price, floorClean: x.floor, listings: x.listings, vintage: x.vintage, img: x.imageUrl }, today, setShareImg)}>
+          Render share card 📸</button>
+        {shareImg && (<>
+          <img src={shareImg} alt="share card" style={{ width: "100%", borderRadius: 12, marginTop: 10 }} />
+          <div className="note">Long-press (or right-click) the card to save · sized for group posts.</div>
+        </>)}
+      </>)}
+      <div className="note" style={{ margin: "18px 0" }}>{feed.disclosure}</div>
+    </>);
+  };
+
   const Compare = () => {
     const A = ix.get(cmpA), B = ix.get(cmpB);
     const life = (x) => feed.lifecycle?.[x?.setId];
@@ -594,11 +707,13 @@ export default function Ticker() {
           </div>
         </div>
         {stale && <div className="tk-banner">machine hiccup — showing yesterday's tape ({today}). The bots will catch up on their own.</div>}
-        {tab === "home" && <Home />}
-        {tab === "movers" && <Movers />}
-        {tab === "board" && <Board />}
-        {tab === "compare" && <Compare />}
-        {tab === "check" && <DealCheck />}
+        {productId ? <ProductDetail id={productId} /> : (<>
+          {tab === "home" && <Home />}
+          {tab === "movers" && <Movers />}
+          {tab === "board" && <Board />}
+          {tab === "compare" && <Compare />}
+          {tab === "check" && <DealCheck />}
+        </>)}
         {receipt && (<>
           <div className="drawer-back" onClick={() => setReceipt(null)} />
           <div className="drawer" role="dialog" aria-label="Receipts">
@@ -608,7 +723,7 @@ export default function Ticker() {
           </div></>)}
         <nav className="tabs">
           {[["home", "⚡", "Ticker"], ["movers", "▲▼", "Movers"], ["board", "▦", "Board"], ["compare", "⇄", "Compare"], ["check", "✓", "Check"]].map(([id, icon, name]) =>
-            <button className={`tab ${tab === id ? "on" : ""}`} key={id} onClick={() => setTab(id)}><i>{icon}</i>{name}</button>)}
+            <button className={`tab ${tab === id && !productId ? "on" : ""}`} key={id} onClick={() => { if (productId) closeProduct(); setTab(id); }}><i>{icon}</i>{name}</button>)}
         </nav>
       </div>
     </div>

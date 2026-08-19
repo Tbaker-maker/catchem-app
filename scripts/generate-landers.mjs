@@ -171,8 +171,8 @@ footer{margin-top:28px;font:11px 'JetBrains Mono',monospace;color:var(--dim)}</s
 ${img ? `<img class="ph" src="${esc(img)}" alt="${esc(p.name)}" loading="lazy">` : ""}
 ${stats}
 <div class="receipts">${esc(receipts)}</div>
-<a class="cta" href="/">Open the live ticker →</a>
-<p class="read">The ticker adds spreads, movers, watchlists and Deal Check — every number carries its receipts.</p>
+<a class="cta" href="/product/${p.id}">See the live read →</a>
+<p class="read">The live page adds the price chart, range bar, movers Δ and a shareable stat card — every number carries its receipts. Or open <a href="/">the full ticker</a>.</p>
 ${siblings ? `<div class="sib">More from ${esc(p.set)}: ${siblings}</div>` : ""}
 <footer>Catch'em · catchemtcg.com — observational data, not financial advice. Prices are asks, not sales.</footer>
 </body></html>`;

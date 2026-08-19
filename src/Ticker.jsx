@@ -17,6 +17,14 @@ const TAPE_URL =
   "https://raw.githubusercontent.com/Tbaker-maker/Catchem-data/main/data/sealed-prices.json";
 const STALE_HOURS = 36;
 const DISCORD_ALERTS_URL = ""; // TODO(Tyler): discord.gg invite or #alerts channel link — 🔔 hidden while empty
+// Email capture: iOS PWA push is unreliable — email is the retention hedge.
+// Posts to the LIVE Formspree waitlist today (the same list newsletter 001
+// imports from). TODO(Tyler): claim a buttondown.com username, set it here,
+// and the form flips to Buttondown's embed endpoint — one constant, no markup.
+const BUTTONDOWN_USERNAME = "";
+const CAPTURE_URL = BUTTONDOWN_USERNAME
+  ? `https://buttondown.com/api/emails/embed-subscribe/${BUTTONDOWN_USERNAME}`
+  : "https://formspree.io/f/xgorlypa";
 
 /* ── v3 design tokens ─────────────────────────────────────────────────── */
 const css = `
@@ -115,6 +123,8 @@ background:linear-gradient(90deg,transparent,rgba(255,184,77,.06),transparent);a
 .load{padding:24px 0;text-align:center;color:var(--dim);font:400 12px var(--mono)}
 .cmpsel{width:100%;background:var(--panel);border:1px solid var(--line);color:var(--txt);
 border-radius:10px;padding:10px;font:400 12.5px var(--sans);margin-bottom:8px}
+.cap{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:18px 0}
+.cap b{font-size:13.5px}
 .grid6{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:12px}
 .grid6 .st{padding:7px 9px}
 `;
@@ -195,6 +205,41 @@ const Chip = ({ cls, onTap }) => {
   const tone = cls === "VERIFIED" ? "v" : cls === "MEASURED" ? "p" : "g";
   return <span className={`chip ${tone}`} onClick={onTap} role="button">{cls === "VERIFIED" ? "VERIFIED" : cls === "MEASURED" ? "MEASURED" : "READ"}</span>;
 };
+
+/* Email capture (module-level: keeps its own state so typing never re-renders
+   the app shell). Subscribed devices collapse it permanently — never nag. */
+function EmailCapture() {
+  const [state, setState] = useState(() => (lsGet("mail:v1", false) ? "done-prior" : "idle"));
+  const [email, setEmail] = useState("");
+  const submit = async (e) => {
+    e.preventDefault();
+    if (!email.includes("@")) return;
+    setState("sending");
+    try {
+      const body = new FormData();
+      body.append("email", email);
+      const r = await fetch(CAPTURE_URL, { method: "POST", body, headers: { Accept: "application/json" } });
+      if (!r.ok) throw new Error();
+      lsSet("mail:v1", true);
+      setState("done");
+    } catch { setState("error"); }
+  };
+  if (state === "done-prior") return null;
+  if (state === "done")
+    return <div className="cap"><b style={{ color: "var(--green)" }}>✓ You're on the list.</b><div className="note">The Morning Pulse lands in your inbox from the next send.</div></div>;
+  return (
+    <form className="cap" onSubmit={submit}>
+      <b>Get the Morning Pulse in your inbox</b>
+      <div className="note" style={{ margin: "4px 0 10px" }}>Same tape, delivered — home-screen apps can't ping you reliably, email can. No spam, unsubscribe anytime.</div>
+      <div style={{ display: "flex", gap: 8 }}>
+        <input className="search" style={{ margin: 0, flex: 1 }} type="email" required placeholder="you@example.com"
+          value={email} onChange={(e) => setEmail(e.target.value)} aria-label="email address" />
+        <button className="fchip on" type="submit" disabled={state === "sending"}>{state === "sending" ? "…" : "Send it"}</button>
+      </div>
+      {state === "error" && <div className="note" style={{ color: "var(--red)", marginTop: 8 }}>Couldn't reach the list — try again in a moment.</div>}
+    </form>
+  );
+}
 
 /* ── the app ─────────────────────────────────────────────────────────── */
 export default function Ticker() {
@@ -308,6 +353,8 @@ export default function Ticker() {
             <div className="why">Grading Premium unlocks when data licensing clears — we don't publish numbers we can't stand behind publicly yet.</div></div></div>
         : <ProductCard x={{ id: "d3-graded", name: d3.graded.name, price: d3.graded.raw, chip: d3.graded.chip, subtype: "graded pick" }} why={d3.graded.reason} />)}
       {d3.raw && <ProductCard x={{ id: "d3-raw", name: `${d3.raw.name} (${d3.raw.set})`, price: d3.raw.price, chip: d3.raw.chip, subtype: "chase" }} why={d3.raw.reason} />}
+
+      <EmailCapture />
 
       <div className="tk-sec">The Spread — today's signals</div>
       {(feed.signals || []).length === 0

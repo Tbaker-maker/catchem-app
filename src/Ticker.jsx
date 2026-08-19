@@ -11,30 +11,35 @@ const STALE_HOURS = 36;
 
 const css = `
 :root{--bg:#0b0d14;--panel:#12141d;--line:#232736;--txt:#d8dde8;--dim:#8a93a8;
---gold:#F5C842;--green:#36d399;--red:#ff6b7a;--vio:#a78bfa}
+--gold:#F5C842;--green:#36d399;--red:#ff6b7a;--vio:#a78bfa;
+--sans:'Sora',-apple-system,system-ui,sans-serif;
+--disp:'Syne',var(--sans);
+--mono:'JetBrains Mono','Courier New',monospace}
 .tk-root{background:var(--bg);color:var(--txt);min-height:100vh;
-font:15px/1.5 'Trebuchet MS',system-ui;display:flex;justify-content:center}
-.tk-phone{width:100%;max-width:420px;padding:0 12px 90px}
+font:15px/1.5 var(--sans);display:flex;justify-content:center}
+.tk-phone{width:100%;max-width:420px;padding:0 16px 96px}
 .tk-head{display:flex;justify-content:space-between;align-items:baseline;
-padding:14px 2px 8px;position:sticky;top:0;background:var(--bg);z-index:5}
-.tk-brand{font-weight:800;letter-spacing:.02em}
+padding:16px 0 12px;position:sticky;top:0;background:var(--bg);z-index:5}
+.tk-brand{font:800 28px/1.2 var(--disp);letter-spacing:.01em}
 .tk-brand span{color:var(--gold)}
-.tk-date{font:11px 'Courier New',monospace;color:var(--dim)}
+.tk-ticktag{font:700 10px var(--mono);font-style:normal;color:var(--dim);
+letter-spacing:.08em;vertical-align:super;margin-left:4px}
+.tk-date{font:400 11px var(--mono);font-variant-numeric:tabular-nums;color:var(--dim)}
 .tk-banner{background:rgba(255,107,122,.1);border:1px solid rgba(255,107,122,.35);
-color:var(--red);border-radius:10px;padding:9px 12px;font-size:12.5px;margin:6px 0 10px}
+color:var(--red);border-radius:12px;padding:12px 16px;font-size:13px;line-height:1.5;margin:8px 0 12px}
 .tk-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;
-padding:13px 14px;margin-bottom:10px}
-.tk-row{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.tk-mono{font:12px 'Courier New',monospace;color:var(--dim)}
-.tk-big{font:600 15px/1.3 'Trebuchet MS',system-ui}
+padding:16px;margin-bottom:12px}
+.tk-row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.tk-mono{font:400 12px var(--mono);font-variant-numeric:tabular-nums;color:var(--dim)}
+.tk-big{font:600 15px/1.5 var(--sans)}
 .tk-up{color:var(--green)} .tk-down{color:var(--red)}
-.tk-sub{font-size:12px;color:var(--dim);margin-top:4px}
-.tk-sec{font:11px 'Courier New',monospace;color:var(--dim);letter-spacing:.12em;
-text-transform:uppercase;margin:16px 2px 8px}
+.tk-sub{font-size:12px;line-height:1.5;color:var(--dim);margin-top:8px}
+.tk-sec{font:700 11px var(--mono);color:var(--dim);letter-spacing:.08em;
+text-transform:uppercase;margin:32px 0 12px}
 .tk-bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin:8px 0 4px}
 .tk-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--green))}
-.tk-chip{display:inline-block;font:10px 'Courier New',monospace;letter-spacing:.06em;
-padding:1px 7px;border-radius:99px;cursor:pointer;user-select:none;vertical-align:middle}
+.tk-chip{display:inline-block;font:700 10px var(--mono);letter-spacing:.06em;
+padding:2px 8px;border-radius:99px;cursor:pointer;user-select:none;vertical-align:middle}
 .tk-chip.v{background:rgba(54,211,153,.12);color:var(--green);border:1px solid rgba(54,211,153,.35)}
 .tk-chip.rd{background:rgba(245,200,66,.12);color:var(--gold);border:1px solid rgba(245,200,66,.35)}
 .tk-chip.m{background:rgba(167,139,250,.12);color:var(--vio);border:1px solid rgba(167,139,250,.35)}
@@ -48,11 +53,16 @@ border-radius:8px;font-size:11px;padding:3px 10px;cursor:pointer}
 max-width:420px;background:#0e1018;border:1px solid var(--line);border-radius:14px 14px 0 0;
 padding:16px 16px 22px;z-index:50}
 .tk-drawer h4{margin:0 0 8px;font-size:13px;color:var(--txt)}
-.tk-receipt{font:11.5px/1.6 'Courier New',monospace;color:var(--dim);
+.tk-receipt{font:400 11.5px/1.6 var(--mono);color:var(--dim);
 border-left:2px solid var(--line);padding-left:10px;margin:8px 0;word-break:break-word}
-.tk-disc{font:11px/1.5 'Courier New',monospace;color:var(--gold);opacity:.85;margin-top:10px}
-.tk-load{padding:60px 0;text-align:center;color:var(--dim);font:12px 'Courier New',monospace}
-.tk-pull{font:10px 'Courier New',monospace;color:var(--dim);text-align:center;padding:4px 0}
+.tk-disc{font:400 11px/1.5 var(--mono);color:var(--gold);opacity:.85;margin-top:10px}
+.tk-load{padding:60px 0;text-align:center;color:var(--dim);font:400 12px var(--mono)}
+.tk-skel{background:var(--panel);border:1px solid var(--line);border-radius:12px;height:72px;margin-bottom:12px;position:relative;overflow:hidden}
+.tk-skel::after{content:"";position:absolute;inset:0;transform:translateX(-100%);
+background:linear-gradient(90deg,transparent,rgba(245,200,66,.06),transparent);
+animation:tk-shimmer 1.4s infinite}
+@keyframes tk-shimmer{100%{transform:translateX(100%)}}
+.tk-pull{font:400 10px var(--mono);color:var(--dim);text-align:center;padding:4px 0}
 `;
 
 function Chip({ cls, onTap }) {
@@ -111,7 +121,11 @@ export default function Ticker() {
   };
 
   if (loading && !feed)
-    return (<div className="tk-root"><style>{css}</style><div className="tk-phone"><div className="tk-load">loading the tape…</div></div></div>);
+    return (<div className="tk-root"><style>{css}</style><div className="tk-phone">
+      <div className="tk-head"><div className="tk-brand">CATCH<span>'EM</span></div></div>
+      {[0,1,2,3,4].map(i => <div className="tk-skel" key={i} aria-hidden="true" />)}
+      <div className="tk-load">reading the tape…</div>
+    </div></div>);
   if (err && !feed)
     return (<div className="tk-root"><style>{css}</style><div className="tk-phone">
       <div className="tk-banner">Couldn't reach the feed ({err}). <button className="tk-refresh" onClick={load}>retry</button></div>
@@ -128,7 +142,7 @@ export default function Ticker() {
       <style>{css}</style>
       <div className="tk-phone">
         <div className="tk-head">
-          <div className="tk-brand">CATCH<span>'EM</span> · THE TICKER</div>
+          <div className="tk-brand">CATCH<span>'EM</span> <em className="tk-ticktag">THE TICKER</em></div>
           <div className="tk-date">{feed.date} <button className="tk-refresh" onClick={load}>{loading ? "…" : "↻"}</button></div>
         </div>
         <div className="tk-pull">pull down to refresh</div>

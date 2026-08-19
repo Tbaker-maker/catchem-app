@@ -175,9 +175,13 @@ const parseRoute = () => {
   const m = path.match(/^\/product\/([\w.'-]+)/);
   if (m) return { name: "product", id: m[1] };
   if (path.startsWith("/overlay")) return { name: "overlay" };
+  if (path.startsWith("/studio/archive")) return { name: "studio-archive" };
   if (path.startsWith("/studio")) return { name: "studio" };
   return null;
 };
+
+const KITS_ARCHIVE_URL =
+  "https://raw.githubusercontent.com/Tbaker-maker/Catchem-data/main/research/pulse/kits-archive.json";
 
 /* Market history from the feed: history[id] = [[date, price, listings], …]
    (committed heat-history, post-2026-08-18 clean cut — same for everyone). */
@@ -760,7 +764,44 @@ export default function Ticker() {
         <img src={shareImg} alt="story card" style={{ width: "100%", borderRadius: 12, marginTop: 10 }} />
         <div className="note">Long-press (or right-click) to save · the watermark rides every export.</div>
       </>)}
-      <div className="note" style={{ margin: "16px 0" }}>Angles and numbers are machine-made from live instruments; the voice is yours.</div>
+      <div className="note" style={{ margin: "16px 0" }}>Angles and numbers are machine-made from live instruments; the voice is yours. <a href="/studio/archive" style={{ color: "var(--green)" }} onClick={(e) => { e.preventDefault(); window.history.pushState({}, "", "/studio/archive"); setRoute({ name: "studio-archive" }); }}>Prior days →</a></div>
+    </>);
+  };
+
+  /* /studio/archive — prior days' kits from the CI-committed archive. */
+  const StudioArchive = () => {
+    const [arch, setArch] = useState(null);
+    const [err2, setErr2] = useState(null);
+    const [copied, setCopied] = useState(null);
+    useEffect(() => {
+      (async () => {
+        try {
+          const r = await fetch(KITS_ARCHIVE_URL, { cache: "no-store" });
+          if (!r.ok) throw new Error("archive " + r.status);
+          setArch(await r.json());
+        } catch (e) { setErr2(String(e.message || e)); }
+      })();
+    }, []);
+    const copy = async (k) => {
+      try { await navigator.clipboard.writeText(`${k.headline}\n\n${k.body}\n\n${k.receipts}`); setCopied(k.headline); setTimeout(() => setCopied(null), 1500); } catch {}
+    };
+    return (<>
+      <div className="tk-sec" style={{ marginTop: 8 }}>Studio archive — every day's kits</div>
+      {err2 && <div className="tk-banner">Couldn't reach the archive ({err2}).</div>}
+      {!arch && !err2 && <div className="load">reading the archive…</div>}
+      {arch && [...arch.entries].reverse().map((day) => (
+        <div key={day.date}>
+          <div className="lbl" style={{ margin: "14px 0 6px" }}>{day.date}</div>
+          {day.kits.map((k, i) => (
+            <div className="c3" style={{ flexDirection: "column" }} key={i}>
+              <div className="lbl">{k.angle}</div>
+              <span className="nm" style={{ whiteSpace: "normal" }}>{k.headline}</span>
+              <div className="why">{k.body}</div>
+              <div className="esub" style={{ margin: "6px 0" }}>{k.receipts}</div>
+              <button className="fchip" style={{ alignSelf: "flex-start" }} onClick={() => copy(k)}>{copied === k.headline ? "✓ copied" : "Copy text"}</button>
+            </div>))}
+        </div>))}
+      <div className="note" style={{ margin: "16px 0" }}>The archive accumulates one entry per day with the morning run.</div>
     </>);
   };
 
@@ -804,7 +845,7 @@ export default function Ticker() {
           </div>
         </div>
         {stale && <div className="tk-banner">machine hiccup — showing yesterday's tape ({today}). The bots will catch up on their own.</div>}
-        {route?.name === "product" ? <ProductDetail id={route.id} /> : route?.name === "studio" ? <Studio /> : (<>
+        {route?.name === "product" ? <ProductDetail id={route.id} /> : route?.name === "studio" ? <Studio /> : route?.name === "studio-archive" ? <StudioArchive /> : (<>
           {tab === "home" && <Home />}
           {tab === "movers" && <Movers />}
           {tab === "board" && <Board />}

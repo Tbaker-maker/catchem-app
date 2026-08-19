@@ -1,1 +1,4 @@
 /product/* /index.html 200
+/overlay /index.html 200
+/overlay/* /index.html 200
+/studio /index.html 200

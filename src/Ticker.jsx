@@ -170,6 +170,15 @@ function buildIndex(feed) {
   return ix;
 }
 
+const parseRoute = () => {
+  const path = window.location.pathname;
+  const m = path.match(/^\/product\/([\w.'-]+)/);
+  if (m) return { name: "product", id: m[1] };
+  if (path.startsWith("/overlay")) return { name: "overlay" };
+  if (path.startsWith("/studio")) return { name: "studio" };
+  return null;
+};
+
 /* Market history from the feed: history[id] = [[date, price, listings], …]
    (committed heat-history, post-2026-08-18 clean cut — same for everyone). */
 const seriesFor = (feed, id) => (feed?.history?.[id] ?? []).map(r => r[1]);
@@ -255,6 +264,49 @@ function renderShareCard(x, dateStr, setShareImg) {
   } else draw(null);
 }
 
+/* /overlay — OBS browser source (Studio §14). Transparent background, brand
+   fonts, auto-refreshes from the feed every 5 minutes. Modes:
+     /overlay            (or ?mode=index) → Sealed Index level + Δ + spark
+     /overlay?product={id}                → product price + Δ + spark
+   The wordmark rides every mode — watermark law. */
+function Overlay() {
+  const [feed, setFeed] = useState(null);
+  useEffect(() => {
+    document.documentElement.style.background = "transparent";
+    document.body.style.background = "transparent";
+    const load = async () => { try { const r = await fetch(FEED_URL, { cache: "no-store" }); if (r.ok) setFeed(await r.json()); } catch {} };
+    load();
+    const t = setInterval(load, 5 * 60 * 1000);
+    return () => clearInterval(t);
+  }, []);
+  if (!feed) return null;
+  const box = { display: "inline-flex", alignItems: "center", gap: 14, background: "rgba(11,13,20,.82)", border: "1px solid rgba(255,255,255,.14)", borderRadius: 14, padding: "12px 18px", fontFamily: "'Sora',sans-serif", color: "#f4f5f8", margin: 8 };
+  const wm = <span style={{ font: "800 15px Syne,sans-serif", whiteSpace: "nowrap" }}>⚡CATCH<span style={{ color: "#36d399" }}>'EM</span></span>;
+  const pid = new URLSearchParams(window.location.search).get("product");
+  if (pid) {
+    const p = (feed.products || []).find(x => x.id === pid);
+    if (!p) return <div style={box}>{wm}<span style={{ color: "#8a93a8", fontSize: 13 }}>unknown product: {pid}</span></div>;
+    return (<div style={box}>
+      {wm}
+      <span style={{ fontSize: 14, fontWeight: 600, maxWidth: 280, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</span>
+      <span style={{ font: "700 22px 'JetBrains Mono',monospace", fontVariantNumeric: "tabular-nums" }}>{fmt(p.median)}</span>
+      <Delta d={deltaFor(feed, pid)} />
+      <Spark pts={seriesFor(feed, pid)} w={70} h={22} />
+    </div>);
+  }
+  const six = feed.sealedIndex;
+  const s = (feed.indexHistory || []).map(r => r[1]);
+  const d = s.length >= 2 && s[s.length - 2] ? { pct: ((s[s.length - 1] - s[s.length - 2]) / s[s.length - 2]) * 100 } : (six?.ddPct != null ? { pct: six.ddPct } : null);
+  return (<div style={box}>
+    {wm}
+    <span style={{ fontSize: 11, letterSpacing: ".08em", color: "#8a93a8", textTransform: "uppercase", whiteSpace: "nowrap" }}>Sealed Index</span>
+    <span style={{ font: "700 24px 'JetBrains Mono',monospace", fontVariantNumeric: "tabular-nums" }}>{six?.level ?? "—"}</span>
+    <Delta d={d} />
+    <Spark pts={s} w={70} h={22} />
+    {six?.breadth && <span style={{ fontSize: 11, color: "#8a93a8", whiteSpace: "nowrap" }}>▲{six.breadth.up} ▼{six.breadth.down}</span>}
+  </div>);
+}
+
 /* Email capture (module-level: keeps its own state so typing never re-renders
    the app shell). Subscribed devices collapse it permanently — never nag. */
 function EmailCapture() {
@@ -302,15 +354,17 @@ export default function Ticker() {
   const [ftype, setFtype] = useState(null);
   const [cmpA, setCmpA] = useState(""); const [cmpB, setCmpB] = useState("");
   const [streak, setStreak] = useState(0);
-  // /product/{id} route (mockup v3 detail page). Deep-linkable: landers point
-  // here; CF Pages serves the SPA via public/_redirects.
-  const [productId, setProductId] = useState(() => (window.location.pathname.match(/^\/product\/([\w.'-]+)/) || [])[1] || null);
+  // Routes (deep-linkable; CF Pages serves the SPA via public/_redirects):
+  //   /product/{id} — detail page (landers point here)
+  //   /studio       — Story Kits (Studio v0, §14)
+  //   /overlay      — OBS browser source (transparent, auto-refreshing)
+  const [route, setRoute] = useState(parseRoute);
   const touchY = useRef(null);
 
-  const openProduct = (id) => { window.history.pushState({}, "", `/product/${id}`); setProductId(id); window.scrollTo(0, 0); };
-  const closeProduct = () => { window.history.pushState({}, "", "/"); setProductId(null); };
+  const openProduct = (id) => { window.history.pushState({}, "", `/product/${id}`); setRoute({ name: "product", id }); window.scrollTo(0, 0); };
+  const closeProduct = () => { window.history.pushState({}, "", "/"); setRoute(null); };
   useEffect(() => {
-    const onPop = () => setProductId((window.location.pathname.match(/^\/product\/([\w.'-]+)/) || [])[1] || null);
+    const onPop = () => setRoute(parseRoute());
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
   }, []);
@@ -343,6 +397,10 @@ export default function Ticker() {
       : provenance ? Object.entries(provenance).map(([k, v]) => `${k}: ${v}`) : ["Catchem-data eBay active asks (see feed provenance)"];
     setReceipt({ title, lines });
   };
+
+  // OBS overlay renders outside the phone shell entirely (transparent bg, no
+  // tabs, no skeleton — a loading overlay must show nothing, not a dark box).
+  if (route?.name === "overlay") return <Overlay />;
 
   if (loading && !feed)
     return (<div className="tk-root"><style>{css}</style><div className="tk-phone">
@@ -667,6 +725,45 @@ export default function Ticker() {
     </>);
   };
 
+  /* /studio — Story Kits (Studio v0, §14): today's three shaped stories with
+     copy-text and render-as-card. Every export carries the watermark (the
+     shared renderer bakes it in). */
+  const Studio = () => {
+    const [shareImg, setShareImg] = useState(null);
+    const [copied, setCopied] = useState(null);
+    const kits = feed.storyKits || [];
+    const copy = async (k) => {
+      try {
+        await navigator.clipboard.writeText(`${k.headline}\n\n${k.body}\n\n${k.receipts}`);
+        setCopied(k.id); setTimeout(() => setCopied(null), 1500);
+      } catch {}
+    };
+    const render = (k) => {
+      const p = ix.get(k.productId);
+      if (p) renderShareCard({ name: p.name, median: p.price, floorClean: p.floor, listings: p.listings, vintage: p.vintage, img: p.imageUrl }, today, setShareImg);
+    };
+    return (<>
+      <div className="tk-sec" style={{ marginTop: 8 }}>Studio — today's story kits</div>
+      {kits.length === 0 && <div className="note">No kits in today's feed yet — they mint with the morning run.</div>}
+      {kits.map(k => (
+        <div className="c3" style={{ flexDirection: "column" }} key={k.id}>
+          <div className="lbl">{k.angle}</div>
+          <span className="nm" style={{ whiteSpace: "normal" }}>{k.headline}</span>
+          <div className="why">{k.body}</div>
+          <div className="esub" style={{ margin: "8px 0" }}>{k.receipts}</div>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button className="fchip" onClick={() => copy(k)}>{copied === k.id ? "✓ copied" : "Copy text"}</button>
+            {ix.get(k.productId) && <button className="fchip on" onClick={() => render(k)}>Render as card 📸</button>}
+          </div>
+        </div>))}
+      {shareImg && (<>
+        <img src={shareImg} alt="story card" style={{ width: "100%", borderRadius: 12, marginTop: 10 }} />
+        <div className="note">Long-press (or right-click) to save · the watermark rides every export.</div>
+      </>)}
+      <div className="note" style={{ margin: "16px 0" }}>Angles and numbers are machine-made from live instruments; the voice is yours.</div>
+    </>);
+  };
+
   const Compare = () => {
     const A = ix.get(cmpA), B = ix.get(cmpB);
     const life = (x) => feed.lifecycle?.[x?.setId];
@@ -707,7 +804,7 @@ export default function Ticker() {
           </div>
         </div>
         {stale && <div className="tk-banner">machine hiccup — showing yesterday's tape ({today}). The bots will catch up on their own.</div>}
-        {productId ? <ProductDetail id={productId} /> : (<>
+        {route?.name === "product" ? <ProductDetail id={route.id} /> : route?.name === "studio" ? <Studio /> : (<>
           {tab === "home" && <Home />}
           {tab === "movers" && <Movers />}
           {tab === "board" && <Board />}
@@ -723,7 +820,7 @@ export default function Ticker() {
           </div></>)}
         <nav className="tabs">
           {[["home", "⚡", "Ticker"], ["movers", "▲▼", "Movers"], ["board", "▦", "Board"], ["compare", "⇄", "Compare"], ["check", "✓", "Check"]].map(([id, icon, name]) =>
-            <button className={`tab ${tab === id && !productId ? "on" : ""}`} key={id} onClick={() => { if (productId) closeProduct(); setTab(id); }}><i>{icon}</i>{name}</button>)}
+            <button className={`tab ${tab === id && !route ? "on" : ""}`} key={id} onClick={() => { if (route) closeProduct(); setTab(id); }}><i>{icon}</i>{name}</button>)}
         </nav>
       </div>
     </div>

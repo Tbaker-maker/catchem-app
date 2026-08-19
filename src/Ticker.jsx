@@ -33,7 +33,7 @@ const CAPTURE_URL = BUTTONDOWN_USERNAME
 /* ── v3 design tokens ─────────────────────────────────────────────────── */
 const css = `
 :root{--bg:#0b0d14;--panel:#141824;--raised:#1c2235;--line:rgba(255,255,255,.07);
---txt:#f4f5f8;--dim:#8a93a8;--gold:#ffb84d;--green:#36d399;--red:#ef5a5a;--purple:#c77dff;
+--txt:#f4f5f8;--dim:#98a1b5;--gold:#ffb84d;--green:#36d399;--red:#ef5a5a;--purple:#c77dff;
 --sans:'Sora',-apple-system,system-ui,sans-serif;--disp:'Syne',var(--sans);
 --mono:'JetBrains Mono','Courier New',monospace}
 *{box-sizing:border-box}
@@ -78,7 +78,7 @@ border:1px solid var(--line);color:var(--dim);margin-left:auto;cursor:pointer;fl
 .chip.g{color:var(--gold);border-color:var(--gold)}
 .chip.p{color:var(--purple);border-color:var(--purple)}
 .d{font:700 10.5px var(--mono);font-variant-numeric:tabular-nums}
-.d.u{color:var(--green)}.d.dn{color:var(--red)}.d.n{color:#5c637a}
+.d.u{color:var(--green)}.d.dn{color:var(--red)}.d.n{color:var(--dim)}
 .star{background:none;border:none;font-size:17px;line-height:1;cursor:pointer;color:#3a415a;
 min-width:36px;min-height:36px;flex:none}
 .star.on{color:var(--gold)}
@@ -110,7 +110,7 @@ min-height:52px;cursor:pointer}
 text-align:center;padding:24px 16px;border-radius:14px;margin-bottom:12px}
 .tk-agree b{color:var(--green);font-size:15px}
 .note{font-size:10.5px;color:var(--dim);margin-top:9px;line-height:1.5}
-.locked{opacity:.75}
+.locked{border-style:dashed;border-color:rgba(255,255,255,.18)}
 .drawer-back{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:40}
 .drawer{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:420px;
 background:#0e1018;border:1px solid var(--line);border-radius:16px 16px 0 0;
@@ -403,13 +403,13 @@ export default function Ticker() {
   if (route?.name === "overlay") return <Overlay />;
 
   if (loading && !feed)
-    return (<div className="tk-root"><style>{css}</style><div className="tk-phone">
+    return (<div className="tk-root"><style>{css}</style><main className="tk-phone">
       <div className="tk-head"><div className="tk-wm">CATCH<b>'EM</b></div></div>
       {[0,1,2,3,4].map(i => <div className="skel" key={i} aria-hidden="true" />)}
-      <div className="load">reading the tape…</div></div></div>);
+      <div className="load">reading the tape…</div></main></div>);
   if (err && !feed)
-    return (<div className="tk-root"><style>{css}</style><div className="tk-phone">
-      <div className="tk-banner">Couldn't reach the feed ({err}). <button className="tk-refresh" onClick={load}>retry</button></div></div></div>);
+    return (<div className="tk-root"><style>{css}</style><main className="tk-phone">
+      <div className="tk-banner">Couldn't reach the feed ({err}). <button className="tk-refresh" onClick={load}>retry</button></div></main></div>);
 
   const p = feed.panel || {};
   const today = feed.date;
@@ -793,7 +793,7 @@ export default function Ticker() {
   return (
     <div className="tk-root">
       <style>{css}</style>
-      <div className="tk-phone">
+      <main className="tk-phone">
         <div className="tk-head">
           <div className="tk-wm">⚡CATCH<b>'EM</b></div>
           <div className="tk-hright">
@@ -822,7 +822,7 @@ export default function Ticker() {
           {[["home", "⚡", "Ticker"], ["movers", "▲▼", "Movers"], ["board", "▦", "Board"], ["compare", "⇄", "Compare"], ["check", "✓", "Check"]].map(([id, icon, name]) =>
             <button className={`tab ${tab === id && !route ? "on" : ""}`} key={id} onClick={() => { if (route) closeProduct(); setTab(id); }}><i>{icon}</i>{name}</button>)}
         </nav>
-      </div>
+      </main>
     </div>
   );
 }

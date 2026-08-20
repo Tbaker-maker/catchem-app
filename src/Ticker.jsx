@@ -523,7 +523,7 @@ export default function Ticker() {
       {(feed.radar || []).length === 0
         ? <div className="note">Nothing landing inside the window — check back after the next drop announcement.</div>
         : feed.radar.map((r, i) => <div className="brow" key={i}><div className="bmid"><b>{r.name}</b><span>{r.note || ""}</span></div><div className="bnum">{r.date}</div></div>)}
-      <div className="note" style={{ textAlign: "center", margin: "20px 0" }}>{feed.disclosure}</div>
+      <div className="note" style={{ textAlign: "center", margin: "20px 0" }}>{feed.disclosure} <a href="/methodology.html#buy-pressure" style={{ color: "var(--green)" }}>how the estimate works →</a></div>
     </>);
   };
 

@@ -1,0 +1,14 @@
+// Cloudflare Workers deploy config — the dashboard's deploy command is
+// `npx wrangler deploy`, which reads this file. Assets-only Worker: serve
+// ./dist (the Vite build) with SPA fallback so /product/*, /tools/*, /studio
+// and the legacy /check /compare /movers routes all resolve to the app.
+// Static files (landers /p/*.html, /sets/*.html, sitemap.xml, methodology)
+// serve directly and win over the fallback.
+{
+  "name": "catchem-app",
+  "compatibility_date": "2026-08-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  }
+}

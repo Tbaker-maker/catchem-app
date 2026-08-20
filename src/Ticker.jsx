@@ -625,6 +625,9 @@ export default function Ticker() {
               <span className="st">Active Listings<b>{x.listings ?? "—"}</b></span>
               {!x.vintage && ix.get(x.id)?.spreadPct != null && <span className="st">Spread<b>{pctFmt(ix.get(x.id).spreadPct)}</b></span>}
             </div>
+            {feed.netProceeds?.byId?.[x.id] != null && (
+              <div className="esub" style={{ marginTop: 8 }}>Seller nets ≈ <b className="mono">{fmt(feed.netProceeds.byId[x.id])}</b> on eBay after fees (est.) — the number that settles a show-floor negotiation.</div>
+            )}
             <div style={{ position: "relative", height: 6, background: "var(--raised)", borderRadius: 99, margin: "14px 0 4px" }}>
               <div style={{ position: "absolute", left: 0, width: `${pctIn}%`, top: 0, bottom: 0, background: "linear-gradient(90deg,rgba(54,211,153,.5),var(--green))", borderRadius: 99 }} />
             </div>
@@ -835,6 +838,9 @@ export default function Ticker() {
         {row("Spread", x => x.spreadPct != null ? pctFmt(x.spreadPct) : null)}
         {row("Active Listings", x => x.listings)}
         {row("Per pack", x => x.perPack != null ? fmt(x.perPack) : null)}
+        {row("vs loose packs", x => { const pm = (feed.packMath?.all || []).find(r => r.id === x.id); return pm?.premium != null ? `${pm.premium > 0 ? "+" : ""}${pm.premium}%${pm.thin ? " ⚠ thin" : ""}` : null; })}
+        {row("In-pocket (eBay)", x => feed.netProceeds?.byId?.[x.id] != null ? fmt(feed.netProceeds.byId[x.id]) : null)}
+        {row("Δ today", x => { const d = deltaFor(feed, x.id); return d?.pct != null ? `${d.pct > 0 ? "▲" : d.pct < 0 ? "▼" : "·"} ${Math.abs(d.pct).toFixed(1)}%` : null; })}
         {row("Phase", x => life(x)?.phase)}
         {row("Legality", x => life(x)?.legalTag)}
         <div className="note">Blank cells mean the daily feed carries no verified number for that instrument — we show gaps, not guesses.</div>

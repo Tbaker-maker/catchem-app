@@ -100,7 +100,7 @@ border-radius:10px;padding:10px 12px;font:400 13px var(--sans);margin-bottom:8px
 padding:6px 12px;font-size:11px;cursor:pointer;min-height:32px}
 .fchip.on{color:var(--green);border-color:var(--green)}
 .tabs{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;
-display:grid;grid-template-columns:repeat(5,1fr);background:#0e1018;border-top:1px solid var(--line);
+display:grid;grid-template-columns:repeat(4,1fr);background:#0e1018;border-top:1px solid var(--line);
 padding-bottom:env(safe-area-inset-bottom);z-index:20}
 .tab{background:none;border:none;color:var(--dim);font:600 10.5px var(--sans);padding:10px 0 8px;
 min-height:52px;cursor:pointer}
@@ -110,6 +110,12 @@ min-height:52px;cursor:pointer}
 text-align:center;padding:24px 16px;border-radius:14px;margin-bottom:12px}
 .tk-agree b{color:var(--green);font-size:15px}
 .note{font-size:10.5px;color:var(--dim);margin-top:9px;line-height:1.5}
+.tool{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--panel);
+border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer;color:var(--txt)}
+.ticon{font-size:20px;flex:none;width:28px;text-align:center}
+.tbody{flex:1;min-width:0}.tbody b{display:block;font-size:13.5px}
+.tbody span{display:block;font:400 10.5px var(--mono);color:var(--dim);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tgo{color:var(--dim);font-size:18px;flex:none}
 .idot{background:none;border:none;color:var(--dim);font-size:13px;line-height:1;cursor:pointer;
 padding:0 4px;min-width:28px;min-height:28px;vertical-align:middle}
 .idot:active{color:var(--green)}
@@ -180,6 +186,12 @@ const parseRoute = () => {
   if (path.startsWith("/overlay")) return { name: "overlay" };
   if (path.startsWith("/studio/archive")) return { name: "studio-archive" };
   if (path.startsWith("/studio")) return { name: "studio" };
+  const tool = path.match(/^\/tools\/([a-z-]+)/);
+  if (tool) return { name: "tool", tool: tool[1] };
+  // legacy tab URLs redirect into Tools (IA v2, §15)
+  if (path === "/check") return { name: "tool", tool: "check" };
+  if (path === "/compare") return { name: "tool", tool: "compare" };
+  if (path === "/movers") return { name: "tool", tool: "movers" };
   return null;
 };
 
@@ -358,7 +370,7 @@ export default function Ticker() {
   // v7 Digest Law: every sentence cut from a screen lives one tap away —
   // ⓘ opens this bottom sheet with the explanation + its methodology anchor.
   const [info, setInfo] = useState(null);
-  const [tab, setTab] = useState("home");
+  const [tab, setTab] = useState("today");
   const [watch, setWatch] = useState(() => lsGet("watch:v1", []));
   const [q, setQ] = useState("");
   const [ftype, setFtype] = useState(null);
@@ -372,6 +384,7 @@ export default function Ticker() {
   const touchY = useRef(null);
 
   const openProduct = (id) => { window.history.pushState({}, "", `/product/${id}`); setRoute({ name: "product", id }); window.scrollTo(0, 0); };
+  const openTool = (tool) => { window.history.pushState({}, "", `/tools/${tool}`); setRoute({ name: "tool", tool }); window.scrollTo(0, 0); };
   const closeProduct = () => { window.history.pushState({}, "", "/"); setRoute(null); };
   useEffect(() => {
     const onPop = () => setRoute(parseRoute());
@@ -459,12 +472,11 @@ export default function Ticker() {
     </div>);
 
   /* ── screens ── */
-  // Home follows the v7 digest order: Index → My Watch → Daily Three →
-  // Rip-or-Hold → Movers preview → email band. The Spread/pack-math/quiet-
+  // Today (§15 IA v2): Index → Daily Three → Rip-or-Hold → Movers preview →
+  // email band. Watch is its own tab now. The Spread/pack-math/quiet-
   // movers/radar truths relocated: spread stat on every card + Board rows,
   // per-pack on product pages, movers tab (radar rides its foot), ⓘ→methodology.
   const Home = () => {
-    const watched = watch.map(id => ix.get(id)).filter(Boolean);
     const d3 = feed.dailyThree || {};
     const six = feed.sealedIndex;
     const ixSeries = (feed.indexHistory || []).map(r => r[1]);
@@ -494,11 +506,6 @@ export default function Ticker() {
           })}
         </div>)}
 
-      <div className="tk-sec">My Watch <span className="lbl">{watched.length ? `${watched.length} starred` : ""}</span></div>
-      {watched.length === 0
-        ? <div className="c3"><div className="c3b"><div className="why">Star anything — it lives here.</div></div></div>
-        : watched.map(x => <ProductCard x={x} key={x.id} />)}
-
       <div className="tk-sec">The Daily Three</div>
       {d3.sealed && <ProductCard x={{ id: "d3-sealed", name: d3.sealed.name, price: d3.sealed.ebay, tcg: d3.sealed.tcg,
         spreadPct: d3.sealed.spreadPct, listings: d3.sealed.listings, chip: d3.sealed.chip, subtype: "sealed pick" }} why={d3.sealed.reason} />}
@@ -517,7 +524,7 @@ export default function Ticker() {
         </div></div>
       </>)}
 
-      <div className="tk-sec">Movers <button className="lbl" style={{ background: "none", border: "none", color: "var(--green)", cursor: "pointer" }} onClick={() => setTab("movers")}>see all ▸</button></div>
+      <div className="tk-sec">Movers <button className="lbl" style={{ background: "none", border: "none", color: "var(--green)", cursor: "pointer" }} onClick={() => openTool("movers")}>see all ▸</button></div>
       {movers.length === 0
         ? <div className="c3"><div className="c3b"><div className="why">Tape's one day old — movers land tomorrow.<I t="Movers compare the last two committed days of market history — the same real lines for every visitor, first visit included. The clean tape began 2026-08-18." a="history" /></div></div></div>
         : movers.slice(0, 3).map(x => <ProductCard x={x} key={x.id} />)}
@@ -645,7 +652,7 @@ export default function Ticker() {
     };
 
     return (<>
-      <div className="tk-sec">Deal Check <span className="lbl">{tapeState === "cached" ? "offline · cached" : tapeState === "live" ? `${tape?.products.length ?? 0} products` : ""}</span></div>
+      <div className="tk-sec">✓ Is this ask fair? <span className="lbl">{tapeState === "cached" ? "offline · cached" : tapeState === "live" ? `${tape?.products.length ?? 0} products` : ""}</span></div>
       {tapeState === "offline-empty"
         ? <div className="tk-banner">No signal, no cache yet — open once online.</div>
         : (<>
@@ -657,10 +664,144 @@ export default function Ticker() {
               <div className="bnum">{fmt(x.median)}</div>
             </div>))}
           {!sel && tq.length >= 2 && results.length === 0 && tape && <div className="note">No match in {tape.products.length} tracked.</div>}
-          {!sel && tq.length < 2 && <div className="note">Type two letters. Works offline once loaded.</div>}
+          {!sel && tq.length < 2 && <div className="note">Type two letters. Offline-ready.</div>}
         </>)}
     </>);
   };
+
+  /* ── §15 Utilities IA: every tool is displayed as ITS JOB — the question
+     it answers. Tools hub + the new surfaces (mockup v4 = acceptance). ── */
+  const WatchTab = () => {
+    const watched = watch.map(id => ix.get(id)).filter(Boolean);
+    return (<>
+      <div className="tk-sec">What did my stuff do? <span className="lbl">{watched.length ? `${watched.length} starred` : ""}</span></div>
+      {watched.length === 0
+        ? <div className="c3"><div className="c3b"><div className="why">Star anything — it lives here.</div></div></div>
+        : watched.map(x => <ProductCard x={x} key={x.id} />)}
+    </>);
+  };
+
+  const Tools = () => {
+    const np = feed.netProceeds || {};
+    const evsNet = np.byId?.["swsh7-booster-box"];
+    const pm = feed.packMath || {};
+    const pw0 = (feed.printWatch || [])[0];
+    const lastCmp = lsGet("cmp:last", null);
+    const rows = [
+      ["check", "✓", "Is this ask fair?", `${feed.products?.length ?? "—"} products · show-floor speed`],
+      ["compare", "⇄", "Which of these two?", lastCmp ? `${lastCmp[0]} vs ${lastCmp[1]}` : "9 instruments side-by-side"],
+      ["net", "💵", "What lands in my pocket?", evsNet ? `EvSkies box: ${fmt(evsNet)} after fees` : "both venues' nets"],
+      ["packmath", "🎴", "Rip it, or buy singles?", pm.best ? `best ${fmt(pm.best.perPack)}/pack · worst ${fmt(pm.worst?.perPack)}` : "every box's math"],
+      ["printwatch", "⏳", "How long can I still buy it?", pw0 ? `${pw0.set} ~${pw0.daysLeft}d (est.)` : "the countdowns"],
+      ["roh", "🗳", "What does the crowd say?", feed.ripOrHold ? `${feed.ripOrHold.name} — vote live` : "the daily vote"],
+    ];
+    return (<>
+      <div className="tk-sec">🧰 Tools <span className="lbl">every tool is a question</span></div>
+      {rows.map(([id, icon, q, teaser]) => (
+        <button className="tool" key={id} onClick={() => openTool(id)}>
+          <span className="ticon">{icon}</span>
+          <span className="tbody"><b>{q}</b><span>{teaser}</span></span>
+          <span className="tgo">›</span>
+        </button>))}
+      <div className="note" style={{ margin: "14px 0" }}>
+        <a href="/studio" style={{ color: "var(--green)" }} onClick={(e) => { e.preventDefault(); window.history.pushState({}, "", "/studio"); setRoute({ name: "studio" }); }}>🎨 Studio →</a>
+      </div>
+    </>);
+  };
+
+  /* Pack Math — "Rip it, or buy singles?" (engine existed, humans never saw it) */
+  const PackMath = () => {
+    const [pq, setPq] = useState("");
+    const [sel, setSel] = useState(null);
+    const pm = feed.packMath || {};
+    const all = (pm.all || []).map(r => ({ ...r, name: ix.get(r.id)?.name || r.id, loose: ix.get(r.id)?.loosePack }));
+    const verdict = (r) => r.premium == null ? "No loose lane — per-pack only."
+      : r.premium > 15 ? "Sealed carries the box premium — ripping pays only on nostalgia."
+      : r.premium < 0 ? "The box is the cheap way in."
+      : "Parity — rip for fun, not math.";
+    const results = pq.length >= 2 ? all.filter(r => r.name.toLowerCase().includes(pq.toLowerCase())).slice(0, 6) : [];
+    const table = [...all].sort((a, b) => (b.premium ?? -999) - (a.premium ?? -999));
+    return (<>
+      <div className="tk-sec">🎴 Rip it, or buy singles?<I t="Per-pack = ask median ÷ era-aware pack count. The sealed premium compares that to the same set's loose-pack street price — positive means you pay extra to keep it sealed. Thin lanes (under 10 listings) are flagged, not hidden." a="premiums" /></div>
+      {!sel && <div className="why" style={{ marginBottom: 10 }}>{pm.best ? `Best way in today: ${pm.best.name}, ${fmt(pm.best.perPack)}/pack.` : "Every box's per-pack math."}</div>}
+      <input className="search" placeholder="Search a box…" value={pq} onChange={e => { setPq(e.target.value); setSel(null); }} />
+      {results.map(r => (
+        <div className="brow" key={r.id} onClick={() => setSel(r)} style={{ cursor: "pointer" }}>
+          <div className="bmid"><b>{r.name}</b></div>
+          <div className="bnum">{fmt(r.perPack)}/pk</div>
+        </div>))}
+      {sel && (
+        <div className="c3" style={{ flexDirection: "column" }}>
+          <span className="nm" style={{ whiteSpace: "normal" }}>{sel.name}</span>
+          <div className="strip" style={{ marginTop: 8 }}>
+            <span className="st">This box / pack<b>{fmt(sel.perPack)}</b></span>
+            <span className="st">Loose pack<b>{sel.loose ? fmt(sel.loose) : "—"}</b></span>
+            <span className="st">Premium<b>{sel.premium != null ? (sel.premium > 0 ? "+" : "") + sel.premium + "%" : "—"}{sel.thin ? " ⚠" : ""}</b></span>
+          </div>
+          <div className="why" style={{ marginTop: 8 }}>{verdict(sel)}<I t="Asks only, not sales. Thin ⚠ = the loose-pack lane has under 10 listings, so the premium is a soft read." a="premiums" /></div>
+        </div>)}
+      {!sel && pq.length < 2 && (<>
+        <div className="tk-sec">Today's table <span className="lbl">by premium</span></div>
+        {table.map(r => (
+          <div className="brow" key={r.id} onClick={() => setSel(r)} style={{ cursor: "pointer" }}>
+            <div className="bmid"><b>{r.name}</b><span>{fmt(r.perPack)}/pack{r.thin ? " · ⚠ thin" : ""}</span></div>
+            <div className="bnum">{r.premium != null ? (r.premium > 0 ? "+" : "") + r.premium + "%" : "—"}</div>
+          </div>))}
+      </>)}
+    </>);
+  };
+
+  /* Print Watch — "How long can I still buy it?" (site page, app grammar) */
+  const PrintWatch = () => {
+    const pw = feed.printWatch || [];
+    const tight = feed.tightening || [];
+    return (<>
+      <div className="tk-sec">⏳ How long can I still buy it?<I t="A 30-month print-window model per set, crossed with live listing depth and reprint news. The countdown is an estimate, not an announcement — a reprint resets the clock and we say so." a="print-watch" /></div>
+      {pw[0] && <div className="why" style={{ marginBottom: 10 }}>{pw[0].set} closes first — ~{pw[0].daysLeft}d (est.).</div>}
+      {pw.map(r => (
+        <div className="brow" key={r.setId}>
+          <div className="bmid"><b>{r.set}</b><span>{r.supply} listings · {r.legalTag}</span></div>
+          <div className="bnum">~{r.daysLeft}d<span className={`d ${r.tier === "low" ? "dn" : "n"}`} style={{ display: "block" }}>{r.tier} supply</span></div>
+        </div>))}
+      {tight.length > 0 && (<>
+        <div className="tk-sec">🔒 Tightening <span className="lbl">out of print · thinning</span></div>
+        {tight.map(t => (
+          <div className="brow" key={t.setId}>
+            <div className="bmid"><b>{t.set}</b></div>
+            <div className="bnum">{t.supply} left</div>
+          </div>))}
+      </>)}
+    </>);
+  };
+
+  /* Net Proceeds — "What lands in my pocket?" */
+  const NetCalc = () => {
+    const [priceIn, setPriceIn] = useState("");
+    const np = feed.netProceeds || {};
+    const p = parseFloat(priceIn);
+    const net = (m) => m && !isNaN(p) && p > 0 ? p * (1 - (m.pct ?? 0) / 100) - (m.fixed ?? 0) : null;
+    const nE = net(np.model), nT = net(np.tcgModel);
+    return (<>
+      <div className="tk-sec">💵 What lands in my pocket?<I t="Sale price minus each venue's fees: eBay ≈13.25% + $0.30; TCGplayer ≈10.75% + 2.5% + $0.30. Estimates — shipping and promoted-listing costs are yours to add." a="fair-range" /></div>
+      <input className="search" inputMode="decimal" placeholder="$ sale price…" value={priceIn} onChange={e => setPriceIn(e.target.value)} />
+      {nE != null && (
+        <div className="strip">
+          <span className="st">eBay nets<b>{fmt(Math.max(0, nE))}</b></span>
+          <span className="st">TCGplayer nets<b>{nT != null ? fmt(Math.max(0, nT)) : "—"}</b></span>
+        </div>)}
+    </>);
+  };
+
+  /* Rip or Hold — "What does the crowd say?" */
+  const RipOrHold = () => (<>
+    <div className="tk-sec">🗳 What does the crowd say?<I t="One-tap daily vote in the Discord — results revisited in tomorrow's Pulse. The crowd keeps a track record, just like we do." a="house-reads" /></div>
+    {feed.ripOrHold ? (
+      <div className="c3"><div className="c3b">
+        <b className="nm" style={{ whiteSpace: "normal" }}>{feed.ripOrHold.question}</b>
+        <div className="why" style={{ marginTop: 4 }}>{DISCORD_ALERTS_URL ? <a href={DISCORD_ALERTS_URL} style={{ color: "var(--green)" }}>Vote in the Discord →</a> : "Daily vote — Discord opening soon."}</div>
+      </div></div>
+    ) : <div className="note">Today's question mints with the morning run.</div>}
+  </>);
 
   /* Product detail (/product/{id}) — mockup v3 parity: photo, price+Δ, range
      bar, 6-stat grid, history chart, share card. Landers deep-link here. */
@@ -831,11 +972,12 @@ export default function Ticker() {
         <span className="st">{label}<b>{B ? f(B) ?? "—" : "—"}</b></span>
       </div>);
     return (<>
-      <div className="tk-sec">Compare</div>
+      <div className="tk-sec">⇄ Which of these two?</div>
       <select className="cmpsel" value={cmpA} onChange={e => setCmpA(e.target.value)}>
         <option value="">Pick product A…</option>{products.map(x => <option key={x.id} value={x.id}>{x.name}</option>)}</select>
       <select className="cmpsel" value={cmpB} onChange={e => setCmpB(e.target.value)}>
         <option value="">Pick product B…</option>{products.map(x => <option key={x.id} value={x.id}>{x.name}</option>)}</select>
+      {A && B && (() => { try { lsSet("cmp:last", [A.name.split(" ").slice(0, 2).join(" "), B.name.split(" ").slice(0, 2).join(" ")]); } catch {} return null; })()}
       {A && B ? (<>
         {row("Price", x => fmt(x.price))}
         {row("Spread", x => x.spreadPct != null ? pctFmt(x.spreadPct) : null)}
@@ -846,7 +988,7 @@ export default function Ticker() {
         {row("Δ today", x => { const d = deltaFor(feed, x.id); return d?.pct != null ? `${d.pct > 0 ? "▲" : d.pct < 0 ? "▼" : "·"} ${Math.abs(d.pct).toFixed(1)}%` : null; })}
         {row("Phase", x => life(x)?.phase)}
         {row("Legality", x => life(x)?.legalTag)}
-        <div className="note">Blank = no verified number.<I t="A blank cell means the daily feed carries no verified number for that instrument — we show gaps, not guesses." a="prices" /></div>
+        <div className="note">Blank cells<I t="A blank cell means the daily feed carries no verified number for that instrument — we show gaps, not guesses." a="prices" /></div>
       </>) : <div className="note">Pick two products.</div>}
     </>);
   };
@@ -865,12 +1007,20 @@ export default function Ticker() {
           </div>
         </div>
         {stale && <div className="tk-banner">Showing yesterday's tape — bots catching up.</div>}
-        {route?.name === "product" ? <ProductDetail id={route.id} /> : route?.name === "studio" ? <Studio /> : route?.name === "studio-archive" ? <StudioArchive /> : (<>
-          {tab === "home" && <Home />}
-          {tab === "movers" && <Movers />}
+        {route?.name === "product" ? <ProductDetail id={route.id} /> : route?.name === "studio" ? <Studio /> : route?.name === "studio-archive" ? <StudioArchive /> :
+         route?.name === "tool" ? (
+          route.tool === "check" ? <DealCheck /> :
+          route.tool === "compare" ? <Compare /> :
+          route.tool === "packmath" ? <PackMath /> :
+          route.tool === "printwatch" ? <PrintWatch /> :
+          route.tool === "net" ? <NetCalc /> :
+          route.tool === "roh" ? <RipOrHold /> :
+          route.tool === "movers" ? <Movers /> : <Tools />
+        ) : (<>
+          {tab === "today" && <Home />}
+          {tab === "tools" && <Tools />}
+          {tab === "watch" && <WatchTab />}
           {tab === "board" && <Board />}
-          {tab === "compare" && <Compare />}
-          {tab === "check" && <DealCheck />}
         </>)}
         {receipt && (<>
           <div className="drawer-back" onClick={() => setReceipt(null)} />
@@ -886,7 +1036,7 @@ export default function Ticker() {
             {info.anchor && <a href={`/methodology.html#${info.anchor}`} style={{ color: "var(--green)", fontSize: 12, display: "inline-block", marginTop: 12 }}>full story → methodology</a>}
           </div></>)}
         <nav className="tabs">
-          {[["home", "⚡", "Ticker"], ["movers", "▲▼", "Movers"], ["board", "▦", "Board"], ["compare", "⇄", "Compare"], ["check", "✓", "Check"]].map(([id, icon, name]) =>
+          {[["today", "⚡", "Today"], ["tools", "🧰", "Tools"], ["watch", "⭐", "Watch"], ["board", "▦", "Board"]].map(([id, icon, name]) =>
             <button className={`tab ${tab === id && !route ? "on" : ""}`} key={id} onClick={() => { if (route) closeProduct(); setTab(id); }}><i>{icon}</i>{name}</button>)}
         </nav>
       </main>

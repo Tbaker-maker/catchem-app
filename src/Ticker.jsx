@@ -499,7 +499,14 @@ export default function Ticker() {
       {(feed.signals || []).length > 12 && <div className="note">+{feed.signals.length - 12} more signals on the Board tab.</div>}
 
       {(feed.quietMovers || []).length > 0 && (<>
-        <div className="tk-sec">Quiet movers</div>
+        {feed.ripOrHold && (<>
+      <div className="tk-sec">🗳 Rip or Hold?</div>
+      <div className="c3"><div className="c3b">
+        <b className="nm">{feed.ripOrHold.question}</b>
+        <div className="why" style={{ marginTop: 6 }}>One-tap vote lives in the Discord — results revisited in tomorrow's Pulse, and the crowd keeps a track record just like we do.</div>
+      </div></div>
+    </>)}
+    <div className="tk-sec">Quiet movers</div>
         <div className="mvs">{feed.quietMovers.slice(0, 4).map((m, i) =>
           <div className="mv" key={i}><b>{m.flagship}</b><span className="d n">{fmt(m.price)}</span></div>)}</div></>)}
 
@@ -698,6 +705,10 @@ export default function Ticker() {
         </div></div></div>
       ) : (<>
         <div className="hero" style={{ fontSize: 30, marginTop: 14 }}>{fmt(x.price)} <Delta d={d} /></div>
+        {(() => { const nE = feed.netProceeds?.byId?.[id], nT = feed.netProceeds?.tcgById?.[id];
+          return nE ? (<div className="esub" style={{ marginTop: 4 }}>
+            in-pocket if sold today ≈ <b className="mono">{fmt(nE)}</b> on eBay{nT ? <> · <b className="mono">{fmt(nT)}</b> on TCGplayer</> : null} <span style={{ opacity: .7 }}>(est., after fees + $0.30)</span>
+          </div>) : null; })()}
         <div className="lbl" style={{ marginTop: 2 }}>today's eBay ask median · delivered, BIN-only</div>
         {pctIn != null && (
           <div style={{ margin: "16px 0 2px" }}>

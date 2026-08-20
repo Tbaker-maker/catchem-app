@@ -25,7 +25,7 @@ const DISCORD_ALERTS_URL = ""; // TODO(Tyler): discord.gg invite or #alerts chan
 // Posts to the LIVE Formspree waitlist today (the same list newsletter 001
 // imports from). TODO(Tyler): claim a buttondown.com username, set it here,
 // and the form flips to Buttondown's embed endpoint — one constant, no markup.
-const BUTTONDOWN_USERNAME = "";
+const BUTTONDOWN_USERNAME = "catchemtcg";
 const CAPTURE_URL = BUTTONDOWN_USERNAME
   ? `https://buttondown.com/api/emails/embed-subscribe/${BUTTONDOWN_USERNAME}`
   : "https://formspree.io/f/xgorlypa";

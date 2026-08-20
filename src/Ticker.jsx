@@ -110,6 +110,9 @@ min-height:52px;cursor:pointer}
 text-align:center;padding:24px 16px;border-radius:14px;margin-bottom:12px}
 .tk-agree b{color:var(--green);font-size:15px}
 .note{font-size:10.5px;color:var(--dim);margin-top:9px;line-height:1.5}
+.idot{background:none;border:none;color:var(--dim);font-size:13px;line-height:1;cursor:pointer;
+padding:0 4px;min-width:28px;min-height:28px;vertical-align:middle}
+.idot:active{color:var(--green)}
 .locked{border-style:dashed;border-color:rgba(255,255,255,.18)}
 .drawer-back{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:40}
 .drawer{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:420px;
@@ -207,7 +210,7 @@ function bumpStreak(today) {
 /* ── small components ────────────────────────────────────────────────── */
 function Spark({ pts, w = 56, h = 20 }) {
   if (!pts || pts.length < 2)
-    return <svg className="spk" width={w} height={h} aria-label="sparkline pending — appears after two visits"><line x1="2" y1={h/2} x2={w-2} y2={h/2} stroke="#3a415a" strokeDasharray="3 3" /></svg>;
+    return <svg className="spk" width={w} height={h} aria-label="sparkline pending"><line x1="2" y1={h/2} x2={w-2} y2={h/2} stroke="#3a415a" strokeDasharray="3 3" /></svg>;
   const min = Math.min(...pts), max = Math.max(...pts), span = max - min || 1;
   const step = (w - 4) / (pts.length - 1);
   const d = pts.map((v, i) => `${i ? "L" : "M"}${2 + i * step},${h - 3 - ((v - min) / span) * (h - 6)}`).join(" ");
@@ -331,17 +334,17 @@ function EmailCapture() {
   };
   if (state === "done-prior") return null;
   if (state === "done")
-    return <div className="cap"><b style={{ color: "var(--green)" }}>✓ You're on the list.</b><div className="note">The Morning Pulse lands in your inbox from the next send.</div></div>;
+    return <div className="cap"><b style={{ color: "var(--green)" }}>✓ You're on the list.</b></div>;
   return (
     <form className="cap" onSubmit={submit}>
       <b>Get the Morning Pulse in your inbox</b>
-      <div className="note" style={{ margin: "4px 0 10px" }}>Same tape, delivered — home-screen apps can't ping you reliably, email can. No spam, unsubscribe anytime.</div>
+      <div className="note" style={{ margin: "4px 0 10px" }}>Daily. No spam.</div>
       <div style={{ display: "flex", gap: 8 }}>
         <input className="search" style={{ margin: 0, flex: 1 }} type="email" required placeholder="you@example.com"
           value={email} onChange={(e) => setEmail(e.target.value)} aria-label="email address" />
         <button className="fchip on" type="submit" disabled={state === "sending"}>{state === "sending" ? "…" : "Send it"}</button>
       </div>
-      {state === "error" && <div className="note" style={{ color: "var(--red)", marginTop: 8 }}>Couldn't reach the list — try again in a moment.</div>}
+      {state === "error" && <div className="note" style={{ color: "var(--red)", marginTop: 8 }}>Couldn't reach the list — try again.</div>}
     </form>
   );
 }
@@ -352,6 +355,9 @@ export default function Ticker() {
   const [err, setErr] = useState(null);
   const [loading, setLoading] = useState(true);
   const [receipt, setReceipt] = useState(null);
+  // v7 Digest Law: every sentence cut from a screen lives one tap away —
+  // ⓘ opens this bottom sheet with the explanation + its methodology anchor.
+  const [info, setInfo] = useState(null);
   const [tab, setTab] = useState("home");
   const [watch, setWatch] = useState(() => lsGet("watch:v1", []));
   const [q, setQ] = useState("");
@@ -429,6 +435,11 @@ export default function Ticker() {
     <button className={`star ${watch.includes(id) ? "on" : ""}`} onClick={() => toggleWatch(id)}
       aria-label={watch.includes(id) ? "unstar" : "star"}>{watch.includes(id) ? "★" : "☆"}</button>);
 
+  /* ⓘ — one tap to the cut sentence (bottom sheet), one more to methodology */
+  const I = ({ t, a }) => (
+    <button className="idot" aria-label="more info"
+      onClick={(e) => { e.stopPropagation(); setInfo({ body: t, anchor: a }); }}>ⓘ</button>);
+
   const ProductCard = ({ x, why }) => (
     <div className="c3" key={x.id}>
       {x.imageUrl ? <img src={x.imageUrl} alt="" loading="lazy" width="76" height="76" /> : null}
@@ -438,9 +449,9 @@ export default function Ticker() {
         <span className="nm" onClick={() => ix.has(x.id) && openProduct(x.id)} style={ix.has(x.id) ? { cursor: "pointer" } : null}>{x.name}</span>
         <div className="hero">{fmt(x.price)} <Delta d={deltaFor(feed, x.id)} /><Spark pts={seriesFor(feed, x.id)} /></div>
         <div className="strip">
-          {x.listings != null && <span className="st">Active Listings<b>{x.listings}</b></span>}
+          {x.listings != null && <span className="st">Listings<b>{x.listings}</b></span>}
           {x.spreadPct != null && <span className="st">Spread<b>{pctFmt(x.spreadPct)}</b></span>}
-          {x.tcg != null && <span className="st">TCG side<b>{fmt(x.tcg)}</b></span>}
+          {x.tcg != null && <span className="st">TCG<b>{fmt(x.tcg)}</b></span>}
           {x.perPack != null && <span className="st">Per pack<b>{fmt(x.perPack)}</b></span>}
         </div>
         {(why || x.why) && <div className="why">{why || x.why}</div>}
@@ -448,12 +459,27 @@ export default function Ticker() {
     </div>);
 
   /* ── screens ── */
+  // Home follows the v7 digest order: Index → My Watch → Daily Three →
+  // Rip-or-Hold → Movers preview → email band. The Spread/pack-math/quiet-
+  // movers/radar truths relocated: spread stat on every card + Board rows,
+  // per-pack on product pages, movers tab (radar rides its foot), ⓘ→methodology.
   const Home = () => {
     const watched = watch.map(id => ix.get(id)).filter(Boolean);
     const d3 = feed.dailyThree || {};
+    const six = feed.sealedIndex;
+    const ixSeries = (feed.indexHistory || []).map(r => r[1]);
+    const ixDelta = ixSeries.length >= 2 && ixSeries[ixSeries.length - 2]
+      ? { pct: ((ixSeries[ixSeries.length - 1] - ixSeries[ixSeries.length - 2]) / ixSeries[ixSeries.length - 2]) * 100 } : null;
     return (<>
-      {(feed.eraIndexes || []).length > 0 && (<>
-        <div className="tk-sec" style={{ margin: "4px 0 10px" }}>Sealed Index — era levels</div>
+      {six && (
+        <div className="tk-idx">
+          <div className="cell"><div className="lbl">Sealed Index<I t="One number for the whole shelf: every tracked product vs its own starting price, averaged. Breadth counts how many rose vs fell." a="index" /></div>
+            <div className="big">{six.level}</div></div>
+          <div className="cell" style={{ textAlign: "center" }}><Delta d={ixDelta} /><Spark pts={ixSeries} w={62} h={18} /></div>
+          <div className="cell" style={{ textAlign: "right" }}><div className="lbl">breadth</div>
+            <div className="d" style={{ fontSize: 12 }}><span className="u">▲{six.breadth?.up ?? 0}</span> <span className="dn">▼{six.breadth?.down ?? 0}</span></div></div>
+        </div>)}
+      {(feed.eraIndexes || []).length > 0 && (
         <div className="eras">
           {feed.eraIndexes.map(e => {
             const s = (feed.eraHistory?.[e.era] || []).map(r => r[1]);
@@ -466,78 +492,55 @@ export default function Ticker() {
                 <div className="esub">{e.products} products · {e.listingsPerProduct} l/p</div>
               </div>);
           })}
-        </div>
-      </>)}
-      <div className="tk-idx">
-        <div className="cell"><div className="big">{p.skusTracked ?? "—"}</div><div className="lbl">sealed tracked</div></div>
-        <div className="cell"><div className="big">{p.signals ?? 0}</div><div className="lbl">signals</div></div>
-        <div className="cell"><div className="big">{p.calibrationDay ?? "—"}/{p.calibrationOf ?? "—"}</div><div className="lbl">reads calibrating</div>
-          {p.calibrationDay < p.calibrationOf && <div className="tk-bar"><div className="tk-fill" style={{ width: `${100 * p.calibrationDay / p.calibrationOf}%` }} /></div>}</div>
-      </div>
+        </div>)}
 
       <div className="tk-sec">My Watch <span className="lbl">{watched.length ? `${watched.length} starred` : ""}</span></div>
       {watched.length === 0
-        ? <div className="c3"><div className="c3b"><div className="why">Star anything — it lives here. Your list is the reason to come back tomorrow.</div></div></div>
+        ? <div className="c3"><div className="c3b"><div className="why">Star anything — it lives here.</div></div></div>
         : watched.map(x => <ProductCard x={x} key={x.id} />)}
 
       <div className="tk-sec">The Daily Three</div>
       {d3.sealed && <ProductCard x={{ id: "d3-sealed", name: d3.sealed.name, price: d3.sealed.ebay, tcg: d3.sealed.tcg,
         spreadPct: d3.sealed.spreadPct, listings: d3.sealed.listings, chip: d3.sealed.chip, subtype: "sealed pick" }} why={d3.sealed.reason} />}
       {d3.graded && (d3.graded.gated
-        ? <div className="c3 locked"><div className="c3b"><div className="c3t"><span className="lbl">graded pick</span><span className="chip p">🔒 GATED</span></div>
+        ? <div className="c3 locked"><div className="c3b"><div className="c3t"><span className="lbl">graded pick</span><span className="chip p">🔒 GATED</span><I t="The Grading Premium table publishes when data licensing clears — we don't print numbers we can't stand behind publicly." a="raw-graded" /></div>
             <span className="nm">{d3.graded.name}</span>
-            <div className="why">Grading Premium unlocks when data licensing clears — we don't publish numbers we can't stand behind publicly yet.</div></div></div>
+            <div className="why">Unlocks with licensing.</div></div></div>
         : <ProductCard x={{ id: "d3-graded", name: d3.graded.name, price: d3.graded.raw, chip: d3.graded.chip, subtype: "graded pick" }} why={d3.graded.reason} />)}
       {d3.raw && <ProductCard x={{ id: "d3-raw", name: `${d3.raw.name} (${d3.raw.set})`, price: d3.raw.price, chip: d3.raw.chip, subtype: "chase" }} why={d3.raw.reason} />}
 
-      <EmailCapture />
-
-      <div className="tk-sec">The Spread — today's signals</div>
-      {(feed.signals || []).length === 0
-        ? <div className="tk-agree"><b>Markets agree today.</b><div className="note">Every tracked product is inside the band. Quiet tape is a finding, not a failure.</div></div>
-        : (feed.signals || []).slice(0, 12).map(s => <ProductCard x={ix.get(s.id) || { id: s.id, name: s.name, price: s.ebay?.ask, spreadPct: s.spreadPct, listings: s.ebay?.listings, tcg: s.tcg?.market, imageUrl: s.imageUrl, chip: s.class, provenance: s.provenance }} why={s.read} key={s.id} />)}
-      {(feed.signals || []).length > 12 && <div className="note">+{feed.signals.length - 12} more signals on the Board tab.</div>}
-
-      {(feed.quietMovers || []).length > 0 && (<>
-        {feed.ripOrHold && (<>
-      <div className="tk-sec">🗳 Rip or Hold?</div>
-      <div className="c3"><div className="c3b">
-        <b className="nm">{feed.ripOrHold.question}</b>
-        <div className="why" style={{ marginTop: 6 }}>One-tap vote lives in the Discord — results revisited in tomorrow's Pulse, and the crowd keeps a track record just like we do.</div>
-      </div></div>
-    </>)}
-    <div className="tk-sec">Quiet movers</div>
-        <div className="mvs">{feed.quietMovers.slice(0, 4).map((m, i) =>
-          <div className="mv" key={i}><b>{m.flagship}</b><span className="d n">{fmt(m.price)}</span></div>)}</div></>)}
-
-      {feed.packMath?.priciest?.length > 0 && (<>
-        <div className="tk-sec">Pack math — inside the sealed product</div>
+      {feed.ripOrHold && (<>
+        <div className="tk-sec">🗳 Rip or Hold?<I t="One-tap daily vote in the Discord — results revisited in tomorrow's Pulse. The crowd keeps a track record, just like we do." a="house-reads" /></div>
         <div className="c3"><div className="c3b">
-          {[...feed.packMath.priciest.slice(0, 3), ...(feed.packMath.cheapest || []).slice(0, 2)].map(r =>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }} key={r.id}>
-              <span style={{ fontSize: 12.5 }}>{r.name}</span><span className="d n">{fmt(r.perPack)}/pack</span></div>)}
-          <div className="note">Sealed ask median ÷ packs in the box — NOT loose-pack prices. <Chip cls="MEASURED" onTap={() => showReceipts("Pack Math", "price ÷ era-aware pack count; variable-count products excluded by name")} /></div>
-        </div></div></>)}
+          <b className="nm" style={{ whiteSpace: "normal" }}>{feed.ripOrHold.question}</b>
+          <div className="why" style={{ marginTop: 4 }}>{DISCORD_ALERTS_URL ? <a href={DISCORD_ALERTS_URL} style={{ color: "var(--green)" }}>Vote in the Discord →</a> : "Daily vote — Discord opening soon."}</div>
+        </div></div>
+      </>)}
 
-      <div className="tk-sec">Release radar</div>
-      {(feed.radar || []).length === 0
-        ? <div className="note">Nothing landing inside the window — check back after the next drop announcement.</div>
-        : feed.radar.map((r, i) => <div className="brow" key={i}><div className="bmid"><b>{r.name}</b><span>{r.note || ""}</span></div><div className="bnum">{r.date}</div></div>)}
-      <div className="note" style={{ textAlign: "center", margin: "20px 0" }}>{feed.disclosure} <a href="/methodology.html#buy-pressure" style={{ color: "var(--green)" }}>how the estimate works →</a></div>
+      <div className="tk-sec">Movers <button className="lbl" style={{ background: "none", border: "none", color: "var(--green)", cursor: "pointer" }} onClick={() => setTab("movers")}>see all ▸</button></div>
+      {movers.length === 0
+        ? <div className="c3"><div className="c3b"><div className="why">Tape's one day old — movers land tomorrow.<I t="Movers compare the last two committed days of market history — the same real lines for every visitor, first visit included. The clean tape began 2026-08-18." a="history" /></div></div></div>
+        : movers.slice(0, 3).map(x => <ProductCard x={x} key={x.id} />)}
+
+      <EmailCapture />
+      <div className="note" style={{ textAlign: "center", margin: "16px 0" }}>{feed.disclosure}<I t="Buy Pressure is estimated from listing-count changes — inventory draining or building. It is not reported sales; nobody outside the marketplaces has real sales data." a="buy-pressure" /></div>
     </>);
   };
 
   const Movers = () => (<>
-    <div className="tk-sec">Movers — overnight Δ on the tape</div>
+    <div className="tk-sec">Movers<I t="Δ compares the last two committed days of market history — the same real lines for every visitor, first visit included. The clean tape began 2026-08-18." a="history" /></div>
     {movers.length === 0
-      ? <div className="c3"><div className="c3b"><div className="why">The clean tape is one day old — movers appear when it has two. Nothing invented in the meantime.</div></div></div>
+      ? <div className="c3"><div className="c3b"><div className="why">Tape's one day old — movers land tomorrow.</div></div></div>
       : (<>
-        <div className="lbl" style={{ margin: "8px 0" }}>▲ up vs yesterday</div>
+        <div className="lbl" style={{ margin: "8px 0" }}>▲ Up</div>
         {movers.filter(m => m.delta.pct > 0).slice(0, 8).map(x => <ProductCard x={x} key={x.id} />)}
-        <div className="lbl" style={{ margin: "8px 0" }}>▼ down vs yesterday</div>
+        <div className="lbl" style={{ margin: "8px 0" }}>▼ Down</div>
         {movers.filter(m => m.delta.pct < 0).slice(-8).reverse().map(x => <ProductCard x={x} key={x.id} />)}
       </>)}
-    <div className="note">Δ compares the last two committed days of market history — the same lines for every visitor, first visit included.</div>
+    {(feed.radar || []).length > 0 && (<>
+      <div className="tk-sec">Release radar</div>
+      {feed.radar.map((r, i) => <div className="brow" key={i}><div className="bmid"><b>{r.name}</b><span>{r.note || ""}</span></div><div className="bnum">{r.date}</div></div>)}
+    </>)}
   </>);
 
   const Board = () => {
@@ -552,11 +555,11 @@ export default function Ticker() {
       {rows.map(x => (
         <div className="brow" key={x.id}>
           {x.imageUrl ? <img src={x.imageUrl} alt="" loading="lazy" width="42" height="42" /> : null}
-          <div className="bmid" onClick={() => openProduct(x.id)} style={{ cursor: "pointer" }}><b>{x.name}</b><span>{x.subtype}{x.listings != null ? ` · ${x.listings} listings` : ""}</span></div>
+          <div className="bmid" onClick={() => openProduct(x.id)} style={{ cursor: "pointer" }}><b>{x.name}</b><span>{x.subtype}{x.listings != null ? ` · ${x.listings} listings` : ""}{x.spreadPct != null ? ` · spread ${pctFmt(x.spreadPct)}` : ""}</span></div>
           <div className="bnum">{fmt(x.price)}<Delta d={deltaFor(feed, x.id)} /></div>
           <Star id={x.id} />
         </div>))}
-      <div className="note">The Board carries the full tracked tape ({products.length} products) — tap any row for its detail page.</div>
+      <div className="note">Tap any row for detail.</div>
     </>);
   };
 
@@ -616,45 +619,45 @@ export default function Ticker() {
           </div>
           {nam ? (
             <div className="why" style={{ marginTop: 8 }}>
-              No active listings — this market trades via auctions and sold comps, so there's no honest fair-range to print. We show gaps, not guesses.
+              No active listings — auctions & comps venue.<I t="Vintage-class product rarely trades as live eBay listings — the market lives in auctions, shows and collector groups, so there is no honest fair-range to print. We show gaps, not guesses." a="venue-law" />
             </div>
           ) : (<>
             <div className="strip" style={{ marginTop: 10 }}>
               <span className="st">Clean floor<b>{fmt(x.floorClean)}</b></span>
               <span className="st">Median<b>{fmt(x.median)}</b></span>
-              <span className="st">Active Listings<b>{x.listings ?? "—"}</b></span>
+              <span className="st">Listings<b>{x.listings ?? "—"}</b></span>
               {!x.vintage && ix.get(x.id)?.spreadPct != null && <span className="st">Spread<b>{pctFmt(ix.get(x.id).spreadPct)}</b></span>}
             </div>
             {feed.netProceeds?.byId?.[x.id] != null && (
-              <div className="esub" style={{ marginTop: 8 }}>Seller nets ≈ <b className="mono">{fmt(feed.netProceeds.byId[x.id])}</b> on eBay after fees (est.) — the number that settles a show-floor negotiation.</div>
+              <div className="esub" style={{ marginTop: 8 }}>Seller nets ≈ <b className="mono">{fmt(feed.netProceeds.byId[x.id])}</b> after eBay fees (est.)<I t="Sale price minus eBay final-value fees and typical costs — the number that settles a show-floor negotiation." a="fair-range" /></div>
             )}
             <div style={{ position: "relative", height: 6, background: "var(--raised)", borderRadius: 99, margin: "14px 0 4px" }}>
               <div style={{ position: "absolute", left: 0, width: `${pctIn}%`, top: 0, bottom: 0, background: "linear-gradient(90deg,rgba(54,211,153,.5),var(--green))", borderRadius: 99 }} />
             </div>
-            <div className="why">Asks cluster between the clean floor and the median — offers under the floor are reaching; asks past the median need a reason.</div>
-            <button className="fchip on" style={{ marginTop: 10 }} onClick={() => renderShare(x)}>Render share card 📸</button>
+            <div className="why">Fair zone: floor → median.<I t="Asks cluster between the clean floor and the median — offers under the floor are reaching; asks past the median need a reason." a="fair-range" /></div>
+            <button className="fchip on" style={{ marginTop: 10 }} onClick={() => renderShare(x)}>Share card 📸</button>
             {shareImg && (<>
               <img src={shareImg} alt="Deal check share card" style={{ width: "100%", borderRadius: 12, marginTop: 10 }} />
-              <div className="note">Long-press (or right-click) the card to save · sized for group posts.</div>
+              <div className="note">Long-press to save.</div>
             </>)}
           </>)}
         </div>);
     };
 
     return (<>
-      <div className="tk-sec">Deal Check <span className="lbl">{tapeState === "cached" ? "offline — cached tape" : tapeState === "live" ? `${tape?.products.length ?? 0} products` : ""}</span></div>
+      <div className="tk-sec">Deal Check <span className="lbl">{tapeState === "cached" ? "offline · cached" : tapeState === "live" ? `${tape?.products.length ?? 0} products` : ""}</span></div>
       {tapeState === "offline-empty"
-        ? <div className="tk-banner">Can't reach the tape and nothing's cached yet — open this tab once with signal and it works offline after.</div>
+        ? <div className="tk-banner">No signal, no cache yet — open once online.</div>
         : (<>
-          <input className="search" placeholder="Search any tracked product… (show-floor speed)" value={tq} onChange={e => { setTq(e.target.value); setSel(null); setShareImg(null); }} />
+          <input className="search" placeholder="Search any tracked product…" value={tq} onChange={e => { setTq(e.target.value); setSel(null); setShareImg(null); }} />
           {sel ? <Check x={sel} /> : results.map(x => (
             <div className="brow" key={x.id} onClick={() => { setSel(x); setShareImg(null); }} style={{ cursor: "pointer" }}>
               {x.img ? <img src={x.img} alt="" loading="lazy" width="42" height="42" /> : null}
               <div className="bmid"><b>{x.name}</b><span>{x.subtype}{x.vintage ? " · vintage" : ""}</span></div>
               <div className="bnum">{fmt(x.median)}</div>
             </div>))}
-          {!sel && tq.length >= 2 && results.length === 0 && tape && <div className="note">Nothing tracked matches "{tq}" — the tape covers {tape.products.length} sealed products.</div>}
-          {!sel && tq.length < 2 && <div className="note">Type two letters — built for deciding on a $1,400 ask in ten seconds, works offline once loaded.</div>}
+          {!sel && tq.length >= 2 && results.length === 0 && tape && <div className="note">No match in {tape.products.length} tracked.</div>}
+          {!sel && tq.length < 2 && <div className="note">Type two letters. Works offline once loaded.</div>}
         </>)}
     </>);
   };
@@ -665,8 +668,8 @@ export default function Ticker() {
     const [shareImg, setShareImg] = useState(null);
     const x = ix.get(id);
     if (!x) return (<>
-      <button className="fchip" onClick={closeProduct} style={{ marginTop: 8 }}>← back to the tape</button>
-      <div className="c3" style={{ marginTop: 12 }}><div className="c3b"><div className="why">"{id}" isn't on the tracked tape ({ix.size} products). Search the Board for what we do track.</div></div></div>
+      <button className="fchip" onClick={closeProduct} style={{ marginTop: 8 }}>← back</button>
+      <div className="c3" style={{ marginTop: 12 }}><div className="c3b"><div className="why">Not on the tape — search the Board.</div></div></div>
     </>);
     const life = feed.lifecycle?.[x.setId];
     const hist = feed.history?.[id] || [];
@@ -676,14 +679,14 @@ export default function Ticker() {
       ? Math.min(96, Math.max(4, 100 * ((x.price - x.floor) / (x.high - x.floor)))) : null;
     const Chart = () => {
       if (hist.length < 2)
-        return <div className="note" style={{ margin: "14px 0" }}>Price history accrues from the clean tape (born 2026-08-18) — this product has {hist.length || "no"} day{hist.length === 1 ? "" : "s"} so far; the line grows every morning.</div>;
+        return <div className="note" style={{ margin: "14px 0" }}>Day {hist.length || 0} of the clean tape.<I t="Price history accrues from the clean tape, born 2026-08-18 — the line grows one point every morning, the same for every visitor." a="history" /></div>;
       const W = 352, H = 120, pr = hist.map(r => r[1]);
       const min = Math.min(...pr), max = Math.max(...pr), span = max - min || 1;
       const step = (W - 8) / (pr.length - 1);
       const dd = pr.map((v, i) => `${i ? "L" : "M"}${(4 + i * step).toFixed(1)},${(H - 10 - ((v - min) / span) * (H - 24)).toFixed(1)}`).join(" ");
       return (
         <div className="c3" style={{ flexDirection: "column", marginTop: 12 }}>
-          <div className="lbl">price — last {pr.length} days · eBay ask median</div>
+          <div className="lbl">last {pr.length} days</div>
           <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%" }} role="img" aria-label={`price history, ${pr.length} days`}>
             <path d={dd} fill="none" stroke={pr[pr.length - 1] >= pr[0] ? "var(--green)" : "var(--red)"} strokeWidth="2" />
           </svg>
@@ -693,7 +696,7 @@ export default function Ticker() {
         </div>);
     };
     return (<>
-      <button className="fchip" onClick={closeProduct} style={{ margin: "8px 0 14px" }}>← back to the tape</button>
+      <button className="fchip" onClick={closeProduct} style={{ margin: "8px 0 14px" }}>← back</button>
       <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
         {x.imageUrl && <img src={x.imageUrl} alt={x.name} width="104" height="104" style={{ width: 104, height: 104, objectFit: "contain", borderRadius: 12, background: "#070910", flex: "none" }} />}
         <div style={{ minWidth: 0 }}>
@@ -704,15 +707,15 @@ export default function Ticker() {
       </div>
       {nam ? (
         <div className="c3" style={{ marginTop: 14 }}><div className="c3b"><div className="why">
-          No active listings — this market trades via auctions and sold comps, so there's no honest fair-range to print. We show gaps, not guesses.
+          No active listings — auctions & comps venue.<I t="Vintage-class product rarely trades as live eBay listings — the market lives in auctions, shows and collector groups, so there is no honest fair-range to print. We show gaps, not guesses." a="venue-law" />
         </div></div></div>
       ) : (<>
         <div className="hero" style={{ fontSize: 30, marginTop: 14 }}>{fmt(x.price)} <Delta d={d} /></div>
         {(() => { const nE = feed.netProceeds?.byId?.[id], nT = feed.netProceeds?.tcgById?.[id];
           return nE ? (<div className="esub" style={{ marginTop: 4 }}>
-            in-pocket if sold today ≈ <b className="mono">{fmt(nE)}</b> on eBay{nT ? <> · <b className="mono">{fmt(nT)}</b> on TCGplayer</> : null} <span style={{ opacity: .7 }}>(est., after fees + $0.30)</span>
+            nets ≈ <b className="mono">{fmt(nE)}</b> eBay{nT ? <> · <b className="mono">{fmt(nT)}</b> TCG</> : null} after fees (est.)<I t="In-pocket if sold today: sale price minus marketplace final-value fees plus $0.30 — the seller's real number, not the sticker." a="fair-range" />
           </div>) : null; })()}
-        <div className="lbl" style={{ marginTop: 2 }}>today's eBay ask median · delivered, BIN-only</div>
+        <div className="lbl" style={{ marginTop: 2 }}>ask median · delivered<I t="Today's eBay asking median: Buy-It-Now listings only, delivered price (item + shipping), scam-vocabulary filtered. Asks, not sales." a="prices" /></div>
         {pctIn != null && (
           <div style={{ margin: "16px 0 2px" }}>
             <div style={{ position: "relative", height: 6, background: "var(--raised)", borderRadius: 99 }}>
@@ -723,20 +726,20 @@ export default function Ticker() {
             </div>
           </div>)}
         <div className="grid6" style={{ marginTop: 14 }}>
-          <span className="st">Active Listings<b>{x.listings ?? "—"}</b><span style={{ display: "block", fontSize: 9.5 }}>after title + price filters</span></span>
-          <span className="st">Clean floor<b>{fmt(x.floor)}</b><span style={{ display: "block", fontSize: 9.5 }}>cheapest clean listing</span></span>
-          <span className="st">Per pack<b>{x.perPack != null ? fmt(x.perPack) : "—"}</b><span style={{ display: "block", fontSize: 9.5 }}>{x.packs ? `median ÷ ${x.packs} packs` : "count varies — not printed"}</span></span>
-          <span className="st">Vs loose pack<b>{x.vsLoosePct != null ? (x.vsLoosePct > 0 ? "+" : "") + x.vsLoosePct + "%" : "—"}</b><span style={{ display: "block", fontSize: 9.5 }}>{x.loosePack ? `loose lane ${fmt(x.loosePack)}/pack` : "no loose lane tracked"}</span></span>
-          <span className="st">Age · phase<b>{life?.ageMonths != null ? life.ageMonths + "mo" : "—"}</b><span style={{ display: "block", fontSize: 9.5 }}>{life?.phase ?? "lifecycle read pending"}</span></span>
-          <span className="st">⚖ Legality<b>{life?.legalTag ?? "—"}</b><span style={{ display: "block", fontSize: 9.5 }}>{life?.standardLegal ? "Standard-legal" : life ? "rotated / non-Standard" : ""}</span></span>
+          <span className="st">Listings<b>{x.listings ?? "—"}</b><span style={{ display: "block", fontSize: 9.5 }}>filtered</span></span>
+          <span className="st">Clean floor<b>{fmt(x.floor)}</b></span>
+          <span className="st">Per pack<b>{x.perPack != null ? fmt(x.perPack) : "—"}</b><span style={{ display: "block", fontSize: 9.5 }}>{x.packs ? `÷ ${x.packs} packs` : "varies"}</span></span>
+          <span className="st">Vs loose pack<b>{x.vsLoosePct != null ? (x.vsLoosePct > 0 ? "+" : "") + x.vsLoosePct + "%" : "—"}</b><span style={{ display: "block", fontSize: 9.5 }}>{x.loosePack ? `loose ${fmt(x.loosePack)}` : "no loose lane"}</span></span>
+          <span className="st">Age · phase<b>{life?.ageMonths != null ? life.ageMonths + "mo" : "—"}</b><span style={{ display: "block", fontSize: 9.5 }}>{life?.phase ?? "—"}</span></span>
+          <span className="st">⚖ Legality<b>{life?.legalTag ?? "—"}</b><span style={{ display: "block", fontSize: 9.5 }}>{life?.standardLegal ? "Standard" : life ? "rotated" : ""}</span></span>
         </div>
         <Chart />
         <button className="fchip on" style={{ marginTop: 12 }}
           onClick={() => renderShareCard({ name: x.name, median: x.price, floorClean: x.floor, listings: x.listings, vintage: x.vintage, img: x.imageUrl }, today, setShareImg)}>
-          Render share card 📸</button>
+          Share card 📸</button>
         {shareImg && (<>
           <img src={shareImg} alt="share card" style={{ width: "100%", borderRadius: 12, marginTop: 10 }} />
-          <div className="note">Long-press (or right-click) the card to save · sized for group posts.</div>
+          <div className="note">Long-press to save.</div>
         </>)}
       </>)}
       <div className="note" style={{ margin: "18px 0" }}>{feed.disclosure}</div>
@@ -761,8 +764,8 @@ export default function Ticker() {
       if (p) renderShareCard({ name: p.name, median: p.price, floorClean: p.floor, listings: p.listings, vintage: p.vintage, img: p.imageUrl }, today, setShareImg);
     };
     return (<>
-      <div className="tk-sec" style={{ marginTop: 8 }}>Studio — today's story kits</div>
-      {kits.length === 0 && <div className="note">No kits in today's feed yet — they mint with the morning run.</div>}
+      <div className="tk-sec" style={{ marginTop: 8 }}>Studio</div>
+      {kits.length === 0 && <div className="note">Kits mint with the morning run.</div>}
       {kits.map(k => (
         <div className="c3" style={{ flexDirection: "column" }} key={k.id}>
           <div className="lbl">{k.angle}</div>
@@ -771,14 +774,14 @@ export default function Ticker() {
           <div className="esub" style={{ margin: "8px 0" }}>{k.receipts}</div>
           <div style={{ display: "flex", gap: 8 }}>
             <button className="fchip" onClick={() => copy(k)}>{copied === k.id ? "✓ copied" : "Copy text"}</button>
-            {ix.get(k.productId) && <button className="fchip on" onClick={() => render(k)}>Render as card 📸</button>}
+            {ix.get(k.productId) && <button className="fchip on" onClick={() => render(k)}>Card 📸</button>}
           </div>
         </div>))}
       {shareImg && (<>
         <img src={shareImg} alt="story card" style={{ width: "100%", borderRadius: 12, marginTop: 10 }} />
-        <div className="note">Long-press (or right-click) to save · the watermark rides every export.</div>
+        <div className="note">Long-press to save.</div>
       </>)}
-      <div className="note" style={{ margin: "16px 0" }}>Angles and numbers are machine-made from live instruments; the voice is yours. <a href="/studio/archive" style={{ color: "var(--green)" }} onClick={(e) => { e.preventDefault(); window.history.pushState({}, "", "/studio/archive"); setRoute({ name: "studio-archive" }); }}>Prior days →</a></div>
+      <div className="note" style={{ margin: "16px 0" }}>Machine angles, your voice. <a href="/studio/archive" style={{ color: "var(--green)" }} onClick={(e) => { e.preventDefault(); window.history.pushState({}, "", "/studio/archive"); setRoute({ name: "studio-archive" }); }}>Prior days →</a></div>
     </>);
   };
 
@@ -800,7 +803,7 @@ export default function Ticker() {
       try { await navigator.clipboard.writeText(`${k.headline}\n\n${k.body}\n\n${k.receipts}`); setCopied(k.headline); setTimeout(() => setCopied(null), 1500); } catch {}
     };
     return (<>
-      <div className="tk-sec" style={{ marginTop: 8 }}>Studio archive — every day's kits</div>
+      <div className="tk-sec" style={{ marginTop: 8 }}>Archive</div>
       {err2 && <div className="tk-banner">Couldn't reach the archive ({err2}).</div>}
       {!arch && !err2 && <div className="load">reading the archive…</div>}
       {arch && [...arch.entries].reverse().map((day) => (
@@ -815,7 +818,7 @@ export default function Ticker() {
               <button className="fchip" style={{ alignSelf: "flex-start" }} onClick={() => copy(k)}>{copied === k.headline ? "✓ copied" : "Copy text"}</button>
             </div>))}
         </div>))}
-      <div className="note" style={{ margin: "16px 0" }}>The archive accumulates one entry per day with the morning run.</div>
+      
     </>);
   };
 
@@ -828,7 +831,7 @@ export default function Ticker() {
         <span className="st">{label}<b>{B ? f(B) ?? "—" : "—"}</b></span>
       </div>);
     return (<>
-      <div className="tk-sec">Compare — receipts side by side</div>
+      <div className="tk-sec">Compare</div>
       <select className="cmpsel" value={cmpA} onChange={e => setCmpA(e.target.value)}>
         <option value="">Pick product A…</option>{products.map(x => <option key={x.id} value={x.id}>{x.name}</option>)}</select>
       <select className="cmpsel" value={cmpB} onChange={e => setCmpB(e.target.value)}>
@@ -836,15 +839,15 @@ export default function Ticker() {
       {A && B ? (<>
         {row("Price", x => fmt(x.price))}
         {row("Spread", x => x.spreadPct != null ? pctFmt(x.spreadPct) : null)}
-        {row("Active Listings", x => x.listings)}
+        {row("Listings", x => x.listings)}
         {row("Per pack", x => x.perPack != null ? fmt(x.perPack) : null)}
         {row("vs loose packs", x => { const pm = (feed.packMath?.all || []).find(r => r.id === x.id); return pm?.premium != null ? `${pm.premium > 0 ? "+" : ""}${pm.premium}%${pm.thin ? " ⚠ thin" : ""}` : null; })}
         {row("In-pocket (eBay)", x => feed.netProceeds?.byId?.[x.id] != null ? fmt(feed.netProceeds.byId[x.id]) : null)}
         {row("Δ today", x => { const d = deltaFor(feed, x.id); return d?.pct != null ? `${d.pct > 0 ? "▲" : d.pct < 0 ? "▼" : "·"} ${Math.abs(d.pct).toFixed(1)}%` : null; })}
         {row("Phase", x => life(x)?.phase)}
         {row("Legality", x => life(x)?.legalTag)}
-        <div className="note">Blank cells mean the daily feed carries no verified number for that instrument — we show gaps, not guesses.</div>
-      </>) : <div className="note">Pick two products to lay their receipts side by side.</div>}
+        <div className="note">Blank = no verified number.<I t="A blank cell means the daily feed carries no verified number for that instrument — we show gaps, not guesses." a="prices" /></div>
+      </>) : <div className="note">Pick two products.</div>}
     </>);
   };
 
@@ -861,7 +864,7 @@ export default function Ticker() {
             <button className="tk-refresh" onClick={load}>{loading ? "…" : "↻"}</button>
           </div>
         </div>
-        {stale && <div className="tk-banner">machine hiccup — showing yesterday's tape ({today}). The bots will catch up on their own.</div>}
+        {stale && <div className="tk-banner">Showing yesterday's tape — bots catching up.</div>}
         {route?.name === "product" ? <ProductDetail id={route.id} /> : route?.name === "studio" ? <Studio /> : route?.name === "studio-archive" ? <StudioArchive /> : (<>
           {tab === "home" && <Home />}
           {tab === "movers" && <Movers />}
@@ -875,6 +878,12 @@ export default function Ticker() {
             <h4>Receipts — {receipt.title}</h4>
             {receipt.lines.map((l, i) => <div className="receipt" key={i}>{l}</div>)}
             <div className="disc">{feed.disclosure}</div>
+          </div></>)}
+        {info && (<>
+          <div className="drawer-back" onClick={() => setInfo(null)} />
+          <div className="drawer" role="dialog" aria-label="Info">
+            <div className="why" style={{ fontSize: 13, lineHeight: 1.6 }}>{info.body}</div>
+            {info.anchor && <a href={`/methodology.html#${info.anchor}`} style={{ color: "var(--green)", fontSize: 12, display: "inline-block", marginTop: 12 }}>full story → methodology</a>}
           </div></>)}
         <nav className="tabs">
           {[["home", "⚡", "Ticker"], ["movers", "▲▼", "Movers"], ["board", "▦", "Board"], ["compare", "⇄", "Compare"], ["check", "✓", "Check"]].map(([id, icon, name]) =>

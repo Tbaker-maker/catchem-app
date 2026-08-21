@@ -151,7 +151,10 @@ border-radius:10px;padding:10px;font:400 12.5px var(--sans);margin-bottom:8px}
 const lsGet = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
 const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
 
-const fmt = (n) => n == null ? "—" : "$" + Number(n).toLocaleString("en-US", { maximumFractionDigits: 2 });
+const CURR = { c: (typeof localStorage!=="undefined" && localStorage.getItem("cur")) || "USD", r: null }; // display-only; data stays USD-native
+const fmt = (n) => { if (n == null) return "—";
+  if (CURR.c === "CAD" && CURR.r) return "CA$" + Number(n * CURR.r).toLocaleString("en-CA", { maximumFractionDigits: 2 });
+  return "$" + Number(n).toLocaleString("en-US", { maximumFractionDigits: 2 }); };
 const pctFmt = (n) => n == null ? "" : (n >= 0 ? "+" : "") + n.toFixed(1) + "%";
 
 /* Build a product index from every feed section that carries ids+prices. */
@@ -313,6 +316,11 @@ function Overlay() {
       <Spark pts={seriesFor(feed, pid)} w={70} h={22} />
     </div>);
   }
+  const [cur, setCur] = React.useState(CURR.c);
+  const [caPrompt, setCaPrompt] = React.useState(false);
+  React.useEffect(() => { CURR.r = feed?.fx?.usdcad ?? null;
+    if (feed?.fx?.usdcad && !localStorage.getItem("curAsked") && (navigator.language||"").toLowerCase().includes("-ca")) setCaPrompt(true);
+  }, [feed]);
   const six = feed.sealedIndex;
   const s = (feed.indexHistory || []).map(r => r[1]);
   const d = s.length >= 2 && s[s.length - 2] ? { pct: ((s[s.length - 1] - s[s.length - 2]) / s[s.length - 2]) * 100 } : (six?.ddPct != null ? { pct: six.ddPct } : null);
@@ -427,7 +435,16 @@ export default function Ticker() {
 
   if (loading && !feed)
     return (<div className="tk-root"><style>{css}</style><main className="tk-phone">
-      <div className="tk-head"><div className="tk-wm">CATCH<b>'EM</b></div></div>
+      <div className="tk-head"><div className="tk-wm">CATCH<b>'EM</b></div>
+        <button onClick={() => { const n = cur === "USD" ? "CAD" : "USD"; setCur(n); localStorage.setItem("cur", n); CURR.c = n; }}
+          style={{ marginLeft: "auto", background: "var(--raised)", border: "1px solid var(--line)", color: cur === "CAD" ? "var(--green)" : "var(--dim)", borderRadius: 8, font: "700 10px 'JetBrains Mono'", padding: "4px 8px" }}
+          title={feed?.fx?.usdcad ? `1 USD = ${feed.fx.usdcad} CAD (${feed.fx.date})` : "CAD rate arrives with tonight's data run"}
+          disabled={cur === "USD" && !feed?.fx?.usdcad}>{cur === "CAD" ? "CA$ ≈" : "USD"}</button></div>
+      {caPrompt && (<div className="note" style={{ display: "flex", gap: 8, alignItems: "center", margin: "0 0 10px" }}>
+        🇨🇦 Show prices in CAD (converted)?
+        <button onClick={() => { setCur("CAD"); localStorage.setItem("cur","CAD"); CURR.c = "CAD"; setCaPrompt(false); localStorage.setItem("curAsked","1"); }} style={{ background:"none", border:"1px solid var(--green)", color:"var(--green)", borderRadius:8, padding:"2px 10px" }}>Yes</button>
+        <button onClick={() => { setCaPrompt(false); localStorage.setItem("curAsked","1"); }} style={{ background:"none", border:"1px solid var(--line)", color:"var(--dim)", borderRadius:8, padding:"2px 10px" }}>Keep USD</button>
+      </div>)}
       {[0,1,2,3,4].map(i => <div className="skel" key={i} aria-hidden="true" />)}
       <div className="load">reading the tape…</div></main></div>);
   if (err && !feed)

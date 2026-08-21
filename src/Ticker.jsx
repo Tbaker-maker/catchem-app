@@ -57,7 +57,7 @@ padding:14px 16px;display:flex;align-items:center;gap:16px;margin-bottom:14px}
 .tk-idx .cell{flex:1}
 .lbl{font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim)}
 .tk-bar{height:5px;background:var(--raised);border-radius:99px;overflow:hidden;margin-top:6px}
-.tk-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--green))}
+.tk-fill{height:100%;background:var(--green)}
 .tk-sec{font:700 11px var(--mono);color:var(--dim);letter-spacing:.08em;
 text-transform:uppercase;margin:32px 0 12px;display:flex;justify-content:space-between;align-items:center}
 .c3{background:var(--panel);border:1px solid var(--line);border-radius:14px;
@@ -79,7 +79,7 @@ border:1px solid var(--line);color:var(--dim);margin-left:auto;cursor:pointer;fl
 .chip.p{color:var(--purple);border-color:var(--purple)}
 .d{font:700 10.5px var(--mono);font-variant-numeric:tabular-nums}
 .d.u{color:var(--green)}.d.dn{color:var(--red)}.d.n{color:var(--dim)}
-.star{background:none;border:none;font-size:17px;line-height:1;cursor:pointer;color:#3a415a;
+.star{background:none;border:none;font-size:17px;line-height:1;cursor:pointer;color:#5c637a;
 min-width:36px;min-height:36px;flex:none}
 .star.on{color:var(--gold)}
 .mvs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -100,13 +100,13 @@ border-radius:10px;padding:10px 12px;font:400 13px var(--sans);margin-bottom:8px
 padding:6px 12px;font-size:11px;cursor:pointer;min-height:32px}
 .fchip.on{color:var(--green);border-color:var(--green)}
 .tabs{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;
-display:grid;grid-template-columns:repeat(4,1fr);background:#0e1018;border-top:1px solid var(--line);
+display:grid;grid-template-columns:repeat(4,1fr);background:#0b0d14;border-top:1px solid var(--line);
 padding-bottom:env(safe-area-inset-bottom);z-index:20}
 .tab{background:none;border:none;color:var(--dim);font:600 10.5px var(--sans);padding:10px 0 8px;
 min-height:52px;cursor:pointer}
 .tab.on{color:var(--green)}
 .tab i{display:block;font-size:16px;font-style:normal;margin-bottom:2px}
-.tk-agree{border:1px solid rgba(54,211,153,.35);background:linear-gradient(135deg,#0d1512,var(--panel));
+.tk-agree{border:1px solid rgba(54,211,153,.35);background:var(--panel);
 text-align:center;padding:24px 16px;border-radius:14px;margin-bottom:12px}
 .tk-agree b{color:var(--green);font-size:15px}
 .note{font-size:10.5px;color:var(--dim);margin-top:9px;line-height:1.5}
@@ -122,7 +122,7 @@ padding:0 4px;min-width:28px;min-height:28px;vertical-align:middle}
 .locked{border-style:dashed;border-color:rgba(255,255,255,.18)}
 .drawer-back{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:40}
 .drawer{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:420px;
-background:#0e1018;border:1px solid var(--line);border-radius:16px 16px 0 0;
+background:#0b0d14;border:1px solid var(--line);border-radius:16px 16px 0 0;
 padding:16px 16px calc(24px + env(safe-area-inset-bottom));z-index:50}
 .drawer h4{margin:0 0 8px;font-size:13px}
 .receipt{font:400 11.5px/1.6 var(--mono);color:var(--dim);border-left:2px solid var(--line);
@@ -131,7 +131,7 @@ padding-left:10px;margin:8px 0;word-break:break-word}
 .skel{background:var(--panel);border:1px solid var(--line);border-radius:14px;height:76px;
 margin-bottom:10px;position:relative;overflow:hidden}
 .skel::after{content:"";position:absolute;inset:0;transform:translateX(-100%);
-background:linear-gradient(90deg,transparent,rgba(255,184,77,.06),transparent);animation:shim 1.4s infinite}
+background:var(--raised);animation:shim 1.4s infinite}
 @keyframes shim{100%{transform:translateX(100%)}}
 .load{padding:24px 0;text-align:center;color:var(--dim);font:400 12px var(--mono)}
 .cmpsel{width:100%;background:var(--panel);border:1px solid var(--line);color:var(--txt);
@@ -225,7 +225,7 @@ function bumpStreak(today) {
 /* ── small components ────────────────────────────────────────────────── */
 function Spark({ pts, w = 56, h = 20 }) {
   if (!pts || pts.length < 2)
-    return <svg className="spk" width={w} height={h} aria-label="sparkline pending"><line x1="2" y1={h/2} x2={w-2} y2={h/2} stroke="#3a415a" strokeDasharray="3 3" /></svg>;
+    return <svg className="spk" width={w} height={h} aria-label="sparkline pending"><line x1="2" y1={h/2} x2={w-2} y2={h/2} stroke="#5c637a" strokeDasharray="3 3" /></svg>;
   const min = Math.min(...pts), max = Math.max(...pts), span = max - min || 1;
   const step = (w - 4) / (pts.length - 1);
   const d = pts.map((v, i) => `${i ? "L" : "M"}${2 + i * step},${h - 3 - ((v - min) / span) * (h - 6)}`).join(" ");
@@ -656,7 +656,7 @@ export default function Ticker() {
               <div className="esub" style={{ marginTop: 8 }}>Seller nets ≈ <b className="mono">{fmt(feed.netProceeds.byId[x.id])}</b> after eBay fees (est.)<I t="Sale price minus eBay final-value fees and typical costs — the number that settles a show-floor negotiation." a="fair-range" /></div>
             )}
             <div style={{ position: "relative", height: 6, background: "var(--raised)", borderRadius: 99, margin: "14px 0 4px" }}>
-              <div style={{ position: "absolute", left: 0, width: `${pctIn}%`, top: 0, bottom: 0, background: "linear-gradient(90deg,rgba(54,211,153,.5),var(--green))", borderRadius: 99 }} />
+              <div style={{ position: "absolute", left: 0, width: `${pctIn}%`, top: 0, bottom: 0, background: "var(--green)", borderRadius: 99 }} />
             </div>
             <div className="why">Fair zone: floor → median.<I t="Asks cluster between the clean floor and the median — offers under the floor are reaching; asks past the median need a reason." a="fair-range" /></div>
             <button className="fchip on" style={{ marginTop: 10 }} onClick={() => renderShare(x)}>Share card 📸</button>
@@ -877,7 +877,7 @@ export default function Ticker() {
         {pctIn != null && (
           <div style={{ margin: "16px 0 2px" }}>
             <div style={{ position: "relative", height: 6, background: "var(--raised)", borderRadius: 99 }}>
-              <div style={{ position: "absolute", left: 0, width: `${pctIn}%`, top: 0, bottom: 0, background: "linear-gradient(90deg,rgba(54,211,153,.5),var(--green))", borderRadius: 99 }} />
+              <div style={{ position: "absolute", left: 0, width: `${pctIn}%`, top: 0, bottom: 0, background: "var(--green)", borderRadius: 99 }} />
             </div>
             <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }} className="esub">
               <span>clean floor {fmt(x.floor)}</span><span>median {fmt(x.price)}</span><span>high {fmt(x.high)}</span>

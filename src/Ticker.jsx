@@ -192,6 +192,28 @@ border-radius:10px;padding:10px;font:400 12.5px var(--sans);margin-bottom:8px}
 const lsGet = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
 const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
 
+// ── NEW SINCE YOUR LAST VISIT ─────────────────────────────────────────────
+// The cheapest daily-return feature there is. Five things on this page change
+// overnight, and a returning reader currently has to re-scan all of it to find
+// which — so most will not. This remembers what they last saw and marks what
+// moved. No account, no backend, nothing sent anywhere: the date lives in this
+// browser and never leaves it.
+const VISIT_KEY = "lastVisit";
+const lastVisit = lsGet(VISIT_KEY, null);
+// Stamp the CURRENT visit only after the page has had a chance to render, so
+// the first paint still shows what was new. Writing it on load would mean the
+// reader never sees a single marker.
+if (typeof window !== "undefined") setTimeout(() => lsSet(VISIT_KEY, new Date().toISOString().slice(0, 10)), 4000);
+const isNewSince = (dateStr) => {
+  if (!lastVisit || !dateStr) return false;
+  return String(dateStr).slice(0, 10) > lastVisit;
+};
+// A quiet dot, not a badge. The point is to guide the eye, not to shout at it —
+// and a returning reader should feel oriented, not sold to.
+const NewDot = ({ when }) => isNewSince(when)
+  ? <span title="new since your last visit" style={{ display: "inline-block", width: 6, height: 6, borderRadius: 99, background: "var(--green)", marginLeft: 7, verticalAlign: "middle" }} />
+  : null;
+
 const CURR = { c: (typeof localStorage!=="undefined" && localStorage.getItem("cur")) || "USD", r: null }; // display-only; data stays USD-native
 const fmt = (n) => { if (n == null) return "—";
   if (CURR.c === "CAD" && CURR.r) return "CA$" + Number(n * CURR.r).toLocaleString("en-CA", { maximumFractionDigits: 2 });
@@ -724,7 +746,11 @@ export default function Ticker() {
           })}
         </div>)}
 
-      <div className="tk-sec">The Daily Three</div>
+      {lastVisit && isNewSince(feed.generatedAt) && (
+        <div className="note" style={{ margin: "2px 0 12px", color: "var(--dim)" }}>
+          Last here {lastVisit}. A <span style={{ display: "inline-block", width: 6, height: 6, borderRadius: 99, background: "var(--green)", verticalAlign: "middle" }} /> marks what has changed since.
+        </div>)}
+      <div className="tk-sec">The Daily Three<NewDot when={feed.generatedAt} /></div>
       <div className="d3row">
       {d3.sealed && <ProductCard x={{ id: "d3-sealed", name: d3.sealed.name, price: d3.sealed.ebay, tcg: d3.sealed.tcg,
         imageUrl: (feed.products || []).find(p => p.name === d3.sealed.name)?.img,
@@ -753,7 +779,7 @@ export default function Ticker() {
         </div></div>
       </>)}
 
-      <div className="tk-sec">Biggest movers <button className="lbl" style={{ background: "none", border: "none", color: "var(--green)", cursor: "pointer" }} onClick={() => openTool("movers")}>see all ▸</button></div>
+      <div className="tk-sec">Biggest movers<NewDot when={feed.generatedAt} /> <button className="lbl" style={{ background: "none", border: "none", color: "var(--green)", cursor: "pointer" }} onClick={() => openTool("movers")}>see all ▸</button></div>
       {movers.length === 0
         ? <div className="c3"><div className="c3b"><div className="why">Tape's one day old — movers land tomorrow.<I t="Movers compare the last two committed days of market history — the same real lines for every visitor, first visit included. The clean tape began 2026-08-18." a="history" /></div></div></div>
         : (<>

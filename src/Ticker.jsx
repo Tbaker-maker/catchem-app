@@ -601,12 +601,22 @@ export default function Ticker() {
     <button className="idot" aria-label="more info"
       onClick={(e) => { e.stopPropagation(); setInfo({ body: t, anchor: a }); }}>ⓘ</button>);
 
-  const ProductCard = ({ x, why }) => (
+  /* CARD DENSITY RULE (brand-tokens.md, Tyler approved Aug 22; ref
+     app-mockup-v6): ONE component, a density prop. Expanded = all six
+     parts, wherever ≤3 items share a screen (Daily Three, product pages,
+     Deal Check). Compact = same parts, same order, same tokens — the
+     photo shrinks to a 64px thumb and the plain line folds behind ⓘ
+     (Board, movers, watchlist, heat). Nothing removed, only folded:
+     Digest Law and Sandbox Rule satisfied by the same fold. */
+  const ProductCard = ({ x, why, density = "expanded" }) => {
+    const compact = density === "compact";
+    const line = why || x.why;
+    return (
     <div className="c3" key={x.id}>
-      {x.imageUrl ? <img src={x.imageUrl} alt="" loading="lazy" width="76" height="76" /> : null}
+      {x.imageUrl ? <img src={x.imageUrl} alt="" loading="lazy" width={compact ? 64 : 76} height={compact ? 64 : 76} style={compact ? { width: 64, height: 64 } : null} /> : null}
       <div className="c3b">
         <div className="c3t"><span className="lbl">{x.subtype || "sealed"}</span>
-          {x.chip ? <Chip cls={x.chip} onTap={() => showReceipts(x.name, x.provenance)} /> : null}<Star id={x.id} /></div>
+          {x.chip ? <Chip cls={x.chip} onTap={() => showReceipts(x.name, x.provenance)} /> : null}{compact && line ? <I t={line} /> : null}<Star id={x.id} /></div>
         <span className="nm" onClick={() => ix.has(x.id) && openProduct(x.id)} style={ix.has(x.id) ? { cursor: "pointer" } : null}>{x.name}</span>
         <div className="hero">{fmt(x.price)} <Delta d={deltaFor(feed, x.id)} /><Spark pts={seriesFor(feed, x.id)} /></div>
         <div className="strip">
@@ -615,9 +625,10 @@ export default function Ticker() {
           {x.tcg != null && <span className="st">TCG<b>{fmt(x.tcg)}</b></span>}
           {x.perPack != null && <span className="st">Per pack<b>{fmt(x.perPack)}</b></span>}
         </div>
-        {(why || x.why) && <div className="why">{why || x.why}</div>}
+        {line && !compact && <div className="why">{line}</div>}
       </div>
     </div>);
+  };
 
   /* ── screens ── */
   // Today (§15 IA v2): Index → Daily Three → Rip-or-Hold → Movers preview →
@@ -699,7 +710,7 @@ export default function Ticker() {
       <div className="tk-sec">Movers <button className="lbl" style={{ background: "none", border: "none", color: "var(--green)", cursor: "pointer" }} onClick={() => openTool("movers")}>see all ▸</button></div>
       {movers.length === 0
         ? <div className="c3"><div className="c3b"><div className="why">Tape's one day old — movers land tomorrow.<I t="Movers compare the last two committed days of market history — the same real lines for every visitor, first visit included. The clean tape began 2026-08-18." a="history" /></div></div></div>
-        : movers.slice(0, 3).map(x => <ProductCard x={x} key={x.id} />)}
+        : movers.slice(0, 3).map(x => <ProductCard x={x} key={x.id} density="compact" />)}
 
       {M.post.map(k => S[k])}
       {/* §20: mode selection offered AFTER the app has been useful — a
@@ -721,9 +732,9 @@ export default function Ticker() {
       ? <div className="c3"><div className="c3b"><div className="why">Tape's one day old — movers land tomorrow.</div></div></div>
       : (<>
         <div className="lbl" style={{ margin: "8px 0" }}>▲ Up</div>
-        {movers.filter(m => m.delta.pct > 0).slice(0, 8).map(x => <ProductCard x={x} key={x.id} />)}
+        {movers.filter(m => m.delta.pct > 0).slice(0, 8).map(x => <ProductCard x={x} key={x.id} density="compact" />)}
         <div className="lbl" style={{ margin: "8px 0" }}>▼ Down</div>
-        {movers.filter(m => m.delta.pct < 0).slice(-8).reverse().map(x => <ProductCard x={x} key={x.id} />)}
+        {movers.filter(m => m.delta.pct < 0).slice(-8).reverse().map(x => <ProductCard x={x} key={x.id} density="compact" />)}
       </>)}
     {(feed.radar || []).length > 0 && (<>
       <div className="tk-sec">Release radar</div>
@@ -858,7 +869,7 @@ export default function Ticker() {
       <div className="tk-sec">What did my stuff do? <span className="lbl">{watched.length ? `${watched.length} starred` : ""}</span></div>
       {watched.length === 0
         ? <div className="c3"><div className="c3b"><div className="why">Star anything — it lives here.</div></div></div>
-        : watched.map(x => <ProductCard x={x} key={x.id} />)}
+        : watched.map(x => <ProductCard x={x} key={x.id} density="compact" />)}
     </>);
   };
 

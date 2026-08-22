@@ -625,6 +625,16 @@ export default function Ticker() {
     <button className="idot" aria-label="more info"
       onClick={(e) => { e.stopPropagation(); setInfo({ body: t, anchor: a }); }}>ⓘ</button>);
 
+  // ONE definition of the Spread caveat, used at every render site. The Spread
+  // was retired to a footnote (Tyler, 2026-08-22) on the condition that every
+  // surviving instance says why — and it renders in four separate places. The
+  // first pass labelled exactly one of them: the same
+  // one-condition-implemented-in-N-places failure the duplicate-gate sweep was
+  // hunting, committed while running that sweep. A shared component is the fix
+  // — there is nowhere left to forget it. Lives here, not at module scope,
+  // because I() closes over setInfo.
+  const SpreadNote = () => <I a="the spread" t="Our eBay figure includes shipping; the TCGplayer figure excludes it, because that is how the source reports it and no shipping-inclusive figure is available to us at any tier. The gap therefore reads wider than it truly is, most of all on cheap products. Context, not a signal." />;
+
   /* CARD DENSITY RULE (brand-tokens.md, Tyler approved Aug 22; ref
      app-mockup-v6): ONE component, a density prop. Expanded = all six
      parts, wherever ≤3 items share a screen (Daily Three, product pages,
@@ -645,15 +655,7 @@ export default function Ticker() {
         <div className="hero">{fmt(x.price)} <Delta d={deltaFor(feed, x.id)} /><Spark pts={seriesFor(feed, x.id)} /></div>
         <div className="strip">
           {x.listings != null && <span className="st">Listings<b>{x.listings}</b></span>}
-          {/* The Spread is a footnote stat now, not a headline (Tyler,
-              2026-08-22). Wherever it still appears it carries the reason it
-              was demoted: our eBay figure includes postage, the TCGplayer
-              figure does not, and no shipping-inclusive TCG price is
-              purchasable at any tier — so the gap always reads wider than it
-              is, worst on cheap products. The label is permanent, not a
-              temporary caveat. */}
-          {x.spreadPct != null && <span className="st">Spread<b>{pctFmt(x.spreadPct)}</b>
-            <I t="Our eBay figure includes shipping; the TCGplayer figure excludes it, because that is how the source reports it and no shipping-inclusive figure is available to us. The gap therefore reads wider than it truly is, most of all on cheap products. Treat it as context, not a signal." a="the spread" /></span>}
+          {x.spreadPct != null && <span className="st">Spread<b>{pctFmt(x.spreadPct)}</b><SpreadNote /></span>}
           {x.tcg != null && <span className="st">TCG<b>{fmt(x.tcg)}</b>
             <I t="TCGplayer market price: their average of recent completed sales on the US marketplace. It is an item price and excludes shipping." a="the TCG figure" /></span>}
           {x.perPack != null && <span className="st">Per pack<b>{fmt(x.perPack)}</b></span>}
@@ -807,7 +809,11 @@ export default function Ticker() {
       {rows.map(x => (
         <div className="brow" key={x.id}>
           {x.imageUrl ? <img src={x.imageUrl} alt="" loading="lazy" width="42" height="42" /> : null}
-          <div className="bmid" onClick={() => openProduct(x.id)} style={{ cursor: "pointer" }}><b>{x.name}</b><span>{x.subtype}{x.listings != null ? ` · ${x.listings} listings` : ""}{x.spreadPct != null ? ` · spread ${pctFmt(x.spreadPct)}` : ""}</span></div>
+          <div className="bmid" onClick={() => openProduct(x.id)} style={{ cursor: "pointer" }}><b>{x.name}</b><span>{/* Spread dropped from the movers row: this list is about price movement,
+    and a retired instrument has no business riding along on a summary line
+    with no room for the caveat it now requires. It stays on product pages,
+    where the label fits. */}
+{x.subtype}{x.listings != null ? ` · ${x.listings} listings` : ""}</span></div>
           <div className="bnum">{fmt(x.price)}<Delta d={deltaFor(feed, x.id)} /></div>
           <Star id={x.id} />
         </div>))}
@@ -878,7 +884,7 @@ export default function Ticker() {
               <span className="st">Clean floor<b>{fmt(x.floorClean)}</b></span>
               <span className="st">Median<b>{fmt(x.median)}</b></span>
               <span className="st">Listings<b>{x.listings ?? "—"}</b></span>
-              {!x.vintage && ix.get(x.id)?.spreadPct != null && <span className="st">Spread<b>{pctFmt(ix.get(x.id).spreadPct)}</b></span>}
+              {!x.vintage && ix.get(x.id)?.spreadPct != null && <span className="st">Spread<b>{pctFmt(ix.get(x.id).spreadPct)}</b><SpreadNote /></span>}
             </div>
             {feed.netProceeds?.byId?.[x.id] != null && (
               <div className="esub" style={{ marginTop: 8 }}>Seller nets ≈ <b className="mono">{fmt(feed.netProceeds.byId[x.id])}</b> after eBay fees (est.)<I t="Sale price minus eBay final-value fees and typical costs — the number that settles a show-floor negotiation." a="fair-range" /></div>
@@ -1518,7 +1524,7 @@ export default function Ticker() {
       {A && B && (() => { try { lsSet("cmp:last", [A.name.split(" ").slice(0, 2).join(" "), B.name.split(" ").slice(0, 2).join(" ")]); } catch {} return null; })()}
       {A && B ? (<>
         {row("Price", x => fmt(x.price))}
-        {row("Spread", x => x.spreadPct != null ? pctFmt(x.spreadPct) : null)}
+        {row("Spread (TCG figure excludes shipping)", x => x.spreadPct != null ? pctFmt(x.spreadPct) : null)}
         {row("Listings", x => x.listings)}
         {row("Per pack", x => x.perPack != null ? fmt(x.perPack) : null)}
         {row("vs loose packs", x => { const pm = (feed.packMath?.all || []).find(r => r.id === x.id); return pm?.premium != null ? `${pm.premium > 0 ? "+" : ""}${pm.premium}%${pm.thin ? " ⚠ thin" : ""}` : null; })}

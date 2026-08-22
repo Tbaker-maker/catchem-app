@@ -732,10 +732,19 @@ export default function Ticker() {
         </div></div>
       </>)}
 
-      <div className="tk-sec">Movers <button className="lbl" style={{ background: "none", border: "none", color: "var(--green)", cursor: "pointer" }} onClick={() => openTool("movers")}>see all ▸</button></div>
+      <div className="tk-sec">Top movers <button className="lbl" style={{ background: "none", border: "none", color: "var(--green)", cursor: "pointer" }} onClick={() => openTool("movers")}>see all ▸</button></div>
       {movers.length === 0
         ? <div className="c3"><div className="c3b"><div className="why">Tape's one day old — movers land tomorrow.<I t="Movers compare the last two committed days of market history — the same real lines for every visitor, first visit included. The clean tape began 2026-08-18." a="history" /></div></div></div>
-        : movers.slice(0, 3).map(x => <ProductCard x={x} key={x.id} density="compact" />)}
+        : (<>
+          {/* Top movers must show BOTH directions. Showing only gainers reads
+              as hype and hides half the market (Tyler, 2026-08-22). */}
+          <div className="lbl" style={{ margin: "2px 0 6px", color: "var(--green)" }}>▲ Biggest gains today</div>
+          {movers.filter(x => x.delta.pct > 0).slice(0, 3).map(x => <ProductCard x={x} key={x.id} density="compact" />)}
+          {movers.some(x => x.delta.pct < 0) && (<>
+            <div className="lbl" style={{ margin: "14px 0 6px", color: "#ef5a5a" }}>▼ Biggest falls today</div>
+            {movers.filter(x => x.delta.pct < 0).slice(-3).reverse().map(x => <ProductCard x={x} key={x.id} density="compact" />)}
+          </>)}
+        </>)}
 
       {M.post.map(k => S[k])}
       {/* §20: mode selection offered AFTER the app has been useful — a

@@ -1,7 +1,7 @@
 /* Catch'em brand tokens — GENERATED, do not hand-edit.
  * Source of truth: the live site (catchemtcg.com).
  * Regenerate: node scripts/sync-brand-tokens.mjs
- * Synced: 2026-08-22T03:11:52.824Z */
+ * Synced: 2026-08-22T06:06:55.932Z */
 :root {
   --bg: #0b0d14;
   --bg-deep: #070910;
@@ -23,6 +23,14 @@
   --font-mono: 'JetBrains Mono', monospace;
   /* a11y exception (Lighthouse contrast, 2026-08-19): app secondary text */
   --text-sub-app: #98a1b5;
+  /* APPROVED ADDITIONS (chat ruling 2026-08-22, brand-tokens.md DESIGN SYSTEM):
+   * section-space = page air (component gaps stop at 16); num-xl = numeric
+   * register above card heroes (Syne is display-only, cannot carry digits);
+   * accent-dim = accent at 40% for BORDERS ONLY — never fills. */
+  --section-space-1: 32px;
+  --section-space-2: 40px;
+  --section-space-3: 56px;
+  --num-xl: 700 40px 'JetBrains Mono', monospace;
   /* legacy aliases so existing app/generator CSS keeps resolving */
   --panel: var(--surface);
   --raised: var(--surface-2);

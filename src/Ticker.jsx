@@ -39,6 +39,23 @@ const css = `
 .tk-root{--site-btn-pad:14px 24px;--site-btn-radius:10px;--site-col:820px;--site-col-wide:1040px;background:var(--bg);color:var(--txt);min-height:100vh;font:14px/1.5 var(--sans);
 display:flex;justify-content:center}
 .tk-phone{width:100%;max-width:420px;padding:0 14px calc(84px + env(safe-area-inset-bottom))}
+/* ── DESIGN SYSTEM (brand-tokens.md, Aug 22): COLUMN-LOCK ────────────────
+   The site and the app share the column. Cards stay 300–400px and
+   MULTIPLY inside it — they never grow to fill width. Section headers
+   span the column. Mobile is the same card at one-per-row (unchanged). */
+@media(min-width:880px){
+  .tk-phone{max-width:var(--site-col,820px);display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+    column-gap:16px;align-items:start}
+  .tk-phone > *{grid-column:1/-1;min-width:0}
+  .tk-phone > .c3,.tk-phone > .mrow{grid-column:auto}
+  .tk-head{grid-column:1/-1}
+}
+@media(min-width:1200px){.tk-phone{max-width:var(--site-col-wide,1040px)}}
+/* accent-dim: informational accent at 40%, BORDERS ONLY — never fills */
+.mrow{border-left-color:var(--acc-dim,var(--acc,var(--green)))}
+/* long names wrap to two lines on cards — truncation was hiding the product TYPE ("…Pokemon C" lost "Elite Trainer Box"); clamp keeps card height bounded */
+.c3 .nm{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .tk-head{display:flex;justify-content:space-between;align-items:center;gap:8px;
 padding:16px 0 12px;position:sticky;top:0;background:var(--bg);z-index:5}
 .tk-wm{font:800 22px/1.2 var(--disp)}.tk-wm b{color:var(--green)}
@@ -52,7 +69,7 @@ border-radius:10px;font-size:12px;min-width:32px;min-height:32px;cursor:pointer}
 border-radius:12px;padding:12px 16px;font-size:12.5px;line-height:1.5;margin:8px 0 12px}
 .tk-idx{background:var(--panel);border:1px solid var(--line);border-radius:16px;
 padding:14px 16px;display:flex;align-items:center;gap:16px;margin-bottom:14px}
-.tk-idx .big{font:700 26px var(--mono);font-variant-numeric:tabular-nums}
+.tk-idx .big{font:var(--num-xl,700 40px var(--mono));font-variant-numeric:tabular-nums}
 .tk-idx .cell{flex:1}
 .lbl{font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim)}
 .tk-bar{height:5px;background:var(--raised);border-radius:99px;overflow:hidden;margin-top:6px}
@@ -100,11 +117,15 @@ padding:6px 12px;font-size:11px;cursor:pointer;min-height:32px}
 .fchip.on{color:var(--acc,var(--green));border-color:var(--acc,var(--green))}
 /* §20 MODES — a lens, not a filter: accent + order only. --acc tints
    chips and section headers; numbers never change with it. */
-.tk-root{--acc:var(--green)}
+.tk-root{--acc:var(--green);--acc-dim:color-mix(in srgb, var(--acc) 40%, transparent)}
 .tk-root.m-flipper{--acc:#64a0ff}
 .tk-root.m-grader{--acc:#c77dff}
 .tk-root.m-collector{--acc:#36d399}
 .tk-sec{border-left:2px solid var(--acc,transparent);padding-left:7px}
+@media(min-width:880px){
+  .tk-sec{border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:var(--section-space-1,32px);padding-bottom:6px;font:700 26px/1.15 var(--disp);letter-spacing:0;text-transform:none;color:var(--txt)}
+  .tk-sec .lbl,.tk-sec button.lbl{font:700 11px var(--mono);letter-spacing:.08em}
+}
 .mode-lead{font:600 13px var(--sans);color:var(--txt);margin:2px 0 12px}
 .mode-lead b{color:var(--acc,var(--green))}
 .mrow{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--acc,var(--green));border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:13px}

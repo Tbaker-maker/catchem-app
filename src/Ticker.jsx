@@ -836,9 +836,9 @@ export default function Ticker() {
           })}
         </div></>)}
 
-      {lastVisit && isNewSince(feed.generatedAt) && (
+      {Object.keys(pendingSeen).some(k => seenContent[k] != null && seenContent[k] !== pendingSeen[k]) && (
         <div className="note" style={{ margin: "2px 0 12px", color: "var(--dim)" }}>
-          Last here {lastVisit}. A <span style={{ display: "inline-block", width: 6, height: 6, borderRadius: 99, background: "var(--green)", verticalAlign: "middle" }} /> marks what has changed since.
+          Something changed since you were last here. A <span style={{ display: "inline-block", width: 6, height: 6, borderRadius: 99, background: "var(--green)", verticalAlign: "middle" }} /> marks what has changed since.
         </div>)}
       <div className="tk-sec">The Daily Three<NewDot section="dailyThree" content={d3} /></div>
       <div className="d3row">

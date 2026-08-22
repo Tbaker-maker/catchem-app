@@ -8,8 +8,8 @@
     "landers": "node scripts/generate-landers.mjs",
     "build": "node scripts/generate-landers.mjs && vite build",
     "preview": "vite preview",
-    "deploy": "wrangler deploy && node ../Catchem-data/scripts/smoke-test.mjs",
-    "deploy:site": "node scripts/build-public-site.mjs && wrangler deploy -c wrangler.site.jsonc && node ../Catchem-data/scripts/smoke-test.mjs"
+    "deploy": "npx wrangler deploy && node ../Catchem-data/scripts/smoke-test.mjs",
+    "deploy:site": "node scripts/build-public-site.mjs && npx wrangler deploy -c wrangler.site.jsonc && node ../Catchem-data/scripts/smoke-test.mjs"
   },
   "dependencies": {
     "react": "^18.3.1",

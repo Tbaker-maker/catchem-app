@@ -1190,39 +1190,121 @@ export default function Ticker() {
   /* /studio — Story Kits (Studio v0, §14): today's three shaped stories with
      copy-text and render-as-card. Every export carries the watermark (the
      shared renderer bakes it in). */
+  /* /studio — THE CREATOR PORTAL (§21). Modes are how you READ; this is
+     where you MAKE. One door, five sections; every existing route keeps
+     working (/studio/posts, /studio/archive, /overlay). Guardrails:
+     raffles stay ours-only · webhook URLs never leave the browser ·
+     every export keeps its chip + est. labelling + watermark. */
   const Studio = () => {
+    const [ptab, setPtab] = useState("today");
     const [shareImg, setShareImg] = useState(null);
     const [copied, setCopied] = useState(null);
+    const [pickQ, setPickQ] = useState("");
+    const [pick, setPick] = useState(null);
+    const [hook, setHook] = useState("");
+    const [hookMsg, setHookMsg] = useState(null);
     const kits = feed.storyKits || [];
-    const copy = async (k) => {
-      try {
-        await navigator.clipboard.writeText(`${k.headline}\n\n${k.body}\n\n${k.receipts}`);
-        setCopied(k.id); setTimeout(() => setCopied(null), 1500);
-      } catch {}
-    };
-    const render = (k) => {
-      const p = ix.get(k.productId);
-      if (p) renderShareCard({ name: p.name, median: p.price, floorClean: p.floor, listings: p.listings, vintage: p.vintage, img: p.imageUrl }, today, setShareImg);
-    };
+    const bank = feed.postBank;
+    const RAW = "https://raw.githubusercontent.com/Tbaker-maker/Catchem-data/main/";
+    const APPURL = "https://app.catchemtcg.com";
+    const nav = (path, r) => (e) => { e.preventDefault(); window.history.pushState({}, "", path); setRoute(r); };
+    const copyText = async (t, key) => { try { await navigator.clipboard.writeText(t); setCopied(key); setTimeout(() => setCopied(null), 1500); } catch {} };
+    const results = pickQ.length >= 2 ? [...ix.values()].filter(p => p.name.toLowerCase().includes(pickQ.toLowerCase()) && p.price != null).slice(0, 5) : [];
+    const px = pick ? ix.get(pick) : null;
+    const CopyRow = ({ label, text, k }) => (
+      <div className="mrow"><span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
+        <button className="fchip" style={{ flex: "none" }} onClick={() => copyText(text, k)}>{copied === k ? "✓" : "Copy"}</button></div>);
     return (<>
-      <div className="tk-sec" style={{ marginTop: 8 }}>Studio</div>
-      {kits.length === 0 && <div className="note">Kits mint with the morning run.</div>}
-      {kits.map(k => (
-        <div className="c3" style={{ flexDirection: "column" }} key={k.id}>
-          <div className="lbl">{k.angle}</div>
-          <span className="nm" style={{ whiteSpace: "normal" }}>{k.headline}</span>
-          <div className="why">{k.body}</div>
-          <div className="esub" style={{ margin: "8px 0" }}>{k.receipts}</div>
-          <div style={{ display: "flex", gap: 8 }}>
-            <button className="fchip" onClick={() => copy(k)}>{copied === k.id ? "✓ copied" : "Copy text"}</button>
-            {ix.get(k.productId) && <button className="fchip on" onClick={() => render(k)}>Card 📸</button>}
-          </div>
-        </div>))}
+      <div className="tk-sec" style={{ marginTop: 8 }}>Creator Portal</div>
+      <div className="mode-lead">Free, forever — the watermark rides along.</div>
+      <div className="fchips">
+        {[["today", "Today"], ["make", "Make"], ["stream", "Stream"], ["synd", "Syndicate"], ["learn", "Learn"]].map(([k, l]) => (
+          <button key={k} className={"fchip" + (ptab === k ? " on" : "")} onClick={() => setPtab(k)}>{l}</button>))}
+      </div>
+
+      {ptab === "today" && (<>
+        <div className="mrow"><span>✍️ {bank?.ideas?.length ?? 0} finished angles × 4 formats</span>
+          <a className="fchip on" href="/studio/posts" onClick={nav("/studio/posts", { name: "studio-posts", mine: false })}>Open →</a></div>
+        {kits.length === 0 && <div className="note">Kits mint with the morning run.</div>}
+        {kits.map(k => (
+          <div className="c3" style={{ flexDirection: "column" }} key={k.id}>
+            <div className="lbl">{k.angle}</div>
+            <span className="nm" style={{ whiteSpace: "normal" }}>{k.headline}</span>
+            <div className="why">{k.body}</div>
+            <div className="esub" style={{ margin: "8px 0" }}>{k.receipts}</div>
+            <div style={{ display: "flex", gap: 8 }}>
+              <button className="fchip" onClick={() => copyText(`${k.headline}\n\n${k.body}\n\n${k.receipts}`, k.id)}>{copied === k.id ? "✓ copied" : "Copy text"}</button>
+              {ix.get(k.productId) && <button className="fchip on" onClick={() => { const p = ix.get(k.productId); renderShareCard({ name: p.name, median: p.price, floorClean: p.floor, listings: p.listings, vintage: p.vintage, img: p.imageUrl }, today, setShareImg); }}>Card 📸</button>}
+            </div>
+          </div>))}
+        <div className="mrow"><span>🖼 Today's minted cards (PNG, watermarked)</span>
+          <a className="fchip" href={RAW + "research/pulse/cards/latest-index.png"} target="_blank" rel="noreferrer">Index ⬇</a></div>
+        <div className="note"><a href="/studio/archive" style={{ color: "var(--acc, var(--green))" }} onClick={nav("/studio/archive", { name: "studio-archive" })}>Prior days →</a></div>
+      </>)}
+
+      {ptab === "make" && (<>
+        <div className="note" style={{ margin: "4px 0 8px" }}>Pick a product, mint a branded PNG. Every card carries the chip, est. labels, and the wordmark.</div>
+        <input value={pickQ} onChange={(e) => { setPickQ(e.target.value); setPick(null); }} placeholder="Search a product…" aria-label="card maker search"
+          style={{ width: "100%", background: "var(--panel)", border: "1px solid var(--line)", color: "var(--txt)", borderRadius: 10, padding: "12px", font: "600 15px var(--sans)" }} />
+        {results.length > 0 && !pick && results.map(p => (
+          <button key={p.id} className="mrow" style={{ width: "100%", cursor: "pointer", textAlign: "left" }} onClick={() => setPick(p.id)}>
+            <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</span><b>{fmt(p.price)}</b></button>))}
+        {px && (<div style={{ display: "flex", gap: 8, margin: "10px 0", flexWrap: "wrap" }}>
+          <button className="fchip on" onClick={() => renderShareCard({ name: px.name, median: px.price, floorClean: px.floor, listings: px.listings, vintage: px.vintage, img: px.imageUrl }, today, setShareImg)}>Price card 📸</button>
+          {zoneFor(px.id) && <button className="fchip on" onClick={() => renderDealZoneCard({ name: px.name, img: px.imageUrl }, zoneFor(px.id), today, setShareImg)}>Deal Zone card 📸</button>}
+        </div>)}
+        <div className="mrow"><span>🗂 Binder pages — data-driven themes, minted daily</span>
+          <a className="fchip" href={RAW + "research/pulse/cards/latest-binder.png"} target="_blank" rel="noreferrer">Chase Wall ⬇</a></div>
+        <div className="note">Chart export lives on every product page — open one, Share card 📸.</div>
+      </>)}
+
+      {ptab === "stream" && (<>
+        <div className="note" style={{ margin: "4px 0 8px" }}>OBS browser sources — transparent, auto-refreshing, wordmark on. Add as a Browser Source at 800×220.</div>
+        <CopyRow label="Index overlay" text={APPURL + "/overlay"} k="ov1" />
+        <CopyRow label={px ? `Product overlay — ${px.name}` : "Product overlay (pick in Make)"} text={APPURL + "/overlay?product=" + (pick || "{product-id}")} k="ov2" />
+        <div className="note">Rip-or-Hold vote widget ships with the Discord rail — the daily question is in your embed every morning.</div>
+      </>)}
+
+      {ptab === "synd" && (<>
+        <div className="note" style={{ margin: "4px 0 8px" }}>A branded Morning Pulse in YOUR server every day. Your webhook never leaves this browser — we test it from here, then Tyler adds it to the send list (the URL lives in a secret store, never a repo).</div>
+        <input value={hook} onChange={(e) => setHook(e.target.value)} placeholder="https://discord.com/api/webhooks/…" aria-label="discord webhook url"
+          style={{ width: "100%", background: "var(--panel)", border: "1px solid var(--line)", color: "var(--txt)", borderRadius: 10, padding: "12px", font: "600 13px var(--mono)" }} />
+        <div style={{ display: "flex", gap: 8, margin: "8px 0" }}>
+          <button className="fchip on" disabled={!/^https:\/\/discord\.com\/api\/webhooks\//.test(hook)} onClick={async () => {
+            setHookMsg("sending…");
+            try {
+              const r = await fetch(hook, { method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username: "Catch'em Morning Pulse", embeds: [{ title: "⚡ Test — your server is wired", description: "This is what the daily Pulse embed looks like. Numbers arrive with the 04:00 UTC run.", color: 0x36d399, footer: { text: "catchemtcg.com · VERIFIED = measured, READ = our take" } }] }) });
+              setHookMsg(r.ok ? "✓ test embed sent — screenshot it + DM @Tyler to join the daily send" : "✗ Discord said " + r.status);
+            } catch { setHookMsg("✗ could not reach that webhook"); }
+          }}>Send test embed</button>
+        </div>
+        {hookMsg && <div className="note">{hookMsg}</div>}
+        <div className="tk-sec" style={{ marginTop: 12 }}>Embeds for your site</div>
+        <CopyRow label="Index ticker (iframe)" text={`<iframe src="${APPURL}/overlay" width="640" height="160" frameborder="0" title="Catch'em Sealed Index — catchemtcg.com"></iframe>`} k="em1" />
+        <CopyRow label="Product card (iframe)" text={`<iframe src="${APPURL}/overlay?product=${pick || "{product-id}"}" width="640" height="160" frameborder="0" title="Catch'em price — catchemtcg.com"></iframe>`} k="em2" />
+        <div className="note">Attribution is baked in — the wordmark and catchemtcg.com render inside every embed.</div>
+      </>)}
+
+      {ptab === "learn" && (<>
+        <div className="c3" style={{ flexDirection: "column" }}>
+          <div className="lbl">Our chips, in one breath</div>
+          <div className="why"><b style={{ color: "var(--green)" }}>VERIFIED</b> = we measured it (or a primary source did). <b>READ</b> = our interpretation, grounded and falsifiable. Estimated figures always say <b>est.</b> If a number has no chip, don't quote it as ours.</div>
+        </div>
+        <div className="c3" style={{ flexDirection: "column" }}>
+          <div className="lbl">Citing us</div>
+          <div className="why">"per Catch'em (catchemtcg.com), {today}" + keep the chip. You can show any number we publish; you can't turn a READ into a promise or attach a price target to it — we don't make calls, and neither can our numbers.</div>
+        </div>
+        <div className="c3" style={{ flexDirection: "column" }}>
+          <div className="lbl">Why the angles work</div>
+          <div className="why">{(bank?.ideas || []).slice(0, 3).map(i => `${i.angle}: ${i.why}`).join(" — ") || "Coaching notes ride every angle in Post Studio."}</div>
+        </div>
+      </>)}
+
       {shareImg && (<>
-        <img src={shareImg} alt="story card" style={{ width: "100%", borderRadius: 12, marginTop: 10 }} />
+        <img src={shareImg} alt="minted card" style={{ width: "100%", borderRadius: 12, marginTop: 10 }} />
         <div className="note">Long-press to save.</div>
       </>)}
-      <div className="note" style={{ margin: "16px 0" }}>Machine angles, your voice. <a href="/studio/posts" style={{ color: "var(--green)" }} onClick={(e) => { e.preventDefault(); window.history.pushState({}, "", "/studio/posts"); setRoute({ name: "studio-posts", mine: false }); }}>Post Studio →</a> · <a href="/studio/archive" style={{ color: "var(--green)" }} onClick={(e) => { e.preventDefault(); window.history.pushState({}, "", "/studio/archive"); setRoute({ name: "studio-archive" }); }}>Prior days →</a></div>
     </>);
   };
 

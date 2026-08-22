@@ -646,10 +646,40 @@ export default function Ticker() {
   const stale = (Date.now() - new Date(feed.generatedAt)) / 36e5 > STALE_HOURS;
   const products = [...ix.values()].sort((a, b) => (a.name || "").localeCompare(b.name || ""));
   const subtypes = [...new Set(products.map(x => x.subtype).filter(Boolean))].slice(0, 6);
+  // ── MOVERS, ORDERED BY MODE ───────────────────────────────────────────
+  // Tyler, 2026-08-23: a Grader and a Flipper do not care about the same
+  // movement. But the MODE HONESTY LAW is explicit — a diff of every value
+  // rendered across a mode switch must be EMPTY; only order and accent may
+  // change. So this reorders and never filters: the same products appear in
+  // every mode, and the mode decides which one you meet first.
+  //
+  // The ordering basis is shown on screen, because a list that silently
+  // reshuffles is more confusing than one that never changed. If the reader
+  // cannot tell WHY the order moved, the mode has cost them clarity rather
+  // than buying them relevance.
+  const MOVER_SORT = {
+    // the plain question: what moved most?
+    balanced:  { by: (x) => Math.abs(x.delta.pct), label: "by how far it moved" },
+    // a collector holds things — dollars on the shelf matter more than percentages
+    // on a cheap pack. A 20% move on a $5 pack is a dollar.
+    collector: { by: (x) => Math.abs((x.delta.pct / 100) * (x.ebay ?? 0)), label: "by dollars moved, not percent" },
+    // a flipper has to actually transact. Movement on something with four
+    // listings is not an opportunity, it is a rumour.
+    flipper:   { by: (x) => Math.abs(x.delta.pct) * Math.log10(1 + (x.listings ?? 0)), label: "by movement you could actually trade" },
+    // grading economics only make sense above a price floor — the fee is fixed,
+    // so the premium has to clear it. We hold no graded feed, so this orders by
+    // where slabbing could plausibly pay rather than pretending to know it does.
+    grader:    { by: (x) => (x.ebay ?? 0) >= 60 ? Math.abs(x.delta.pct) * 2 : Math.abs(x.delta.pct), label: "weighted to where grading fees could clear" },
+  };
+  const moverSort = MOVER_SORT[mode] || MOVER_SORT.balanced;
   const movers = products
     .map(x => ({ ...x, delta: deltaFor(feed, x.id) }))
     .filter(x => x.delta != null)
     .sort((a, b) => b.delta.pct - a.delta.pct);
+  // Direction is split first so both sides always show, then each side is
+  // ordered by the mode's lens. Splitting first is what keeps the SET identical.
+  const moversUp = movers.filter(x => x.delta.pct > 0).sort((a, b) => moverSort.by(b) - moverSort.by(a));
+  const moversDown = movers.filter(x => x.delta.pct < 0).sort((a, b) => moverSort.by(b) - moverSort.by(a));
 
   const Star = ({ id }) => (
     <button className={`star ${watch.includes(id) ? "on" : ""}`} onClick={() => toggleWatch(id)}
@@ -798,11 +828,15 @@ export default function Ticker() {
         : (<>
           {/* Top movers must show BOTH directions. Showing only gainers reads
               as hype and hides half the market (Tyler, 2026-08-22). */}
+          {mode !== "balanced" && (
+            <div className="note" style={{ margin: "0 0 8px", color: "var(--dim)" }}>
+              Same movers as every other mode — ordered {moverSort.label}.
+            </div>)}
           <div className="lbl" style={{ margin: "2px 0 6px", color: "var(--green)" }}>▲ Top gains</div>
-          {movers.filter(x => x.delta.pct > 0).slice(0, 3).map(x => <ProductCard x={x} key={x.id} density="compact" />)}
-          {movers.some(x => x.delta.pct < 0) && (<>
+          {moversUp.slice(0, 3).map(x => <ProductCard x={x} key={x.id} density="compact" />)}
+          {moversDown.length > 0 && (<>
             <div className="lbl" style={{ margin: "14px 0 6px", color: "var(--red)" }}>▼ Top losses</div>
-            {movers.filter(x => x.delta.pct < 0).slice(-3).reverse().map(x => <ProductCard x={x} key={x.id} density="compact" />)}
+            {moversDown.slice(0, 3).map(x => <ProductCard x={x} key={x.id} density="compact" />)}
           </>)}
         </>)}
 

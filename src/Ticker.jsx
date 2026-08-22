@@ -207,6 +207,10 @@ function buildIndex(feed) {
   for (const p of feed.products || [])
     put(p.id, { name: p.name, set: p.set, setId: p.setId, subtype: p.subtype, status: p.status,
       vintage: !!p.vintage, price: p.median, floor: p.floor, high: p.high, listings: p.listings,
+      // basis names the market the displayed price came from. Packs are priced
+      // from TCGplayer (RT-4b) and the eBay ask travels alongside rather than
+      // being replaced — the methodology promises it is never hidden.
+      basis: p.basis, ebayAskMedian: p.ebayAskMedian, ebayFloor: p.ebayFloor, ebayHigh: p.ebayHigh,
       imageUrl: p.img, perPack: p.perPack, loosePack: p.loosePack, vsLoosePct: p.vsLoosePct, packs: p.packs });
   for (const s of feed.signals || [])
     put(s.id, { name: s.name, price: s.ebay?.ask, listings: s.ebay?.listings, spreadPct: s.spreadPct,
@@ -338,7 +342,10 @@ function renderDealZoneCard(x, z, dateStr, setShareImg) {
   const g = cv.getContext("2d");
   // money on this card always shows cents — "$2,836.3" reads like a typo
   // across a table (the shared fmt drops trailing zeros)
-  const fmt = (n) => "$" + Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  // null-safe: pack rows priced from TCGplayer carry no clean floor (that band
+  // is an eBay-lane measurement and no longer travels with a TCG median), so
+  // an unguarded Number(null) printed "$NaN" onto the share card.
+  const fmt = (n) => n == null ? "—" : "$" + Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const draw = (photo) => {
     g.fillStyle = "#0b0d14"; g.fillRect(0, 0, 500, 640);
     g.fillStyle = "#141824"; g.strokeStyle = "rgba(255,255,255,.12)";
@@ -1228,6 +1235,12 @@ export default function Ticker() {
             <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }} className="esub">
               <span>clean floor {fmt(x.floor)}</span><span>median {fmt(x.price)}</span><span>high {fmt(x.high)}</span>
             </div>
+          </div>)}
+        {x.basis === "tcgplayer" && (
+          <div className="esub" style={{ marginTop: 8 }}>
+            Priced from TCGplayer market — a pack is a commodity, so the photo premium eBay earns on boxes doesn't apply here.
+            {x.ebayAskMedian != null ? <> eBay asks {fmt(x.ebayAskMedian)} for the same pack{x.ebayFloor != null ? <> (floor {fmt(x.ebayFloor)})</> : null}.</> : null}
+            {" "}TCGplayer prices exclude shipping; ours from eBay include it.
           </div>)}
         <div className="grid6" style={{ marginTop: 14 }}>
           <span className="st">Listings<b>{x.listings ?? "—"}</b><span style={{ display: "block", fontSize: 9.5 }}>filtered</span></span>

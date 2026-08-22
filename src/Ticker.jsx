@@ -36,7 +36,7 @@ const css = `
    Catchem-data (node scripts/sync-brand-tokens.mjs). The inline block that
    lived here was the drift vector; change tokens.css, the app follows. */
 *{box-sizing:border-box}
-.tk-root{background:var(--bg);color:var(--txt);min-height:100vh;font:14px/1.5 var(--sans);
+.tk-root{--site-btn-pad:14px 24px;--site-btn-radius:10px;--site-col:820px;--site-col-wide:1040px;background:var(--bg);color:var(--txt);min-height:100vh;font:14px/1.5 var(--sans);
 display:flex;justify-content:center}
 .tk-phone{width:100%;max-width:420px;padding:0 14px calc(84px + env(safe-area-inset-bottom))}
 .tk-head{display:flex;justify-content:space-between;align-items:center;gap:8px;
@@ -510,7 +510,7 @@ export default function Ticker() {
   if (route?.name === "overlay") return <Overlay />;
 
   if (loading && !feed)
-    return (<div className="tk-root"><style>:root{--site-btn-pad:14px 24px;--site-btn-radius:10px;--site-col:820px;--site-col-wide:1040px;}{css}</style><main className="tk-phone">
+    return (<div className="tk-root"><style>{css}</style><main className="tk-phone">
       <div className="tk-head"><div className="tk-wm">CATCH<b>'EM</b></div>
         <button onClick={() => { const n = cur === "USD" ? "CAD" : "USD"; setCur(n); localStorage.setItem("cur", n); CURR.c = n; }}
           style={{ marginLeft: "auto", background: "var(--raised)", border: "1px solid var(--line)", color: cur === "CAD" ? "var(--green)" : "var(--dim)", borderRadius: 8, font: "700 10px 'JetBrains Mono'", padding: "4px 8px" }}

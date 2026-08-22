@@ -47,10 +47,10 @@ padding:16px 0 12px;position:sticky;top:0;background:var(--bg);z-index:5}
 border:1px solid rgba(255,184,77,.35);border-radius:99px;padding:3px 8px}
 .tk-date{font:400 10px var(--mono);font-variant-numeric:tabular-nums;color:var(--dim)}
 .tk-refresh,.tk-bell{background:transparent;border:1px solid var(--line);color:var(--dim);
-border-radius:9px;font-size:12px;min-width:32px;min-height:32px;cursor:pointer}
+border-radius:10px;font-size:12px;min-width:32px;min-height:32px;cursor:pointer}
 .tk-banner{background:rgba(239,90,90,.1);border:1px solid rgba(239,90,90,.35);color:var(--red);
 border-radius:12px;padding:12px 16px;font-size:12.5px;line-height:1.5;margin:8px 0 12px}
-.tk-idx{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+.tk-idx{background:var(--panel);border:1px solid var(--line);border-radius:16px;
 padding:14px 16px;display:flex;align-items:center;gap:16px;margin-bottom:14px}
 .tk-idx .big{font:700 26px var(--mono);font-variant-numeric:tabular-nums}
 .tk-idx .cell{flex:1}
@@ -59,7 +59,7 @@ padding:14px 16px;display:flex;align-items:center;gap:16px;margin-bottom:14px}
 .tk-fill{height:100%;background:var(--green)}
 .tk-sec{font:700 11px var(--mono);color:var(--dim);letter-spacing:.08em;
 text-transform:uppercase;margin:32px 0 12px;display:flex;justify-content:space-between;align-items:center}
-.c3{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+.c3{background:var(--panel);border:1px solid var(--line);border-radius:16px;
 padding:14px;margin-bottom:10px;display:flex;gap:12px}
 .c3 img{width:76px;height:76px;object-fit:contain;border-radius:8px;background:#070910;align-self:flex-start}
 .c3b{flex:1;min-width:0}
@@ -86,7 +86,7 @@ min-width:36px;min-height:36px;flex:none}
 display:flex;align-items:center;gap:7px;font-size:10.5px}
 .mv b{flex:1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .brow{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
-.brow img{width:42px;height:42px;object-fit:contain;border-radius:6px;background:#070910}
+.brow img{width:42px;height:42px;object-fit:contain;border-radius:8px;background:#070910}
 .bmid{flex:1;min-width:0}
 .bmid b{font-size:12.5px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bmid span{font-size:10px;color:var(--dim)}
@@ -106,11 +106,11 @@ min-height:52px;cursor:pointer}
 .tab.on{color:var(--green)}
 .tab i{display:block;font-size:16px;font-style:normal;margin-bottom:2px}
 .tk-agree{border:1px solid rgba(54,211,153,.35);background:var(--panel);
-text-align:center;padding:24px 16px;border-radius:14px;margin-bottom:12px}
+text-align:center;padding:24px 16px;border-radius:16px;margin-bottom:12px}
 .tk-agree b{color:var(--green);font-size:15px}
 .note{font-size:10.5px;color:var(--dim);margin-top:9px;line-height:1.5}
 .tool{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--panel);
-border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer;color:var(--txt)}
+border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:10px;cursor:pointer;color:var(--txt)}
 .ticon{font-size:20px;flex:none;width:28px;text-align:center}
 .tbody{flex:1;min-width:0}.tbody b{display:block;font-size:13.5px}
 .tbody span{display:block;font:400 10.5px var(--mono);color:var(--dim);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -127,7 +127,7 @@ padding:16px 16px calc(24px + env(safe-area-inset-bottom));z-index:50}
 .receipt{font:400 11.5px/1.6 var(--mono);color:var(--dim);border-left:2px solid var(--line);
 padding-left:10px;margin:8px 0;word-break:break-word}
 .disc{font:400 10.5px/1.5 var(--mono);color:var(--gold);opacity:.85;margin-top:10px}
-.skel{background:var(--panel);border:1px solid var(--line);border-radius:14px;height:76px;
+.skel{background:var(--panel);border:1px solid var(--line);border-radius:16px;height:76px;
 margin-bottom:10px;position:relative;overflow:hidden}
 .skel::after{content:"";position:absolute;inset:0;transform:translateX(-100%);
 background:var(--raised);animation:shim 1.4s infinite}
@@ -135,7 +135,7 @@ background:var(--raised);animation:shim 1.4s infinite}
 .load{padding:24px 0;text-align:center;color:var(--dim);font:400 12px var(--mono)}
 .cmpsel{width:100%;background:var(--panel);border:1px solid var(--line);color:var(--txt);
 border-radius:10px;padding:10px;font:400 12.5px var(--sans);margin-bottom:8px}
-.cap{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:18px 0}
+.cap{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin:18px 0}
 .cap b{font-size:13.5px}
 .eras{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:10px;-webkit-overflow-scrolling:touch}
 .era{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;min-width:150px;flex:none}
@@ -358,7 +358,7 @@ function Overlay() {
     return () => clearInterval(t);
   }, []);
   if (!feed) return null;
-  const box = { display: "inline-flex", alignItems: "center", gap: 14, background: "rgba(11,13,20,.82)", border: "1px solid rgba(255,255,255,.14)", borderRadius: 14, padding: "12px 18px", fontFamily: "'Sora',sans-serif", color: "#f4f5f8", margin: 8 };
+  const box = { display: "inline-flex", alignItems: "center", gap: 14, background: "rgba(11,13,20,.82)", border: "1px solid rgba(255,255,255,.14)", borderRadius: 16, padding: "12px 18px", fontFamily: "'Sora',sans-serif", color: "#f4f5f8", margin: 8 };
   const wm = <span style={{ font: "800 15px Syne,sans-serif", whiteSpace: "nowrap" }}>⚡CATCH<span style={{ color: "#36d399" }}>'EM</span></span>;
   const pid = new URLSearchParams(window.location.search).get("product");
   if (pid) {
@@ -510,7 +510,7 @@ export default function Ticker() {
   if (route?.name === "overlay") return <Overlay />;
 
   if (loading && !feed)
-    return (<div className="tk-root"><style>{css}</style><main className="tk-phone">
+    return (<div className="tk-root"><style>:root{--site-btn-pad:14px 24px;--site-btn-radius:10px;--site-col:820px;--site-col-wide:1040px;}{css}</style><main className="tk-phone">
       <div className="tk-head"><div className="tk-wm">CATCH<b>'EM</b></div>
         <button onClick={() => { const n = cur === "USD" ? "CAD" : "USD"; setCur(n); localStorage.setItem("cur", n); CURR.c = n; }}
           style={{ marginLeft: "auto", background: "var(--raised)", border: "1px solid var(--line)", color: cur === "CAD" ? "var(--green)" : "var(--dim)", borderRadius: 8, font: "700 10px 'JetBrains Mono'", padding: "4px 8px" }}
@@ -930,7 +930,7 @@ export default function Ticker() {
     const num = { font: `700 ${big ? 26 : 15}px 'JetBrains Mono',monospace`, fontVariantNumeric: "tabular-nums", display: "block" };
     return (<div>
       <div style={{ position: "relative", height: big ? 12 : 8, background: "rgba(54,211,153,.35)", borderRadius: 99 }}>
-        <span style={{ position: "absolute", left: `${askPct}%`, top: big ? -5 : -3, width: 3, height: big ? 22 : 14, background: "var(--txt)", borderRadius: 2, transform: "translateX(-50%)" }} />
+        <span style={{ position: "absolute", left: `${askPct}%`, top: big ? -5 : -3, width: 3, height: big ? 22 : 14, background: "var(--txt)", borderRadius: 8, transform: "translateX(-50%)" }} />
       </div>
       <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6 }} className="esub">
         <span>seller floor<b style={num}>{fmt(z.sellerFloor)}</b></span>
@@ -977,7 +977,7 @@ export default function Ticker() {
         <button className={"fchip" + (side === "selling" ? " on" : "")} style={{ flex: 1, padding: "12px 0", fontSize: 15 }} onClick={() => setSideKeep("selling")}>I'm selling</button>
       </div>
       <input value={q} onChange={(e) => { setQ(e.target.value); setPick(null); }} placeholder="Search any product…" aria-label="search products"
-        style={{ width: "100%", background: "var(--panel)", border: "1px solid var(--line)", color: "var(--txt)", borderRadius: 14, padding: "18px 16px", font: "600 20px 'Sora',sans-serif" }} />
+        style={{ width: "100%", background: "var(--panel)", border: "1px solid var(--line)", color: "var(--txt)", borderRadius: 16, padding: "18px 16px", font: "600 20px 'Sora',sans-serif" }} />
       {results.length > 0 && !pick && (
         <div style={{ marginTop: 8 }}>
           {results.map(p => (

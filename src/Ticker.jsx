@@ -451,14 +451,20 @@ function renderDealZoneCard(x, z, dateStr, setShareImg) {
    repo): every figure renders in every mode; position may move, values
    may not. Vendors are Flippers; Show Mode's selling toggle is the
    vendor face (§22: mode ≠ portal ≠ context). */
+// NOTHING SITS BETWEEN THE INDEX AND THE ERA STRIPS. They are one thought —
+// the whole sealed market, then the same market broken down. A mode lead
+// wedged into that gap splits a single idea in half, which is what made the
+// grading note read as a caption on the index. Leads now follow the sealed
+// block instead of interrupting it; the mode still leads through the header
+// line and its accent colour, which is emphasis without dismemberment.
 const MODE_DEF = {
   balanced:  { chip: "Balanced 🟢🔵🟣", cls: "", pre: ["idx"], post: ["leadPrint", "leadSpread", "leadGraded"],
                lead: <>The whole market at a glance — <b>every number, every mode</b>.</> },
-  collector: { chip: "Collector 🟢", cls: "m-collector", pre: ["idx", "leadPrint"], post: ["leadSpread", "leadGraded"],
+  collector: { chip: "Collector 🟢", cls: "m-collector", pre: ["idx"], post: ["leadPrint", "leadSpread", "leadGraded"],
                lead: <>Can you still get it — and what is it? <b>Print windows lead.</b></> },
-  flipper:   { chip: "Flipper 🔵", cls: "m-flipper", pre: ["idx", "leadSpread"], post: ["leadPrint", "leadGraded"],
+  flipper:   { chip: "Flipper 🔵", cls: "m-flipper", pre: ["idx"], post: ["leadSpread", "leadPrint", "leadGraded"],
                lead: <>What moved — and what would you clear? <b>The gaps lead.</b></> },
-  grader:    { chip: "Grader 🟣", cls: "m-grader", pre: ["idx", "leadGraded"], post: ["leadPrint", "leadSpread"],
+  grader:    { chip: "Grader 🟣", cls: "m-grader", pre: ["idx"], post: ["leadGraded", "leadPrint", "leadSpread"],
                lead: <>Worth slabbing? <b>The premium math leads</b> — cautions included.</> },
 };
 
@@ -777,24 +783,17 @@ export default function Ticker() {
       <div className="mrow" key="leadSpread" role="button" tabIndex={0} style={{ cursor: "pointer" }} onClick={() => openProduct(sg0.id)}>
         <span>⚡ {sg0.name}</span><b>{sg0.spreadPct > 0 ? "+" : ""}{sg0.spreadPct}% gap</b>
       </div>) : null;
-    // ADJACENCY IMPLIES RELATIONSHIP (Tyler, 2026-08-23). This sat flush under
-    // the Sealed Index with no separation, so it read as a caption on it — and
-    // grading premium is about SINGLE CARDS, which the sealed index does not
-    // measure at all. Two unrelated instruments touching is how a page starts
-    // looking sloppy even when every number on it is right.
+    // A LABEL IS NOT A FIX FOR BAD PLACEMENT. The first attempt at this added a
+    // "SINGLE CARDS — a different market" heading above this strip, which then
+    // read as a heading for the ERA STRIPS below it — which are sealed data.
+    // One confusing thing became a confusing thing plus a mislabel.
     //
-    // The copy was cryptic too: "the 9 rarely pays — only the 10" assumes the
-    // reader already knows what a 9 and a 10 are, which is the Cliff Rule.
-    const leadGraded = (
-      <div key="leadGraded" style={{ marginTop: 18 }}>
-        <div className="lbl" style={{ margin: "0 0 6px", color: "var(--dim)" }}>SINGLE CARDS — a different market to the index above</div>
-        <div className="mrow">
-          <span>🎓 Is grading worth it?</span>
-          <b style={{ fontFamily: "var(--sans)", fontWeight: 600, fontSize: 12, color: "var(--dim)" }}>
-            A PSA 10 usually pays for the grading. A PSA 9 usually does not.<I t="Grading costs the same whatever score you get back. On established cards a 10 normally sells for enough more than an ungraded copy to cover that cost; a 9 often does not, so the odds of getting a 10 decide whether it was worth sending." />
-          </b>
-        </div>
-      </div>);
+    // The real bug is that M.pre renders BETWEEN the index and the era strips,
+    // so anything placed there splits two pieces of SEALED data down the middle.
+    // A note about graded singles does not belong in that gap at any size, with
+    // any label. It now lives with the other graded content, under its own
+    // heading, where it is answering a question the reader has arrived at.
+    const leadGraded = null;
     const S = {
       idx: six ? (
         <div className="tk-idx" key="idx">

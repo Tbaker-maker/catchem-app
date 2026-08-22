@@ -809,7 +809,7 @@ export default function Ticker() {
     return (<>
       <div className="mode-lead">{M.lead}</div>
       {M.pre.map(k => S[k])}
-      {(feed.eraIndexes || []).length > 0 && (
+      {(feed.eraIndexes || []).length > 0 && (<>
         <div className="lbl" style={{ margin: "16px 0 8px", color: "var(--dim)" }}>
           THE SAME MARKET, BY ERA — each starts at 100 like the index above
         </div>
@@ -834,7 +834,7 @@ export default function Ticker() {
                 <div className="esub">{e.products} products · {e.listingsPerProduct} listings each</div>
               </div>);
           })}
-        </div>)}
+        </div></>)}
 
       {lastVisit && isNewSince(feed.generatedAt) && (
         <div className="note" style={{ margin: "2px 0 12px", color: "var(--dim)" }}>

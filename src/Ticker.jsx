@@ -656,7 +656,7 @@ export default function Ticker() {
       </div>) : null;
     const leadGraded = (
       <div className="mrow" key="leadGraded">
-        <span>🎓 Grading Premium {d3.graded?.gated ? "🔒 unlocks with licensing" : ""}</span>
+        <span>🎓 Grading Premium</span>
         <b style={{ fontFamily: "var(--sans)", fontWeight: 600, fontSize: 12, color: "var(--dim)" }}>the 9 rarely pays — only the 10<I t="The PSA-9 tax: on established sets a 9 usually returns less than the raw card plus the grading fee. Fresh sets can invert this." a="house-reads" /></b>
       </div>);
     const S = {
@@ -692,11 +692,15 @@ export default function Ticker() {
       <div className="tk-sec">The Daily Three</div>
       {d3.sealed && <ProductCard x={{ id: "d3-sealed", name: d3.sealed.name, price: d3.sealed.ebay, tcg: d3.sealed.tcg,
         spreadPct: d3.sealed.spreadPct, listings: d3.sealed.listings, chip: d3.sealed.chip, subtype: "sealed pick" }} why={d3.sealed.reason} />}
-      {d3.graded && (d3.graded.gated
-        ? <div className="c3 locked"><div className="c3b"><div className="c3t"><span className="lbl">graded pick</span><span className="chip p">🔒 GATED</span><I t="The Grading Premium table publishes when data licensing clears — we don't print numbers we can't stand behind publicly." a="raw-graded" /></div>
-            <span className="nm">{d3.graded.name}</span>
-            <div className="why">Unlocks with licensing.</div></div></div>
-        : <ProductCard x={{ id: "d3-graded", name: d3.graded.name, price: d3.graded.raw, chip: d3.graded.chip, subtype: "graded pick" }} why={d3.graded.reason} />)}
+      {d3.shelf && <div className="c3"><div className="c3b">
+        <div className="c3t"><span className="lbl">shelf pick</span><span className="chip">READ</span></div>
+        <b className="nm">{d3.shelf.name}</b>
+        <div className="hero" style={{ fontSize: 22 }}>{d3.shelf.prev} → {d3.shelf.listings}
+          <span className="d" style={{ marginLeft: 8, color: d3.shelf.dPct > 0 ? "var(--gold)" : "var(--green)" }}>
+            {d3.shelf.dPct > 0 ? "+" : ""}{d3.shelf.dPct}%</span></div>
+        <div className="why">{d3.shelf.explain}</div>
+      </div></div>}
+      {d3.graded && !d3.graded.gated && <ProductCard x={{ id: "d3-graded", name: d3.graded.name, price: d3.graded.raw, chip: d3.graded.chip, subtype: "graded pick" }} why={d3.graded.reason} />}
       {d3.raw && <ProductCard x={{ id: "d3-raw", name: `${d3.raw.name} (${d3.raw.set})`, price: d3.raw.price, chip: d3.raw.chip, subtype: "chase" }} why={d3.raw.reason} />}
 
       {feed.ripOrHold && (<>
@@ -783,7 +787,7 @@ export default function Ticker() {
             products: full.products.map(x => ({
               id: x.id, name: x.name, set: x.set, subtype: x.subtype, vintage: !!x.vintage,
               median: x.priceMedian, floorClean: x.priceFloorClean, high: x.priceHigh,
-              listings: x.listingCount, dataStatus: x.dataStatus, img: x.representativeImage,
+              listings: x.listingCount, dataStatus: x.dataStatus, img: x.tcgPlayerId ? `https://tcgplayer-cdn.tcgplayer.com/product/${x.tcgPlayerId}_in_1000x1000.jpg` : x.representativeImage,
               hist: (x.priceHistory || []).slice(-30).map(h => h.price),
             })),
           };

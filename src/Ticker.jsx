@@ -833,17 +833,28 @@ export default function Ticker() {
       {d3.sealed && <ProductCard x={{ id: "d3-sealed", name: d3.sealed.name, price: d3.sealed.ebay, tcg: d3.sealed.tcg,
         imageUrl: (feed.products || []).find(p => p.name === d3.sealed.name)?.img,
         spreadPct: d3.sealed.spreadPct, listings: d3.sealed.listings, chip: d3.sealed.chip, subtype: "sealed pick" }} why={d3.sealed.whyChosen || d3.sealed.reason} />}
-      {d3.shelf && <div className="c3">
+      {/* ONE SKELETON FOR ALL THREE (Tyler: "they don't catch at all"). The
+          cards had three different anatomies — sealed showed a price and a stat
+          chip, shelf showed a transition and NO price, chase showed a price and
+          no stat. Three shapes in one row reads as three designs sharing a
+          space, however good each is alone. Every card is now kicker + chip,
+          name, PRICE as the hero, one stat row, explanation. The shelf move
+          becomes a stat, which is what it is — a supporting fact, not a
+          headline. The shared hero slot is what makes the row scan as a set. */}
+      {d3.shelf && (() => { const shelfPrice = (feed.products || []).find(p => p.name === d3.shelf.name)?.ebay ?? null; return shelfPrice == null ? null : (<div className="c3">
         {(() => { const im = (feed.products || []).find(p => p.name === d3.shelf.name)?.img;
           return im ? <img src={im} alt="" loading="lazy" onClick={() => setZoom({ src: im, name: d3.shelf.name })} /> : null; })()}
         <div className="c3b">
         <div className="c3t"><span className="lbl">shelf pick</span><span className="chip">READ</span></div>
         <b className="nm">{d3.shelf.name}</b>
-        <div className="hero" style={{ fontSize: 22 }}>{d3.shelf.prev} → {d3.shelf.listings}
-          <span className="d" style={{ marginLeft: 8, color: d3.shelf.dPct > 0 ? "var(--gold)" : "var(--green)" }}>
-            {d3.shelf.dPct > 0 ? "+" : ""}{d3.shelf.dPct}%</span></div>
+        <div className="hero">{money(shelfPrice)}</div>
+        <div className="c3s">
+          <span className="stat"><i>Listings</i><b>{d3.shelf.prev} → {d3.shelf.listings}</b></span>
+          <span className="stat"><i>Shelf</i><b style={{ color: d3.shelf.dPct > 0 ? "var(--gold)" : "var(--green)" }}>
+            {d3.shelf.dPct > 0 ? "+" : ""}{d3.shelf.dPct}%</b></span>
+        </div>
         <div className="why">{d3.shelf.explain}</div>
-      </div></div>}
+      </div></div>); })()}
       {d3.graded && !d3.graded.gated && <ProductCard x={{ id: "d3-graded", name: d3.graded.name, price: d3.graded.raw, chip: d3.graded.chip, subtype: "graded pick" }} why={d3.graded.reason} />}
       {d3.raw && <ProductCard x={{ id: "d3-raw", name: `${d3.raw.name} (${d3.raw.set})`, price: d3.raw.price, chip: d3.raw.chip, subtype: "chase",
         imageUrl: (feed.chases || []).find(c => c.name === d3.raw.name)?.imageUrl }} why={d3.raw.explain || d3.raw.reason} />}

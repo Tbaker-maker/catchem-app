@@ -49,6 +49,7 @@ display:flex;justify-content:center}
     column-gap:16px;align-items:start}
   .tk-phone > *{grid-column:1/-1;min-width:0}
   .tk-phone > .c3,.tk-phone > .mrow{grid-column:auto}
+  .c3{height:100%}   /* equal heights ACROSS a grid row — desktop only */
   .tk-head{grid-column:1/-1}
 }
 @media(min-width:1200px){.tk-phone{max-width:var(--site-col-wide,1040px)}}
@@ -77,17 +78,26 @@ padding:14px 16px;display:flex;align-items:center;gap:16px;margin-bottom:14px}
 .tk-sec{font:700 11px var(--mono);color:var(--dim);letter-spacing:.08em;
 text-transform:uppercase;margin:32px 0 12px;display:flex;justify-content:space-between;align-items:center}
 .c3{background:var(--panel);border:1px solid var(--line);border-radius:16px;
-padding:14px;margin-bottom:10px;display:flex;gap:12px;height:100%}
+padding:14px;margin-bottom:10px;display:flex;gap:12px}
+/* height:100% lived on the base rule and belonged only to the desktop grid,
+   where it makes cards in a row match heights. On a phone .tk-phone is a block
+   inside a ROW flex parent, so it has a definite height and 100% resolved
+   against the whole screen: every direct-child card became ~2,880px tall.
+   Measured on a 390px viewport 2026-08-22 — seven cards (Rip or Hold plus the
+   six movers) at 2,882px each turned a 2,966px page into a 21,906px one, 26
+   screens of scroll for three and a half screens of content. The Rip-or-Hold
+   card alone, one sentence of text, was 2,882px. Scoping it to the grid took
+   the page back to 3.5 screens and that card to 94px. */
 /* Daily Three: three cards of different content lengths were rendering three
    different heights (Tyler, 2026-08-22). Grid + stretch makes them match. */
 .d3row{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;align-items:stretch}
 .d3row>*{margin-bottom:0}
-.c3 img{width:76px;height:76px;object-fit:contain;border-radius:8px;background:#070910;align-self:flex-start;cursor:zoom-in}
+.c3 img{width:76px;height:76px;object-fit:contain;border-radius:8px;background:var(--bg-deep);align-self:flex-start;cursor:zoom-in}
 /* 76px is a thumbnail on a 400px card — desktop has the room and we now hold
    1000px sources (Tyler, 2026-08-22). Tap any product photo to enlarge. */
 @media(min-width:880px){.c3 img{width:104px;height:104px}}
 .lbx{position:fixed;inset:0;background:rgba(7,9,16,.94);display:flex;align-items:center;justify-content:center;z-index:90;padding:24px;cursor:zoom-out}
-.lbx img{max-width:min(680px,92vw);max-height:86vh;object-fit:contain;border-radius:16px;background:#0b0d14;border:1px solid var(--line)}
+.lbx img{max-width:min(680px,92vw);max-height:86vh;object-fit:contain;border-radius:16px;background:var(--bg);border:1px solid var(--line)}
 .lbx .cap{position:absolute;bottom:22px;left:0;right:0;text-align:center;color:var(--dim);font-size:13px;padding:0 20px}
 .c3b{flex:1;min-width:0}
 .c3t{display:flex;align-items:center;gap:8px}
@@ -105,7 +115,7 @@ border:1px solid var(--line);color:var(--dim);margin-left:auto;cursor:pointer;fl
 .chip.p{color:var(--purple);border-color:var(--purple)}
 .d{font:700 10.5px var(--mono);font-variant-numeric:tabular-nums}
 .d.u{color:var(--green)}.d.dn{color:var(--red)}.d.n{color:var(--dim)}
-.star{background:none;border:none;font-size:17px;line-height:1;cursor:pointer;color:#5c637a;
+.star{background:none;border:none;font-size:17px;line-height:1;cursor:pointer;color:var(--text-muted);
 min-width:36px;min-height:36px;flex:none}
 .star.on{color:var(--gold)}
 .mvs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -113,7 +123,7 @@ min-width:36px;min-height:36px;flex:none}
 display:flex;align-items:center;gap:7px;font-size:10.5px}
 .mv b{flex:1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .brow{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
-.brow img{width:42px;height:42px;object-fit:contain;border-radius:8px;background:#070910}
+.brow img{width:42px;height:42px;object-fit:contain;border-radius:8px;background:var(--bg-deep)}
 .bmid{flex:1;min-width:0}
 .bmid b{font-size:12.5px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bmid span{font-size:10px;color:var(--dim)}
@@ -128,9 +138,9 @@ padding:6px 12px;font-size:11px;cursor:pointer;min-height:32px}
 /* §20 MODES — a lens, not a filter: accent + order only. --acc tints
    chips and section headers; numbers never change with it. */
 .tk-root{--acc:var(--green);--acc-dim:color-mix(in srgb, var(--acc) 40%, transparent)}
-.tk-root.m-flipper{--acc:#64a0ff}
-.tk-root.m-grader{--acc:#c77dff}
-.tk-root.m-collector{--acc:#36d399}
+.tk-root.m-flipper{--acc:var(--blue)}
+.tk-root.m-grader{--acc:var(--purple)}
+.tk-root.m-collector{--acc:var(--green)}
 .tk-sec{border-left:2px solid var(--acc,transparent);padding-left:7px}
 @media(min-width:880px){
   .tk-sec{border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:var(--section-space-1,32px);padding-bottom:6px;font:700 26px/1.15 var(--disp);letter-spacing:0;text-transform:none;color:var(--txt)}
@@ -141,7 +151,7 @@ padding:6px 12px;font-size:11px;cursor:pointer;min-height:32px}
 .mrow{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--acc,var(--green));border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:13px}
 .mrow b{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .tabs{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;
-display:grid;grid-template-columns:repeat(4,1fr);background:#0b0d14;border-top:1px solid var(--line);
+display:grid;grid-template-columns:repeat(4,1fr);background:var(--bg);border-top:1px solid var(--line);
 padding-bottom:env(safe-area-inset-bottom);z-index:20}
 .tab{background:none;border:none;color:var(--dim);font:600 10.5px var(--sans);padding:10px 0 8px;
 min-height:52px;cursor:pointer}
@@ -163,7 +173,7 @@ padding:0 4px;min-width:28px;min-height:28px;vertical-align:middle}
 .locked{border-style:dashed;border-color:rgba(255,255,255,.18)}
 .drawer-back{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:40}
 .drawer{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:420px;
-background:#0b0d14;border:1px solid var(--line);border-radius:16px 16px 0 0;
+background:var(--bg);border:1px solid var(--line);border-radius:16px 16px 0 0;
 padding:16px 16px calc(24px + env(safe-area-inset-bottom));z-index:50}
 .drawer h4{margin:0 0 8px;font-size:13px}
 .receipt{font:400 11.5px/1.6 var(--mono);color:var(--dim);border-left:2px solid var(--line);
@@ -294,12 +304,12 @@ function bumpStreak(today) {
 /* ── small components ────────────────────────────────────────────────── */
 function Spark({ pts, w = 56, h = 20 }) {
   if (!pts || pts.length < 2)
-    return <svg className="spk" width={w} height={h} aria-label="sparkline pending"><line x1="2" y1={h/2} x2={w-2} y2={h/2} stroke="#5c637a" strokeDasharray="3 3" /></svg>;
+    return <svg className="spk" width={w} height={h} aria-label="sparkline pending"><line x1="2" y1={h/2} x2={w-2} y2={h/2} stroke="var(--text-muted)" strokeDasharray="3 3" /></svg>;
   const min = Math.min(...pts), max = Math.max(...pts), span = max - min || 1;
   const step = (w - 4) / (pts.length - 1);
   const d = pts.map((v, i) => `${i ? "L" : "M"}${2 + i * step},${h - 3 - ((v - min) / span) * (h - 6)}`).join(" ");
   const up = pts[pts.length - 1] >= pts[0];
-  return <svg className="spk" width={w} height={h}><path d={d} fill="none" stroke={up ? "#36d399" : "#ef5a5a"} strokeWidth="1.6" /></svg>;
+  return <svg className="spk" width={w} height={h}><path d={d} fill="none" stroke={up ? "var(--green)" : "var(--red)"} strokeWidth="1.6" /></svg>;
 }
 const Delta = ({ d }) =>
   d == null ? <span className="d n">—</span> :
@@ -317,31 +327,31 @@ function renderShareCard(x, dateStr, setShareImg) {
   cv.width = 500; cv.height = 620;
   const g = cv.getContext("2d");
   const draw = (photo) => {
-    g.fillStyle = "#0b0d14"; g.fillRect(0, 0, 500, 620);
-    g.fillStyle = "#141824"; g.strokeStyle = "rgba(255,255,255,.12)";
+    g.fillStyle = "var(--bg)"; g.fillRect(0, 0, 500, 620);
+    g.fillStyle = "var(--surface)"; g.strokeStyle = "rgba(255,255,255,.12)";
     g.fillRect(20, 20, 460, 580); g.strokeRect(20, 20, 460, 580);
-    g.fillStyle = "#f4f5f8"; g.font = "800 26px Syne, sans-serif";
+    g.fillStyle = "var(--text)"; g.font = "800 26px Syne, sans-serif";
     g.fillText("⚡CATCH", 40, 62);
-    g.fillStyle = "#36d399"; g.fillText("'EM", 158, 62);
-    g.fillStyle = "#8a93a8"; g.font = "700 11px 'JetBrains Mono', monospace";
+    g.fillStyle = "var(--green)"; g.fillText("'EM", 158, 62);
+    g.fillStyle = "var(--text-sub)"; g.font = "700 11px 'JetBrains Mono', monospace";
     g.fillText("DEAL CHECK · " + dateStr, 40, 84);
     if (photo) { try { g.drawImage(photo, 150, 100, 200, 200); } catch {} }
-    g.fillStyle = "#f4f5f8"; g.font = "600 19px Sora, sans-serif";
+    g.fillStyle = "var(--text)"; g.font = "600 19px Sora, sans-serif";
     const nm = x.name.length > 38 ? x.name.slice(0, 36) + "…" : x.name;
     g.fillText(nm, 40, photo ? 336 : 150);
     const y0 = photo ? 360 : 180;
-    g.fillStyle = "#36d399"; g.font = "700 44px 'JetBrains Mono', monospace";
+    g.fillStyle = "var(--green)"; g.font = "700 44px 'JetBrains Mono', monospace";
     g.fillText(fmt(x.median), 40, y0 + 44);
-    g.fillStyle = "#8a93a8"; g.font = "700 11px 'JetBrains Mono', monospace";
+    g.fillStyle = "var(--text-sub)"; g.font = "700 11px 'JetBrains Mono', monospace";
     g.fillText("TODAY'S EBAY MEDIAN (DELIVERED, BIN-ONLY)", 40, y0 + 64);
-    g.fillStyle = "#f4f5f8"; g.font = "700 20px 'JetBrains Mono', monospace";
+    g.fillStyle = "var(--text)"; g.font = "700 20px 'JetBrains Mono', monospace";
     g.fillText(fmt(x.floorClean), 40, y0 + 104);
-    g.fillStyle = "#8a93a8"; g.font = "700 11px 'JetBrains Mono', monospace";
+    g.fillStyle = "var(--text-sub)"; g.font = "700 11px 'JetBrains Mono', monospace";
     g.fillText("CHEAPEST CLEAN LISTING", 40, y0 + 122);
     g.fillText(String(x.listings ?? "—") + " ACTIVE LISTINGS" + (x.vintage ? "  ·  EBAY-NATIVE VENUE" : ""), 40, y0 + 148);
-    g.fillStyle = "#ffb84d"; g.font = "600 12px Sora, sans-serif";
+    g.fillStyle = "var(--gold)"; g.font = "600 12px Sora, sans-serif";
     g.fillText("asks cluster between clean floor and median", 40, y0 + 176);
-    g.fillStyle = "#5c637a"; g.font = "600 11px Sora, sans-serif";
+    g.fillStyle = "var(--text-muted)"; g.font = "600 11px Sora, sans-serif";
     g.fillText("catchemtcg.com — every number carries its receipts", 40, 578);
     try { setShareImg(cv.toDataURL("image/png")); }
     catch { if (photo) draw(null); else setShareImg(null); }
@@ -369,37 +379,37 @@ function renderDealZoneCard(x, z, dateStr, setShareImg) {
   // an unguarded Number(null) printed "$NaN" onto the share card.
   const fmt = (n) => n == null ? "—" : "$" + Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const draw = (photo) => {
-    g.fillStyle = "#0b0d14"; g.fillRect(0, 0, 500, 640);
-    g.fillStyle = "#141824"; g.strokeStyle = "rgba(255,255,255,.12)";
+    g.fillStyle = "var(--bg)"; g.fillRect(0, 0, 500, 640);
+    g.fillStyle = "var(--surface)"; g.strokeStyle = "rgba(255,255,255,.12)";
     g.fillRect(20, 20, 460, 600); g.strokeRect(20, 20, 460, 600);
-    g.fillStyle = "#f4f5f8"; g.font = "800 26px Syne, sans-serif";
+    g.fillStyle = "var(--text)"; g.font = "800 26px Syne, sans-serif";
     g.fillText("⚡CATCH", 40, 62);
-    g.fillStyle = "#36d399"; g.fillText("'EM", 158, 62);
-    g.fillStyle = "#8a93a8"; g.font = "700 11px 'JetBrains Mono', monospace";
+    g.fillStyle = "var(--green)"; g.fillText("'EM", 158, 62);
+    g.fillStyle = "var(--text-sub)"; g.font = "700 11px 'JetBrains Mono', monospace";
     g.fillText("DEAL ZONE · " + dateStr + " · USD · ALL FIGURES EST.", 40, 84);
     if (photo) { try { g.drawImage(photo, 175, 96, 150, 150); } catch {} }
-    g.fillStyle = "#f4f5f8"; g.font = "600 18px Sora, sans-serif";
+    g.fillStyle = "var(--text)"; g.font = "600 18px Sora, sans-serif";
     const nm = x.name.length > 40 ? x.name.slice(0, 38) + "…" : x.name;
     g.fillText(nm, 40, photo ? 276 : 130);
     const y0 = photo ? 292 : 150;
     // the band: flat green zone, white ask marker (brand law: no gradients)
     g.fillStyle = "rgba(54,211,153,.35)"; g.fillRect(40, y0 + 8, 420, 16);
     const askPct = Math.min(0.97, Math.max(0.03, (z.ask - z.sellerFloor) / (z.buyerCeiling - z.sellerFloor)));
-    g.fillStyle = "#f4f5f8"; g.fillRect(40 + 420 * askPct - 2, y0, 4, 32);
-    g.fillStyle = "#8a93a8"; g.font = "700 10px 'JetBrains Mono', monospace";
+    g.fillStyle = "var(--text)"; g.fillRect(40 + 420 * askPct - 2, y0, 4, 32);
+    g.fillStyle = "var(--text-sub)"; g.font = "700 10px 'JetBrains Mono', monospace";
     g.fillText("ASK " + fmt(z.ask), Math.min(360, Math.max(40, 40 + 420 * askPct - 30)), y0 + 46);
     const row = (label, val, y, color) => {
       g.fillStyle = color; g.font = "700 40px 'JetBrains Mono', monospace";
       g.fillText(fmt(val), 40, y);
-      g.fillStyle = "#8a93a8"; g.font = "700 12px 'JetBrains Mono', monospace";
+      g.fillStyle = "var(--text-sub)"; g.font = "700 12px 'JetBrains Mono', monospace";
       g.fillText(label, 40, y + 20);
     };
-    row("SELLER FLOOR — KEEPS THIS ONLINE, AFTER FEES (EST.)", z.sellerFloor, y0 + 106, "#f4f5f8");
-    row("MIDPOINT — THE FAIR HANDSHAKE", z.midpoint, y0 + 176, "#36d399");
-    row("BUYER CEILING — PAYS THIS ONLINE, W/ TAX (EST.)", z.buyerCeiling, y0 + 246, "#f4f5f8");
-    g.fillStyle = "#ffb84d"; g.font = "600 13px Sora, sans-serif";
+    row("SELLER FLOOR — KEEPS THIS ONLINE, AFTER FEES (EST.)", z.sellerFloor, y0 + 106, "var(--text)");
+    row("MIDPOINT — THE FAIR HANDSHAKE", z.midpoint, y0 + 176, "var(--green)");
+    row("BUYER CEILING — PAYS THIS ONLINE, W/ TAX (EST.)", z.buyerCeiling, y0 + 246, "var(--text)");
+    g.fillStyle = "var(--gold)"; g.font = "600 13px Sora, sans-serif";
     g.fillText("Any cash price in the band beats eBay — for both sides.", 40, y0 + 286);
-    g.fillStyle = "#5c637a"; g.font = "600 11px Sora, sans-serif";
+    g.fillStyle = "var(--text-muted)"; g.font = "600 11px Sora, sans-serif";
     g.fillText("catchemtcg.com/methodology#deal-zone — the receipts", 40, 598);
     try { setShareImg(cv.toDataURL("image/png")); }
     catch { if (photo) draw(null); else setShareImg(null); }
@@ -448,12 +458,12 @@ function Overlay() {
     return () => clearInterval(t);
   }, []);
   if (!feed) return null;
-  const box = { display: "inline-flex", alignItems: "center", gap: 14, background: "rgba(11,13,20,.82)", border: "1px solid rgba(255,255,255,.14)", borderRadius: 16, padding: "12px 18px", fontFamily: "'Sora',sans-serif", color: "#f4f5f8", margin: 8 };
-  const wm = <span style={{ font: "800 15px Syne,sans-serif", whiteSpace: "nowrap" }}>⚡CATCH<span style={{ color: "#36d399" }}>'EM</span></span>;
+  const box = { display: "inline-flex", alignItems: "center", gap: 14, background: "rgba(11,13,20,.82)", border: "1px solid rgba(255,255,255,.14)", borderRadius: 16, padding: "12px 18px", fontFamily: "'Sora',sans-serif", color: "var(--text)", margin: 8 };
+  const wm = <span style={{ font: "800 15px Syne,sans-serif", whiteSpace: "nowrap" }}>⚡CATCH<span style={{ color: "var(--green)" }}>'EM</span></span>;
   const pid = new URLSearchParams(window.location.search).get("product");
   if (pid) {
     const p = (feed.products || []).find(x => x.id === pid);
-    if (!p) return <div style={box}>{wm}<span style={{ color: "#8a93a8", fontSize: 13 }}>unknown product: {pid}</span></div>;
+    if (!p) return <div style={box}>{wm}<span style={{ color: "var(--text-sub)", fontSize: 13 }}>unknown product: {pid}</span></div>;
     return (<div style={box}>
       {wm}
       <span style={{ fontSize: 14, fontWeight: 600, maxWidth: 280, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</span>
@@ -467,11 +477,11 @@ function Overlay() {
   const d = s.length >= 2 && s[s.length - 2] ? { pct: ((s[s.length - 1] - s[s.length - 2]) / s[s.length - 2]) * 100 } : (six?.ddPct != null ? { pct: six.ddPct } : null);
   return (<div style={box}>
     {wm}
-    <span style={{ fontSize: 11, letterSpacing: ".08em", color: "#8a93a8", textTransform: "uppercase", whiteSpace: "nowrap" }}>Sealed Index</span>
+    <span style={{ fontSize: 11, letterSpacing: ".08em", color: "var(--text-sub)", textTransform: "uppercase", whiteSpace: "nowrap" }}>Sealed Index</span>
     <span style={{ font: "700 24px 'JetBrains Mono',monospace", fontVariantNumeric: "tabular-nums" }}>{six?.level ?? "—"}</span>
     <Delta d={d} />
     <Spark pts={s} w={70} h={22} />
-    {six?.breadth && <span style={{ fontSize: 11, color: "#8a93a8", whiteSpace: "nowrap" }}>▲{six.breadth.up} ▼{six.breadth.down}</span>}
+    {six?.breadth && <span style={{ fontSize: 11, color: "var(--text-sub)", whiteSpace: "nowrap" }}>▲{six.breadth.up} ▼{six.breadth.down}</span>}
   </div>);
 }
 
@@ -791,7 +801,7 @@ export default function Ticker() {
           <div className="lbl" style={{ margin: "2px 0 6px", color: "var(--green)" }}>▲ Top gains</div>
           {movers.filter(x => x.delta.pct > 0).slice(0, 3).map(x => <ProductCard x={x} key={x.id} density="compact" />)}
           {movers.some(x => x.delta.pct < 0) && (<>
-            <div className="lbl" style={{ margin: "14px 0 6px", color: "#ef5a5a" }}>▼ Top losses</div>
+            <div className="lbl" style={{ margin: "14px 0 6px", color: "var(--red)" }}>▼ Top losses</div>
             {movers.filter(x => x.delta.pct < 0).slice(-3).reverse().map(x => <ProductCard x={x} key={x.id} density="compact" />)}
           </>)}
         </>)}
@@ -1253,7 +1263,7 @@ export default function Ticker() {
     return (<>
       <button className="fchip" onClick={closeProduct} style={{ margin: "8px 0 14px" }}>← back</button>
       <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
-        {x.imageUrl && <img src={x.imageUrl} alt={x.name} width="104" height="104" style={{ width: 104, height: 104, objectFit: "contain", borderRadius: 12, background: "#070910", flex: "none" }} />}
+        {x.imageUrl && <img src={x.imageUrl} alt={x.name} width="104" height="104" style={{ width: 104, height: 104, objectFit: "contain", borderRadius: 12, background: "var(--bg-deep)", flex: "none" }} />}
         <div style={{ minWidth: 0 }}>
           <div className="lbl">{x.set || x.setId} · {x.subtype}{x.vintage ? " · eBay-native venue" : ""}</div>
           <div className="dt-name">{x.name}</div>

@@ -187,6 +187,7 @@ const parseRoute = () => {
   if (m) return { name: "product", id: m[1] };
   if (path.startsWith("/overlay")) return { name: "overlay" };
   if (path.startsWith("/studio/archive")) return { name: "studio-archive" };
+  if (path.startsWith("/studio/posts")) return { name: "studio-posts", mine: new URLSearchParams(window.location.search).get("mine") === "1" };
   if (path.startsWith("/studio")) return { name: "studio" };
   const tool = path.match(/^\/tools\/([a-z-]+)/);
   if (tool) return { name: "tool", tool: tool[1] };
@@ -315,11 +316,6 @@ function Overlay() {
       <Spark pts={seriesFor(feed, pid)} w={70} h={22} />
     </div>);
   }
-  const [cur, setCur] = React.useState(CURR.c);
-  const [caPrompt, setCaPrompt] = React.useState(false);
-  React.useEffect(() => { CURR.r = feed?.fx?.usdcad ?? null;
-    if (feed?.fx?.usdcad && !localStorage.getItem("curAsked") && (navigator.language||"").toLowerCase().includes("-ca")) setCaPrompt(true);
-  }, [feed]);
   const six = feed.sealedIndex;
   const s = (feed.indexHistory || []).map(r => r[1]);
   const d = s.length >= 2 && s[s.length - 2] ? { pct: ((s[s.length - 1] - s[s.length - 2]) / s[s.length - 2]) * 100 } : (six?.ddPct != null ? { pct: six.ddPct } : null);
@@ -389,6 +385,14 @@ export default function Ticker() {
   //   /overlay      — OBS browser source (transparent, auto-refreshing)
   const [route, setRoute] = useState(parseRoute);
   const touchY = useRef(null);
+  // CAD display toggle state — lived inside Overlay by accident (e528fa4),
+  // where Ticker's header/loading returns referenced it: ReferenceError,
+  // whole app crashed. Belongs here, before any conditional return.
+  const [cur, setCur] = React.useState(CURR.c);
+  const [caPrompt, setCaPrompt] = React.useState(false);
+  React.useEffect(() => { CURR.r = feed?.fx?.usdcad ?? null;
+    if (feed?.fx?.usdcad && !localStorage.getItem("curAsked") && (navigator.language||"").toLowerCase().includes("-ca")) setCaPrompt(true);
+  }, [feed]);
 
   const openProduct = (id) => { window.history.pushState({}, "", `/product/${id}`); setRoute({ name: "product", id }); window.scrollTo(0, 0); };
   const openTool = (tool) => { window.history.pushState({}, "", `/tools/${tool}`); setRoute({ name: "tool", tool }); window.scrollTo(0, 0); };
@@ -938,7 +942,72 @@ export default function Ticker() {
         <img src={shareImg} alt="story card" style={{ width: "100%", borderRadius: 12, marginTop: 10 }} />
         <div className="note">Long-press to save.</div>
       </>)}
-      <div className="note" style={{ margin: "16px 0" }}>Machine angles, your voice. <a href="/studio/archive" style={{ color: "var(--green)" }} onClick={(e) => { e.preventDefault(); window.history.pushState({}, "", "/studio/archive"); setRoute({ name: "studio-archive" }); }}>Prior days →</a></div>
+      <div className="note" style={{ margin: "16px 0" }}>Machine angles, your voice. <a href="/studio/posts" style={{ color: "var(--green)" }} onClick={(e) => { e.preventDefault(); window.history.pushState({}, "", "/studio/posts"); setRoute({ name: "studio-posts", mine: false }); }}>Post Studio →</a> · <a href="/studio/archive" style={{ color: "var(--green)" }} onClick={(e) => { e.preventDefault(); window.history.pushState({}, "", "/studio/archive"); setRoute({ name: "studio-archive" }); }}>Prior days →</a></div>
+    </>);
+  };
+
+  /* /studio/posts — POST STUDIO (§17): six finished angles × four formats
+     from the morning post-bank. Angle cards stay glanceable (v7: angle +
+     chip + why); everything else lives behind the tap. Voice changes
+     phrasing only — numbers never move. ?mine=1 = Tyler's §16 queue. */
+  const PostStudio = ({ mine }) => {
+    const bank = feed.postBank, q = feed.socialQueue;
+    const [sel, setSel] = useState(null);
+    const [tab, setTab] = useState("x");
+    const [voice, setVoice] = useState("analyst");
+    const [copied, setCopied] = useState(null);
+    const RAW = "https://raw.githubusercontent.com/Tbaker-maker/Catchem-data/main/";
+    const TABS = [["x", "X"], ["youtube_title", "YT title"], ["youtube_hook", "YT hook"], ["short_script", "Short"]];
+    /* phrasing-only voice shift: casual lowers the opener, energetic adds
+       one 👀 to the first line. Digits are untouched by construction. */
+    const speak = (t) => !t ? t
+      : voice === "casual" ? t.replace(/^([A-Z])(?=[a-z])/, (m) => m.toLowerCase())
+      : voice === "hype" ? t.replace(/(\n|$)/, " 👀$1") : t;
+    const copy = async (t, key) => {
+      try { await navigator.clipboard.writeText(t); setCopied(key); setTimeout(() => setCopied(null), 1500); } catch {}
+    };
+    if (mine) return (<>
+      <div className="tk-sec" style={{ marginTop: 8 }}>My daily slots{q?.dayNumber ? ` · day ${q.dayNumber}` : ""}</div>
+      {!q?.posts?.length && <div className="note">The queue mints with the morning run.</div>}
+      {(q?.posts || []).map(p => (
+        <div className="c3" style={{ flexDirection: "column" }} key={p.slot}>
+          <div className="lbl">{p.slot}{p.suggestedTime ? ` · ${p.suggestedTime}` : ""}{p.lens ? ` · ${p.lens}` : ""}</div>
+          <div className="why" style={{ whiteSpace: "pre-wrap" }}>{p.text}</div>
+          <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+            <button className="fchip" onClick={() => copy(p.text, p.slot)}>{copied === p.slot ? "✓ copied" : "Copy"}</button>
+            {p.card && <a className="fchip" href={RAW + p.card} target="_blank" rel="noreferrer">Card ⬇</a>}
+          </div>
+        </div>))}
+      <div className="note" style={{ margin: "16px 0" }}><a href="/studio/posts" style={{ color: "var(--green)" }} onClick={(e) => { e.preventDefault(); window.history.pushState({}, "", "/studio/posts"); setRoute({ name: "studio-posts", mine: false }); }}>← All angles</a></div>
+    </>);
+    return (<>
+      <div className="tk-sec" style={{ marginTop: 8 }}>Post Studio</div>
+      <div style={{ display: "flex", gap: 6, margin: "6px 0 10px" }}>
+        {[["analyst", "Analyst"], ["casual", "Casual"], ["hype", "Energetic"]].map(([v, l]) => (
+          <button key={v} className={"fchip" + (voice === v ? " on" : "")} onClick={() => setVoice(v)}>{l}</button>))}
+      </div>
+      {!bank?.ideas?.length && <div className="note">Angles mint with the morning run.</div>}
+      {(bank?.ideas || []).map(i => (
+        <div className="c3" style={{ flexDirection: "column" }} key={i.id}>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 8, cursor: "pointer" }}
+               onClick={() => { setSel(sel === i.id ? null : i.id); setTab("x"); }}>
+            <span className="nm" style={{ whiteSpace: "normal" }}>{i.angle}</span>
+            <span className="lbl" style={{ color: i.chip === "VERIFIED" ? "var(--green)" : "var(--dim)" }}>{i.chip}</span>
+          </div>
+          <div className="why">{i.why}</div>
+          {sel === i.id && (<>
+            <div style={{ display: "flex", gap: 6, margin: "10px 0 8px" }}>
+              {TABS.map(([k, l]) => i.platforms?.[k] != null && (
+                <button key={k} className={"fchip" + (tab === k ? " on" : "")} onClick={() => setTab(k)}>{l}</button>))}
+            </div>
+            <div className="why" style={{ whiteSpace: "pre-wrap", background: "var(--raised)", borderRadius: 10, padding: "10px 12px" }}>{speak(i.platforms?.[tab])}</div>
+            <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+              <button className="fchip" onClick={() => copy(speak(i.platforms?.[tab]) || "", i.id + tab)}>{copied === i.id + tab ? "✓ copied" : "Copy"}</button>
+              {i.card && <a className="fchip" href={RAW + i.card} target="_blank" rel="noreferrer">Card ⬇</a>}
+            </div>
+          </>)}
+        </div>))}
+      <div className="note" style={{ margin: "16px 0" }}>{bank?.date ? `Bank refreshes with the morning run · ${bank.date}` : ""} · <a href="/studio/posts?mine=1" style={{ color: "var(--green)" }} onClick={(e) => { e.preventDefault(); window.history.pushState({}, "", "/studio/posts?mine=1"); setRoute({ name: "studio-posts", mine: true }); }}>My slots →</a></div>
     </>);
   };
 
@@ -1023,7 +1092,7 @@ export default function Ticker() {
           </div>
         </div>
         {stale && <div className="tk-banner">Showing yesterday's tape — bots catching up.</div>}
-        {route?.name === "product" ? <ProductDetail id={route.id} /> : route?.name === "studio" ? <Studio /> : route?.name === "studio-archive" ? <StudioArchive /> :
+        {route?.name === "product" ? <ProductDetail id={route.id} /> : route?.name === "studio" ? <Studio /> : route?.name === "studio-posts" ? <PostStudio mine={route.mine} /> : route?.name === "studio-archive" ? <StudioArchive /> :
          route?.name === "tool" ? (
           route.tool === "check" ? <DealCheck /> :
           route.tool === "compare" ? <Compare /> :

@@ -220,8 +220,31 @@ const isNewSince = (dateStr) => {
 };
 // A quiet dot, not a badge. The point is to guide the eye, not to shout at it —
 // and a returning reader should feel oriented, not sold to.
-const NewDot = ({ when }) => isNewSince(when)
-  ? <span title="new since your last visit" style={{ display: "inline-block", width: 6, height: 6, borderRadius: 99, background: "var(--green)", marginLeft: 7, verticalAlign: "middle" }} />
+// CONTENT IDENTITY, NOT A BUILD TIMESTAMP (CC found this, 2026-08-23).
+// Both call sites passed feed.generatedAt, so the dot marked "the feed was
+// rebuilt" — true every day regardless of whether anything changed. A routine
+// regeneration lit every dot on identical content, and the chase pick was
+// byte-identical Aug 20 to 21 with the dot still firing.
+//
+// That is crying wolf in visual form, and worse than not having the feature: a
+// dot that fires on unchanged content teaches the reader that dots mean
+// nothing, and then the dot on the day something DID change gets ignored.
+// The fix is the input, not the feature.
+const fingerprint = (v) => { const s = JSON.stringify(v ?? null); let h = 0;
+  for (let i = 0; i < s.length; i++) { h = ((h << 5) - h + s.charCodeAt(i)) | 0; } return String(h); };
+const SEEN_KEY = "seenContent";
+const seenContent = lsGet(SEEN_KEY, {});
+const pendingSeen = {};
+const isChanged = (section, content) => {
+  const fp = fingerprint(content);
+  pendingSeen[section] = fp;
+  const prev = seenContent[section];
+  return prev != null && prev !== fp;   // no dot on a first visit, only on a real change
+};
+if (typeof window !== "undefined") setTimeout(() => lsSet(SEEN_KEY, { ...seenContent, ...pendingSeen }), 4000);
+
+const NewDot = ({ section, content }) => isChanged(section, content)
+  ? <span title="changed since your last visit" style={{ display: "inline-block", width: 6, height: 6, borderRadius: 99, background: "var(--green)", marginLeft: 7, verticalAlign: "middle" }} />
   : null;
 
 const CURR = { c: (typeof localStorage!=="undefined" && localStorage.getItem("cur")) || "USD", r: null }; // display-only; data stays USD-native
@@ -806,7 +829,7 @@ export default function Ticker() {
         <div className="note" style={{ margin: "2px 0 12px", color: "var(--dim)" }}>
           Last here {lastVisit}. A <span style={{ display: "inline-block", width: 6, height: 6, borderRadius: 99, background: "var(--green)", verticalAlign: "middle" }} /> marks what has changed since.
         </div>)}
-      <div className="tk-sec">The Daily Three<NewDot when={feed.generatedAt} /></div>
+      <div className="tk-sec">The Daily Three<NewDot section="dailyThree" content={d3} /></div>
       <div className="d3row">
       {d3.sealed && <ProductCard x={{ id: "d3-sealed", name: d3.sealed.name, price: d3.sealed.ebay, tcg: d3.sealed.tcg,
         imageUrl: (feed.products || []).find(p => p.name === d3.sealed.name)?.img,
@@ -835,7 +858,7 @@ export default function Ticker() {
         </div></div>
       </>)}
 
-      <div className="tk-sec">Biggest movers<NewDot when={feed.generatedAt} /> <button className="lbl" style={{ background: "none", border: "none", color: "var(--green)", cursor: "pointer" }} onClick={() => openTool("movers")}>see all ▸</button></div>
+      <div className="tk-sec">Biggest movers<NewDot section="movers" content={movers.slice(0, 6).map(x => [x.id, x.delta?.pct])} /> <button className="lbl" style={{ background: "none", border: "none", color: "var(--green)", cursor: "pointer" }} onClick={() => openTool("movers")}>see all ▸</button></div>
       {movers.length === 0
         ? <div className="c3"><div className="c3b"><div className="why">Tape's one day old — movers land tomorrow.<I t="Movers compare the last two committed days of market history — the same real lines for every visitor, first visit included. The clean tape began 2026-08-18." a="history" /></div></div></div>
         : (<>

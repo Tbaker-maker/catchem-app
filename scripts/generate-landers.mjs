@@ -66,6 +66,11 @@ const feedById = new Map((feed?.products ?? []).map(p => [p.id, p]));
 try {
   const r = await fetch("https://raw.githubusercontent.com/Tbaker-maker/Catchem-data/main/research/assets/methodology.html");
   if (r.ok) await writeFile(join(OUT, "methodology.html"), await r.text());
+  // corrections.html is linked FROM methodology — shipping one without the
+  // other 404s every reader who clicks through (found in audit 2026-08-22).
+  const rc = await fetch("https://raw.githubusercontent.com/Tbaker-maker/Catchem-data/main/research/assets/corrections.html");
+  if (rc.ok) await writeFile(join(OUT, "corrections.html"), await rc.text());
+  else console.warn("  ⚠ corrections.html unavailable — methodology links to it and will 404");
 } catch { console.warn("landers: methodology mirror fetch failed — keeping prior copy if any"); }
 
 // Era-aware pack counts — mirrors packsFor() in Catchem-data/scripts/

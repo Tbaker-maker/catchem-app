@@ -12,7 +12,13 @@ import { dirname, join } from "node:path";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const OUT = join(ROOT, "public");
-const SITE = "https://app.catchemtcg.com";
+// PUBLIC/GATED SPLIT (2026-08-22): static surfaces (landers, set hubs,
+// methodology, pulse, board) are PUBLIC and live on catchemtcg.com (the
+// catchem-site Worker, built by scripts/build-public-site.mjs). The app
+// domain is unlisted (noindex + robots-disallow; CF Access pending Tyler's
+// dashboard). Canonicals point at the public host so search equity
+// transfers there.
+const SITE = "https://catchemtcg.com";
 const TAPE_URL =
   "https://raw.githubusercontent.com/Tbaker-maker/Catchem-data/main/data/sealed-prices.json";
 
@@ -60,6 +66,15 @@ let feed = null;
 try { const r = await fetch(FEED_URL); if (r.ok) feed = await r.json(); }
 catch { console.warn("landers: feed fetch failed — hubs get no lifecycle/premium columns this build"); }
 const feedById = new Map((feed?.products ?? []).map(p => [p.id, p]));
+
+
+// Brand tokens sync (build-time): freshest tokens.css from Catchem-data —
+// the acceptance contract is 'change tokens.css → the app follows on rebuild'.
+// Committed src/tokens.css is the offline fallback.
+try {
+  const rt = await fetch('https://raw.githubusercontent.com/Tbaker-maker/Catchem-data/main/research/brand/tokens.css');
+  if (rt.ok) await writeFile(new URL('../src/tokens.css', import.meta.url), await rt.text());
+} catch { /* keep committed fallback */ }
 
 // Mirror the public methodology page onto the app domain at build time —
 // gives the link mesh (and the newsletter) a stable app.catchemtcg.com URL.
@@ -282,6 +297,8 @@ ${products.map((p) => `<url><loc>${SITE}/p/${p.id}.html</loc><lastmod>${lastmod}
 </urlset>
 `;
 await writeFile(join(OUT, "sitemap.xml"), sitemap);
-await writeFile(join(OUT, "robots.txt"), `User-agent: *\nAllow: /\nSitemap: ${SITE}/sitemap.xml\n`);
+// The APP domain serves this copy — disallow all (public copies of every
+// static page live on catchemtcg.com; the interactive app is unlisted).
+await writeFile(join(OUT, "robots.txt"), `User-agent: *\nDisallow: /\n`);
 
 console.log(`landers: ${products.length} pages + hub + sitemap + robots.txt (tape ${tape.updatedAt})`);

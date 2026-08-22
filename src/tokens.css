@@ -1,0 +1,35 @@
+/* Catch'em brand tokens — GENERATED, do not hand-edit.
+ * Source of truth: the live site (catchemtcg.com).
+ * Regenerate: node scripts/sync-brand-tokens.mjs
+ * Synced: 2026-08-22T03:09:46.789Z */
+:root {
+  --bg: #0b0d14;
+  --bg-deep: #070910;
+  --surface: #141824;
+  --surface-2: #1c2235;
+  --surface-3: #232a40;
+  --border: rgba(255, 255, 255, 0.07);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --text: #f4f5f8;
+  --text-sub: #8a93a8;
+  --text-muted: #5c637a;
+  --green: #36d399;
+  --purple: #c77dff;
+  --blue: #64a0ff;
+  --gold: #ffb84d;
+  --red: #ef5a5a;
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'Sora', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  /* a11y exception (Lighthouse contrast, 2026-08-19): app secondary text */
+  --text-sub-app: #98a1b5;
+  /* legacy aliases so existing app/generator CSS keeps resolving */
+  --panel: var(--surface);
+  --raised: var(--surface-2);
+  --line: var(--border);
+  --txt: var(--text);
+  --dim: var(--text-sub-app);
+  --sans: var(--font-body);
+  --disp: var(--font-display);
+  --mono: var(--font-mono);
+}

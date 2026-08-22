@@ -1,0 +1,12 @@
+// Deploy config for the PUBLIC marketing site (catchemtcg.com) — the
+// `catchem-site` Worker. Assets-only; ./site-public is assembled by
+// scripts/build-public-site.mjs. No SPA fallback: this is a static site,
+// unknown paths should 404 rather than serve the landing everywhere.
+// Deploy: node scripts/build-public-site.mjs && npx wrangler deploy -c wrangler.site.jsonc
+{
+  "name": "catchem-site",
+  "compatibility_date": "2026-08-01",
+  "assets": {
+    "directory": "./site-public"
+  }
+}

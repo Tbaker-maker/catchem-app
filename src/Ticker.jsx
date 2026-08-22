@@ -32,10 +32,9 @@ const CAPTURE_URL = BUTTONDOWN_USERNAME
 
 /* ── v3 design tokens ─────────────────────────────────────────────────── */
 const css = `
-:root{--bg:#0b0d14;--panel:#141824;--raised:#1c2235;--line:rgba(255,255,255,.07);
---txt:#f4f5f8;--dim:#98a1b5;--gold:#ffb84d;--green:#36d399;--red:#ef5a5a;--purple:#c77dff;
---sans:'Sora',-apple-system,system-ui,sans-serif;--disp:'Syne',var(--sans);
---mono:'JetBrains Mono','Courier New',monospace}
+/* :root tokens come from src/tokens.css — synced from the live site via
+   Catchem-data (node scripts/sync-brand-tokens.mjs). The inline block that
+   lived here was the drift vector; change tokens.css, the app follows. */
 *{box-sizing:border-box}
 .tk-root{background:var(--bg);color:var(--txt);min-height:100vh;font:14px/1.5 var(--sans);
 display:flex;justify-content:center}

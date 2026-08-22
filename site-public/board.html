@@ -1,0 +1,1469 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Sora:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<title>The Board — Catch'em</title><style>
+:root{--bg:#0b0d14;--panel:#141824;--line:rgba(255,255,255,.07);--txt:#d8dde8;--dim:#8a93a8;--gold:#ffb84d;--green:#36d399;--red:#ff6b7a}
+*{box-sizing:border-box;margin:0}body{background:var(--bg);color:var(--txt);font:15px/1.5 'Sora',system-ui,sans-serif;padding:0 0 60px}
+header{padding:34px 24px 18px;max-width:1080px;margin:0 auto}
+h1{font-size:30px;letter-spacing:-.5px}h1 em{color:var(--gold);font-style:normal}
+.tag{color:var(--dim);font-size:13px;margin-top:4px}
+.calib{max-width:1080px;margin:14px auto 0;padding:12px 24px;display:flex;align-items:center;gap:14px}
+.calib .bar{flex:1;height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.calib .fill{height:100%;width:50%;background:var(--green)}
+.calib .lbl{font:12px 'JetBrains Mono',monospace;color:var(--dim);white-space:nowrap}
+.stats{max-width:1080px;margin:10px auto 0;padding:0 24px;display:flex;gap:26px;font:13px 'JetBrains Mono',monospace;color:var(--dim)}
+.stats b{color:var(--txt)}
+main{max-width:1080px;margin:20px auto 0;padding:0 24px}
+table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+th{font:11px 'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);text-align:left;padding:12px 14px;border-bottom:1px solid var(--line)}
+td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+.name{font-weight:600}.sub{display:block;font-size:11px;color:var(--dim);font-weight:400}
+.pill{font:10px 'JetBrains Mono',monospace;border:1px solid var(--line);border-radius:20px;padding:3px 8px;color:var(--dim)}
+.num{font:14px 'JetBrains Mono',monospace}
+.spread{font:12px 'JetBrains Mono',monospace;border-radius:6px;padding:3px 8px}
+.spread.sig{background:rgba(245,200,66,.14);color:var(--gold);border:1px solid rgba(245,200,66,.35)}
+.spread.ok{color:var(--dim)}.spread.na{color:#4a5065}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px}
+.dot.live{background:var(--green);box-shadow:0 0 6px var(--green)}
+footer{max-width:1080px;margin:22px auto 0;padding:0 24px;font:12px 'JetBrains Mono',monospace;color:var(--dim)}
+</style></head><body>
+<header><h1>The <em>Board</em></h1>
+<div class="tag">Every sealed product. Two markets. Honest instruments. — Catch'em</div></header>
+<div class="calib"><span class="lbl">HEAT READS CALIBRATING</span><div class="bar"><div class="fill"></div></div><span class="lbl">day 4 of 8 · live ~Aug 26</span></div>
+<div class="stats"><span><b>207</b> sealed products tracked</span><span><b>179</b> live</span><span><b>23</b> spread signals</span><span>run <b>2026-08-21T04:41Z</b></span></div>
+<main><table><thead><tr><th>Product</th><th>Type</th><th>Ask Median</th><th>Active Listings</th><th>Spread vs TCG</th><th>Status</th></tr></thead>
+<tbody>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/8m4AAeSw1WFqgNfy/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Vivid Voltage Elite Trainer Box<span class="sub">Vivid Voltage</span></span></td>
+  <td><span class="pill">ETB</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · D · rotated" style="margin-left:4px">📦🔒 69mo</span></td>
+  <td class="num">$160</td>
+  <td class="num">140</td>
+  <td><span class="spread sig">+17.3%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/g-0AAeSwDCFqaace/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Destined Rivals Elite Trainer Box<span class="sub">Destined Rivals</span></span></td>
+  <td><span class="pill">ETB</span><span class="pill" title="late print — reprint waves typical (est.) · ⚖ I · Standard-legal" style="margin-left:4px">🖨⏳ 14mo ⚖</span></td>
+  <td class="num">$137</td>
+  <td class="num">138</td>
+  <td><span class="spread sig">+15.3%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/vaIAAeSwIQJqKk7w/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Lost Origin Elite Trainer Box<span class="sub">Lost Origin</span></span></td>
+  <td><span class="pill">ETB</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · F · rotated" style="margin-left:4px">📦🔒 47mo</span></td>
+  <td class="num">$250</td>
+  <td class="num">136</td>
+  <td><span class="spread sig">+29.5%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/VUQAAeSwvqJqXZm4/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Darkness Ablaze Elite Trainer Box<span class="sub">Darkness Ablaze</span></span></td>
+  <td><span class="pill">ETB</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · D · rotated" style="margin-left:4px">📦🔒 72mo</span></td>
+  <td class="num">$150</td>
+  <td class="num">117</td>
+  <td><span class="spread sig">+19.3%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/ZYYAAOSwyUlnqNK8/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Prismatic Evolutions Surprise Box<span class="sub">Prismatic Evolutions</span></span></td>
+  <td><span class="pill">SPECIAL COLLECTION</span><span class="pill" title="late print — reprint waves typical (est.) · H · rotated" style="margin-left:4px">🖨⏳ 19mo</span></td>
+  <td class="num">$91</td>
+  <td class="num">114</td>
+  <td><span class="spread sig">+33.6%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/Cr4AAeSwXSNqEZok/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Shrouded Fable Elite Trainer Box<span class="sub">Shrouded Fable</span></span></td>
+  <td><span class="pill">ETB</span><span class="pill" title="late print — reprint waves typical (est.) · H · rotated" style="margin-left:4px">🖨⏳ 24mo</span></td>
+  <td class="num">$136</td>
+  <td class="num">111</td>
+  <td><span class="spread sig">+20.8%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/FCEAAeSwBgdpfV2x/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Silver Tempest Elite Trainer Box<span class="sub">Silver Tempest</span></span></td>
+  <td><span class="pill">ETB</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · F · rotated" style="margin-left:4px">📦🔒 45mo</span></td>
+  <td class="num">$180</td>
+  <td class="num">102</td>
+  <td><span class="spread sig">+20.4%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/z40AAeSwR1hpjF7H/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Fusion Strike Booster Box<span class="sub">Fusion Strike</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · E · rotated" style="margin-left:4px">📦🔒 57mo</span></td>
+  <td class="num">$1,180</td>
+  <td class="num">97</td>
+  <td><span class="spread sig">+21.8%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/Ef4AAOSw~xRkMM5b/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Battle Styles Elite Trainer Box<span class="sub">Battle Styles</span></span></td>
+  <td><span class="pill">ETB</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · E · rotated" style="margin-left:4px">📦🔒 65mo</span></td>
+  <td class="num">$150</td>
+  <td class="num">92</td>
+  <td><span class="spread sig">+21.7%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/DT0AAeSwahlqVj8M/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Evolving Skies Booster Box<span class="sub">Evolving Skies</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · E · rotated" style="margin-left:4px">📦🔒 59mo</span></td>
+  <td class="num">$2,904</td>
+  <td class="num">90</td>
+  <td><span class="spread sig">+18.8%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/r~AAAeSwf2lp6tMm/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Perfect Order Booster Box<span class="sub">Perfect Order</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span><span class="pill" title="active print (est.) · ⚖ J · Standard-legal" style="margin-left:4px">🖨 4mo ⚖</span></td>
+  <td class="num">$199</td>
+  <td class="num">86</td>
+  <td><span class="spread sig">+22.9%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/TxYAAeSwz0Jqh9Lf/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Shrouded Fable Booster Bundle<span class="sub">Shrouded Fable</span></span></td>
+  <td><span class="pill">BOOSTER BUNDLE</span><span class="pill" title="late print — reprint waves typical (est.) · H · rotated" style="margin-left:4px">🖨⏳ 24mo</span></td>
+  <td class="num">$63</td>
+  <td class="num">82</td>
+  <td><span class="spread sig">+23%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/~60AAeSwMlNo1Z0w/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Vivid Voltage Booster Box<span class="sub">Vivid Voltage</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · D · rotated" style="margin-left:4px">📦🔒 69mo</span></td>
+  <td class="num">$370</td>
+  <td class="num">81</td>
+  <td><span class="spread sig">+17.3%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/hbwAAeSwKXRqKjdI/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Pokemon GO Elite Trainer Box<span class="sub">Pokemon GO</span></span></td>
+  <td><span class="pill">ETB</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · F · rotated" style="margin-left:4px">📦🔒 49mo</span></td>
+  <td class="num">$240</td>
+  <td class="num">74</td>
+  <td><span class="spread sig">+44%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/IO4AAeSwLDFqZSmH/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Paradox Rift Booster Box<span class="sub">Paradox Rift</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · G · rotated" style="margin-left:4px">📦🔒 33mo</span></td>
+  <td class="num">$321</td>
+  <td class="num">61</td>
+  <td><span class="spread sig">+16.7%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/yDgAAeSwOUVqMMCl/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Stellar Crown Booster Box<span class="sub">Stellar Crown</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span><span class="pill" title="late print — reprint waves typical (est.) · G · rotated" style="margin-left:4px">🖨⏳ 23mo</span></td>
+  <td class="num">$375</td>
+  <td class="num">58</td>
+  <td><span class="spread sig">+17.3%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/9IkAAeSwINxqUZgn/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Paldea Evolved Booster Box<span class="sub">Paldea Evolved</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · G · rotated" style="margin-left:4px">📦🔒 38mo</span></td>
+  <td class="num">$537</td>
+  <td class="num">47</td>
+  <td><span class="spread sig">+16.4%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/SO0AAeSwFJZqhnS5/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Ascended Heroes Tin<span class="sub">Ascended Heroes</span></span></td>
+  <td><span class="pill">TIN</span><span class="pill" title="active print (est.) · ⚖ J · Standard-legal" style="margin-left:4px">🖨 6mo ⚖</span></td>
+  <td class="num">$60</td>
+  <td class="num">29</td>
+  <td><span class="spread sig">-15.1%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/CYcAAeSwFONqORVV/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Twilight Masquerade Booster Bundle<span class="sub">Twilight Masquerade</span></span></td>
+  <td><span class="pill">BOOSTER BUNDLE</span><span class="pill" title="late print — reprint waves typical (est.) · H · rotated" style="margin-left:4px">🖨⏳ 26mo</span></td>
+  <td class="num">$100</td>
+  <td class="num">22</td>
+  <td><span class="spread sig">+28.5%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/2n8AAeSw6wJp7uqb/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Rebel Clash Elite Trainer Box<span class="sub">Rebel Clash</span></span></td>
+  <td><span class="pill">ETB</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · D · rotated" style="margin-left:4px">📦🔒 75mo</span></td>
+  <td class="num">$379</td>
+  <td class="num">18</td>
+  <td><span class="spread sig">+20.2%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/x5EAAeSwR3xo9~F1/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Rebel Clash Booster Box<span class="sub">Rebel Clash</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · D · rotated" style="margin-left:4px">📦🔒 75mo</span></td>
+  <td class="num">$585</td>
+  <td class="num">16</td>
+  <td><span class="spread sig">+18.7%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/DR8AAeSw2MxqYpX5/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Stellar Crown Booster Bundle<span class="sub">Stellar Crown</span></span></td>
+  <td><span class="pill">BOOSTER BUNDLE</span><span class="pill" title="late print — reprint waves typical (est.) · G · rotated" style="margin-left:4px">🖨⏳ 23mo</span></td>
+  <td class="num">$97</td>
+  <td class="num">12</td>
+  <td><span class="spread sig">+31.4%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/xFAAAeSwULhptK7e/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Sword & Shield Base Booster Box<span class="sub">Sword & Shield</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · D · rotated" style="margin-left:4px">📦🔒 78mo</span></td>
+  <td class="num">$900</td>
+  <td class="num">7</td>
+  <td><span class="spread sig">+29.6%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/aTAAAeSwDFZqh1Hp/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Shining Fates Elite Trainer Box<span class="sub">Shining Fates</span></span></td>
+  <td><span class="pill">ETB</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · pre-mark era" style="margin-left:4px">📦🔒 66mo</span></td>
+  <td class="num">$150</td>
+  <td class="num">141</td>
+  <td><span class="spread ok">+3.7%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/RcsAAeSw7BNqh4XG/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>151 Ultra Premium Collection<span class="sub">151</span></span></td>
+  <td><span class="pill">UPC</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · G · rotated" style="margin-left:4px">📦🔒 34mo</span></td>
+  <td class="num">$950</td>
+  <td class="num">140</td>
+  <td><span class="spread ok">+1.5%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/ZNcAAeSwhPJqhOgP/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>151 Booster Bundle<span class="sub">151</span></span></td>
+  <td><span class="pill">BOOSTER BUNDLE</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · G · rotated" style="margin-left:4px">📦🔒 34mo</span></td>
+  <td class="num">$199</td>
+  <td class="num">139</td>
+  <td><span class="spread ok">+9.5%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/mSwAAeSwk2dpxCfa/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Perfect Order Booster Bundle<span class="sub">Perfect Order</span></span></td>
+  <td><span class="pill">BOOSTER BUNDLE</span><span class="pill" title="active print (est.) · ⚖ J · Standard-legal" style="margin-left:4px">🖨 4mo ⚖</span></td>
+  <td class="num">$45</td>
+  <td class="num">137</td>
+  <td><span class="spread ok">+11.9%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/QgkAAeSwA9FqggIU/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>151 Elite Trainer Box<span class="sub">151</span></span></td>
+  <td><span class="pill">ETB</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · G · rotated" style="margin-left:4px">📦🔒 34mo</span></td>
+  <td class="num">$604</td>
+  <td class="num">135</td>
+  <td><span class="spread ok">+5.5%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/0PsAAeSw8kxp3rcP/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Journey Together Booster Bundle<span class="sub">Journey Together</span></span></td>
+  <td><span class="pill">BOOSTER BUNDLE</span><span class="pill" title="late print — reprint waves typical (est.) · ⚖ I · Standard-legal" style="margin-left:4px">🖨⏳ 16mo ⚖</span></td>
+  <td class="num">$49</td>
+  <td class="num">134</td>
+  <td><span class="spread ok">+7.3%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/8mEAAeSw9Idqh7TO/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Prismatic Evolutions Booster Bundle<span class="sub">Prismatic Evolutions</span></span></td>
+  <td><span class="pill">BOOSTER BUNDLE</span><span class="pill" title="late print — reprint waves typical (est.) · H · rotated" style="margin-left:4px">🖨⏳ 19mo</span></td>
+  <td class="num">$85</td>
+  <td class="num">134</td>
+  <td><span class="spread ok">-5.5%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/~FcAAeSwTYtqNr7E/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Destined Rivals Booster Bundle<span class="sub">Destined Rivals</span></span></td>
+  <td><span class="pill">BOOSTER BUNDLE</span><span class="pill" title="late print — reprint waves typical (est.) · ⚖ I · Standard-legal" style="margin-left:4px">🖨⏳ 14mo ⚖</span></td>
+  <td class="num">$70</td>
+  <td class="num">131</td>
+  <td><span class="spread ok">+2.3%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/g3MAAeSw9h1qb5E1/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Pitch Black Pokemon Center Elite Trainer Box<span class="sub">Pitch Black</span></span></td>
+  <td><span class="pill">PC ETB</span><span class="pill" title="active print (est.) · ⚖ J · Standard-legal" style="margin-left:4px">🖨 1mo ⚖</span></td>
+  <td class="num">$135</td>
+  <td class="num">128</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/ngYAAeSwePZqJd7V/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Twilight Masquerade Elite Trainer Box<span class="sub">Twilight Masquerade</span></span></td>
+  <td><span class="pill">ETB</span><span class="pill" title="late print — reprint waves typical (est.) · H · rotated" style="margin-left:4px">🖨⏳ 26mo</span></td>
+  <td class="num">$120</td>
+  <td class="num">126</td>
+  <td><span class="spread ok">+11.4%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/FK8AAeSwe-pqhRqA/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Prismatic Evolutions Elite Trainer Box<span class="sub">Prismatic Evolutions</span></span></td>
+  <td><span class="pill">ETB</span><span class="pill" title="late print — reprint waves typical (est.) · H · rotated" style="margin-left:4px">🖨⏳ 19mo</span></td>
+  <td class="num">$167</td>
+  <td class="num">125</td>
+  <td><span class="spread ok">+0.3%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/HS8AAeSwpfhqh9JG/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Ascended Heroes Elite Trainer Box<span class="sub">Ascended Heroes</span></span></td>
+  <td><span class="pill">ETB</span><span class="pill" title="active print (est.) · ⚖ J · Standard-legal" style="margin-left:4px">🖨 6mo ⚖</span></td>
+  <td class="num">$175</td>
+  <td class="num">124</td>
+  <td><span class="spread ok">+5.6%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/5GYAAeSwaclqhIzs/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Ascended Heroes Booster Bundle<span class="sub">Ascended Heroes</span></span></td>
+  <td><span class="pill">BOOSTER BUNDLE</span><span class="pill" title="active print (est.) · ⚖ J · Standard-legal" style="margin-left:4px">🖨 6mo ⚖</span></td>
+  <td class="num">$86</td>
+  <td class="num">124</td>
+  <td><span class="spread ok">-1.5%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/bnQAAeSw-BBqeZg2/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Temporal Forces Elite Trainer Box<span class="sub">Temporal Forces</span></span></td>
+  <td><span class="pill">ETB</span><span class="pill" title="late print — reprint waves typical (est.) · H · rotated" style="margin-left:4px">🖨⏳ 28mo</span></td>
+  <td class="num">$143</td>
+  <td class="num">124</td>
+  <td><span class="spread ok">+7.3%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/6hkAAeSwlslqX8wI/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Paldean Fates Pokemon Center Elite Trainer Box<span class="sub">Paldean Fates</span></span></td>
+  <td><span class="pill">PC ETB</span><span class="pill" title="late print — reprint waves typical (est.) · G · rotated" style="margin-left:4px">🖨⏳ 30mo</span></td>
+  <td class="num">$650</td>
+  <td class="num">120</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/v-EAAeSw4iBqLgm~/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Phantasmal Flames Pokemon Center Elite Trainer Box<span class="sub">Phantasmal Flames</span></span></td>
+  <td><span class="pill">PC ETB</span><span class="pill" title="active print (est.) · ⚖ I · Standard-legal" style="margin-left:4px">🖨 9mo ⚖</span></td>
+  <td class="num">$330</td>
+  <td class="num">120</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/a~EAAeSwAaFp6p~2/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Perfect Order Elite Trainer Box<span class="sub">Perfect Order</span></span></td>
+  <td><span class="pill">ETB</span><span class="pill" title="active print (est.) · ⚖ J · Standard-legal" style="margin-left:4px">🖨 4mo ⚖</span></td>
+  <td class="num">$74</td>
+  <td class="num">117</td>
+  <td><span class="spread ok">+1.6%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/06cAAeSwFHNqh3D2/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Chaos Rising Booster Bundle<span class="sub">Chaos Rising</span></span></td>
+  <td><span class="pill">BOOSTER BUNDLE</span><span class="pill" title="active print (est.) · ⚖ J · Standard-legal" style="margin-left:4px">🖨 2mo ⚖</span></td>
+  <td class="num">$43</td>
+  <td class="num">116</td>
+  <td><span class="spread ok">+11.9%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/M4AAAeSw7uNqIhrf/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Chaos Rising Pokemon Center Elite Trainer Box<span class="sub">Chaos Rising</span></span></td>
+  <td><span class="pill">PC ETB</span><span class="pill" title="active print (est.) · ⚖ J · Standard-legal" style="margin-left:4px">🖨 2mo ⚖</span></td>
+  <td class="num">$155</td>
+  <td class="num">116</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/z60AAeSwpx9qbi8S/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Journey Together Elite Trainer Box<span class="sub">Journey Together</span></span></td>
+  <td><span class="pill">ETB</span><span class="pill" title="late print — reprint waves typical (est.) · ⚖ I · Standard-legal" style="margin-left:4px">🖨⏳ 16mo ⚖</span></td>
+  <td class="num">$140</td>
+  <td class="num">116</td>
+  <td><span class="spread ok">+6.7%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/3LMAAeSwT4dqgh4L/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Scarlet & Violet Booster Bundle<span class="sub">Scarlet & Violet</span></span></td>
+  <td><span class="pill">BOOSTER BUNDLE</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · G · rotated" style="margin-left:4px">📦🔒 40mo</span></td>
+  <td class="num">$80</td>
+  <td class="num">115</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/F3UAAeSwhEBqWCVq/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Ascended Heroes Pokemon Center Elite Trainer Box<span class="sub">Ascended Heroes</span></span></td>
+  <td><span class="pill">PC ETB</span><span class="pill" title="active print (est.) · ⚖ J · Standard-legal" style="margin-left:4px">🖨 6mo ⚖</span></td>
+  <td class="num">$471</td>
+  <td class="num">114</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/b7QAAeSwinpqgIro/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Evolving Skies Elite Trainer Box<span class="sub">Evolving Skies</span></span></td>
+  <td><span class="pill">ETB</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · E · rotated" style="margin-left:4px">📦🔒 59mo</span></td>
+  <td class="num">$545</td>
+  <td class="num">114</td>
+  <td><span class="spread ok">-6.8%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/cm8AAeSwgBVo0IDb/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Chilling Reign Elite Trainer Box<span class="sub">Chilling Reign</span></span></td>
+  <td><span class="pill">ETB</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · E · rotated" style="margin-left:4px">📦🔒 62mo</span></td>
+  <td class="num">$165</td>
+  <td class="num">110</td>
+  <td><span class="spread ok">+9.8%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/PDUAAeSwl85qaQ5w/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Crown Zenith Special Collection<span class="sub">Crown Zenith</span></span></td>
+  <td><span class="pill">SPECIAL COLLECTION</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · F · rotated" style="margin-left:4px">📦🔒 43mo</span></td>
+  <td class="num">$204</td>
+  <td class="num">110</td>
+  <td><span class="spread ok">+14.6%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/NnAAAeSwO6xqh7fi/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Pitch Black Booster Bundle<span class="sub">Pitch Black</span></span></td>
+  <td><span class="pill">BOOSTER BUNDLE</span><span class="pill" title="active print (est.) · ⚖ J · Standard-legal" style="margin-left:4px">🖨 1mo ⚖</span></td>
+  <td class="num">$43</td>
+  <td class="num">108</td>
+  <td><span class="spread ok">+11.4%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/-joAAeSwQqFqKeq1/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Chaos Rising Booster Box<span class="sub">Chaos Rising</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span><span class="pill" title="active print (est.) · ⚖ J · Standard-legal" style="margin-left:4px">🖨 2mo ⚖</span></td>
+  <td class="num">$200</td>
+  <td class="num">108</td>
+  <td><span class="spread ok">+12.8%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/i5sAAeSwamJqFm~~/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Prismatic Evolutions Pokemon Center Elite Trainer Box<span class="sub">Prismatic Evolutions</span></span></td>
+  <td><span class="pill">PC ETB</span><span class="pill" title="late print — reprint waves typical (est.) · H · rotated" style="margin-left:4px">🖨⏳ 19mo</span></td>
+  <td class="num">$550</td>
+  <td class="num">105</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/V0UAAeSwWatqgi~w/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Perfect Order Pokemon Center Elite Trainer Box<span class="sub">Perfect Order</span></span></td>
+  <td><span class="pill">PC ETB</span><span class="pill" title="active print (est.) · ⚖ J · Standard-legal" style="margin-left:4px">🖨 4mo ⚖</span></td>
+  <td class="num">$140</td>
+  <td class="num">105</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/h4QAAeSwgm9qbWlg/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Surging Sparks Booster Bundle<span class="sub">Surging Sparks</span></span></td>
+  <td><span class="pill">BOOSTER BUNDLE</span><span class="pill" title="late print — reprint waves typical (est.) · H · rotated" style="margin-left:4px">🖨⏳ 21mo</span></td>
+  <td class="num">$67</td>
+  <td class="num">104</td>
+  <td><span class="spread ok">+12.5%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/HuQAAeSwridpy27Z/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Phantasmal Flames Booster Bundle<span class="sub">Phantasmal Flames</span></span></td>
+  <td><span class="pill">BOOSTER BUNDLE</span><span class="pill" title="active print (est.) · ⚖ I · Standard-legal" style="margin-left:4px">🖨 9mo ⚖</span></td>
+  <td class="num">$88</td>
+  <td class="num">104</td>
+  <td><span class="spread ok">+10.9%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/66MAAeSwhnhpchNw/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Surging Sparks Elite Trainer Box<span class="sub">Surging Sparks</span></span></td>
+  <td><span class="pill">ETB</span><span class="pill" title="late print — reprint waves typical (est.) · H · rotated" style="margin-left:4px">🖨⏳ 21mo</span></td>
+  <td class="num">$138</td>
+  <td class="num">104</td>
+  <td><span class="spread ok">+8.9%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/cUoAAeSwNhhqhOl4/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Crown Zenith Elite Trainer Box<span class="sub">Crown Zenith</span></span></td>
+  <td><span class="pill">ETB</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · F · rotated" style="margin-left:4px">📦🔒 43mo</span></td>
+  <td class="num">$339</td>
+  <td class="num">104</td>
+  <td><span class="spread ok">+3.1%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/LGoAAeSwppNp6TDo/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Phantasmal Flames Elite Trainer Box<span class="sub">Phantasmal Flames</span></span></td>
+  <td><span class="pill">ETB</span><span class="pill" title="active print (est.) · ⚖ I · Standard-legal" style="margin-left:4px">🖨 9mo ⚖</span></td>
+  <td class="num">$157</td>
+  <td class="num">98</td>
+  <td><span class="spread ok">+3.9%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/WYEAAeSwGs1qckGp/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Paldean Fates Elite Trainer Box<span class="sub">Paldean Fates</span></span></td>
+  <td><span class="pill">ETB</span><span class="pill" title="late print — reprint waves typical (est.) · G · rotated" style="margin-left:4px">🖨⏳ 30mo</span></td>
+  <td class="num">$480</td>
+  <td class="num">98</td>
+  <td><span class="spread ok">+4.7%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/gl4AAeSwt3tp1Skz/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Battle Styles Booster Box<span class="sub">Battle Styles</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · E · rotated" style="margin-left:4px">📦🔒 65mo</span></td>
+  <td class="num">$322</td>
+  <td class="num">97</td>
+  <td><span class="spread ok">+9%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/z-gAAeSwrKZqgR4P/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Pitch Black Booster Box<span class="sub">Pitch Black</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span><span class="pill" title="active print (est.) · ⚖ J · Standard-legal" style="margin-left:4px">🖨 1mo ⚖</span></td>
+  <td class="num">$194</td>
+  <td class="num">97</td>
+  <td><span class="spread ok">+14%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/VA4AAeSw3h9qh2ln/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Black Bolt Elite Trainer Box<span class="sub">Black Bolt</span></span></td>
+  <td><span class="pill">ETB</span><span class="pill" title="late print — reprint waves typical (est.) · ⚖ I · Standard-legal" style="margin-left:4px">🖨⏳ 13mo ⚖</span></td>
+  <td class="num">$175</td>
+  <td class="num">94</td>
+  <td><span class="spread ok">+5.8%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/IF8AAeSw61Rqg4QN/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>White Flare Elite Trainer Box<span class="sub">White Flare</span></span></td>
+  <td><span class="pill">ETB</span><span class="pill" title="late print — reprint waves typical (est.) · ⚖ I · Standard-legal" style="margin-left:4px">🖨⏳ 13mo ⚖</span></td>
+  <td class="num">$160</td>
+  <td class="num">92</td>
+  <td><span class="spread ok">+5.1%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/BbwAAeSwD7Rptvun/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Chilling Reign Booster Box<span class="sub">Chilling Reign</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · E · rotated" style="margin-left:4px">📦🔒 62mo</span></td>
+  <td class="num">$540</td>
+  <td class="num">91</td>
+  <td><span class="spread ok">+8.1%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/SAUAAeSw2S9qV6hc/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Chaos Rising Elite Trainer Box<span class="sub">Chaos Rising</span></span></td>
+  <td><span class="pill">ETB</span><span class="pill" title="active print (est.) · ⚖ J · Standard-legal" style="margin-left:4px">🖨 2mo ⚖</span></td>
+  <td class="num">$77</td>
+  <td class="num">91</td>
+  <td><span class="spread ok">+6.3%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/3P0AAeSwQ0FqgKci/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>White Flare Booster Bundle<span class="sub">White Flare</span></span></td>
+  <td><span class="pill">BOOSTER BUNDLE</span><span class="pill" title="late print — reprint waves typical (est.) · ⚖ I · Standard-legal" style="margin-left:4px">🖨⏳ 13mo ⚖</span></td>
+  <td class="num">$90</td>
+  <td class="num">89</td>
+  <td><span class="spread ok">+3.8%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/fDMAAeSwyFxp~k8L/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Sun & Moon Elite Trainer Box<span class="sub">Sun & Moon</span></span></td>
+  <td><span class="pill">ETB</span></td>
+  <td class="num">$375</td>
+  <td class="num">87</td>
+  <td><span class="spread ok">+52%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/mKgAAeSwbG9qbsLC/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Destined Rivals Booster Box<span class="sub">Destined Rivals</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span><span class="pill" title="late print — reprint waves typical (est.) · ⚖ I · Standard-legal" style="margin-left:4px">🖨⏳ 14mo ⚖</span></td>
+  <td class="num">$505</td>
+  <td class="num">86</td>
+  <td><span class="spread ok">+15%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/uOAAAeSwRqBqh8fT/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Surging Sparks Booster Box<span class="sub">Surging Sparks</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span><span class="pill" title="late print — reprint waves typical (est.) · H · rotated" style="margin-left:4px">🖨⏳ 21mo</span></td>
+  <td class="num">$310</td>
+  <td class="num">80</td>
+  <td><span class="spread ok">+2.4%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/CU0AAeSw94xobpAE/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Sun & Moon Booster Box<span class="sub">Sun & Moon</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span></td>
+  <td class="num">$2,015</td>
+  <td class="num">79</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/QOQAAeSw92lqh1QZ/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Black Bolt Booster Bundle<span class="sub">Black Bolt</span></span></td>
+  <td><span class="pill">BOOSTER BUNDLE</span><span class="pill" title="late print — reprint waves typical (est.) · ⚖ I · Standard-legal" style="margin-left:4px">🖨⏳ 13mo ⚖</span></td>
+  <td class="num">$100</td>
+  <td class="num">78</td>
+  <td><span class="spread ok">+1.8%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/Nl4AAeSwFdNqXv2J/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Pitch Black Elite Trainer Box<span class="sub">Pitch Black</span></span></td>
+  <td><span class="pill">ETB</span><span class="pill" title="active print (est.) · ⚖ J · Standard-legal" style="margin-left:4px">🖨 1mo ⚖</span></td>
+  <td class="num">$77</td>
+  <td class="num">75</td>
+  <td><span class="spread ok">+8.4%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/6N8AAeSwSJFqdkqZ/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Fusion Strike Elite Trainer Box<span class="sub">Fusion Strike</span></span></td>
+  <td><span class="pill">ETB</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · E · rotated" style="margin-left:4px">📦🔒 57mo</span></td>
+  <td class="num">$350</td>
+  <td class="num">75</td>
+  <td><span class="spread ok">+0.5%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/x8wAAeSwpcBqKk9q/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Stellar Crown Elite Trainer Box<span class="sub">Stellar Crown</span></span></td>
+  <td><span class="pill">ETB</span><span class="pill" title="late print — reprint waves typical (est.) · G · rotated" style="margin-left:4px">🖨⏳ 23mo</span></td>
+  <td class="num">$172</td>
+  <td class="num">74</td>
+  <td><span class="spread ok">+6.9%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/yoAAAeSwKE5p9lTj/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Hidden Fates Elite Trainer Box<span class="sub">Hidden Fates</span></span></td>
+  <td><span class="pill">ETB</span></td>
+  <td class="num">$596</td>
+  <td class="num">72</td>
+  <td><span class="spread ok">+7%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/O5UAAeSwseNqemB1/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Phantasmal Flames Booster Box<span class="sub">Phantasmal Flames</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span><span class="pill" title="active print (est.) · ⚖ I · Standard-legal" style="margin-left:4px">🖨 9mo ⚖</span></td>
+  <td class="num">$430</td>
+  <td class="num">71</td>
+  <td><span class="spread ok">+10.8%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/GwgAAeSwN-lqYCaI/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Astral Radiance Booster Box<span class="sub">Astral Radiance</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · F · rotated" style="margin-left:4px">📦🔒 50mo</span></td>
+  <td class="num">$426</td>
+  <td class="num">69</td>
+  <td><span class="spread ok">+2.7%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/Vg8AAeSwi0pqhygx/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Journey Together Booster Box<span class="sub">Journey Together</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span><span class="pill" title="late print — reprint waves typical (est.) · ⚖ I · Standard-legal" style="margin-left:4px">🖨⏳ 16mo ⚖</span></td>
+  <td class="num">$290</td>
+  <td class="num">68</td>
+  <td><span class="spread ok">-3.4%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/fu4AAeSw529qYofO/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Champion's Path Elite Trainer Box<span class="sub">Champion's Path</span></span></td>
+  <td><span class="pill">ETB</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · D · rotated" style="margin-left:4px">📦🔒 70mo</span></td>
+  <td class="num">$225</td>
+  <td class="num">67</td>
+  <td><span class="spread ok">+3.3%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/PtEAAeSwtWFqb-it/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Evolving Skies Booster Pack<span class="sub">Evolving Skies</span></span></td>
+  <td><span class="pill">BOOSTER PACK</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · E · rotated" style="margin-left:4px">📦🔒 59mo</span></td>
+  <td class="num">$54</td>
+  <td class="num">66</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/5WYAAeSwYUhqX4s4/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Destined Rivals Pokemon Center Elite Trainer Box<span class="sub">Destined Rivals</span></span></td>
+  <td><span class="pill">PC ETB</span><span class="pill" title="late print — reprint waves typical (est.) · ⚖ I · Standard-legal" style="margin-left:4px">🖨⏳ 14mo ⚖</span></td>
+  <td class="num">$544</td>
+  <td class="num">66</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/vcAAAeSwihxqc17f/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Celebrations Ultra Premium Collection<span class="sub">Celebrations</span></span></td>
+  <td><span class="pill">UPC</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · E · rotated" style="margin-left:4px">📦🔒 58mo</span></td>
+  <td class="num">$1,350</td>
+  <td class="num">66</td>
+  <td><span class="spread ok">+5.9%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/wtcAAeSwVnNqf9du/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Darkness Ablaze Booster Box<span class="sub">Darkness Ablaze</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · D · rotated" style="margin-left:4px">📦🔒 72mo</span></td>
+  <td class="num">$400</td>
+  <td class="num">65</td>
+  <td><span class="spread ok">+7.6%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/rJ0AAeSw1yVqeNNf/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Stellar Crown Pokemon Center Elite Trainer Box<span class="sub">Stellar Crown</span></span></td>
+  <td><span class="pill">PC ETB</span><span class="pill" title="late print — reprint waves typical (est.) · G · rotated" style="margin-left:4px">🖨⏳ 23mo</span></td>
+  <td class="num">$200</td>
+  <td class="num">65</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/QFIAAeSwKzZqWRhp/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Brilliant Stars Booster Box<span class="sub">Brilliant Stars</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · F · rotated" style="margin-left:4px">📦🔒 53mo</span></td>
+  <td class="num">$640</td>
+  <td class="num">61</td>
+  <td><span class="spread ok">+7.4%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/SlIAAeSwptdqhElM/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Celebrations Elite Trainer Box<span class="sub">Celebrations</span></span></td>
+  <td><span class="pill">ETB</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · E · rotated" style="margin-left:4px">📦🔒 58mo</span></td>
+  <td class="num">$370</td>
+  <td class="num">60</td>
+  <td><span class="spread ok">+1.6%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/3ukAAOSw92dn0SZx/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Chilling Reign Booster Pack<span class="sub">Chilling Reign</span></span></td>
+  <td><span class="pill">BOOSTER PACK</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · E · rotated" style="margin-left:4px">📦🔒 62mo</span></td>
+  <td class="num">$16</td>
+  <td class="num">58</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/pToAAeSwP19qbrl0/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Silver Tempest Booster Box<span class="sub">Silver Tempest</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · F · rotated" style="margin-left:4px">📦🔒 45mo</span></td>
+  <td class="num">$560</td>
+  <td class="num">58</td>
+  <td><span class="spread ok">+10.5%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/b5YAAeSwnaFoYBk~/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Rebel Clash Booster Pack<span class="sub">Rebel Clash</span></span></td>
+  <td><span class="pill">BOOSTER PACK</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · D · rotated" style="margin-left:4px">📦🔒 75mo</span></td>
+  <td class="num">$15</td>
+  <td class="num">57</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/t1kAAeSwdSZqe-Yj/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Lost Origin Booster Pack<span class="sub">Lost Origin</span></span></td>
+  <td><span class="pill">BOOSTER PACK</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · F · rotated" style="margin-left:4px">📦🔒 47mo</span></td>
+  <td class="num">$24</td>
+  <td class="num">53</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/rdkAAeSwk7FqhKlx/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Surging Sparks Pokemon Center Elite Trainer Box<span class="sub">Surging Sparks</span></span></td>
+  <td><span class="pill">PC ETB</span><span class="pill" title="late print — reprint waves typical (est.) · H · rotated" style="margin-left:4px">🖨⏳ 21mo</span></td>
+  <td class="num">$325</td>
+  <td class="num">51</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/pCYAAeSwyWlp-zLN/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Black Bolt Pokemon Center Elite Trainer Box<span class="sub">Black Bolt</span></span></td>
+  <td><span class="pill">PC ETB</span><span class="pill" title="late print — reprint waves typical (est.) · ⚖ I · Standard-legal" style="margin-left:4px">🖨⏳ 13mo ⚖</span></td>
+  <td class="num">$326</td>
+  <td class="num">50</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/M7wAAeSwwelp7khC/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Astral Radiance Pokemon Center Elite Trainer Box<span class="sub">Astral Radiance</span></span></td>
+  <td><span class="pill">PC ETB</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · F · rotated" style="margin-left:4px">📦🔒 50mo</span></td>
+  <td class="num">$250</td>
+  <td class="num">49</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/aHsAAeSwcGlqZ9~8/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>White Flare Pokemon Center Elite Trainer Box<span class="sub">White Flare</span></span></td>
+  <td><span class="pill">PC ETB</span><span class="pill" title="late print — reprint waves typical (est.) · ⚖ I · Standard-legal" style="margin-left:4px">🖨⏳ 13mo ⚖</span></td>
+  <td class="num">$300</td>
+  <td class="num">49</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/g3cAAeSwndxqh6nc/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Paldean Fates Booster Bundle<span class="sub">Paldean Fates</span></span></td>
+  <td><span class="pill">BOOSTER BUNDLE</span><span class="pill" title="late print — reprint waves typical (est.) · G · rotated" style="margin-left:4px">🖨⏳ 30mo</span></td>
+  <td class="num">$196</td>
+  <td class="num">49</td>
+  <td><span class="spread ok">+12.2%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/JIIAAeSwFkhqJbD9/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Journey Together Pokemon Center Elite Trainer Box<span class="sub">Journey Together</span></span></td>
+  <td><span class="pill">PC ETB</span><span class="pill" title="late print — reprint waves typical (est.) · ⚖ I · Standard-legal" style="margin-left:4px">🖨⏳ 16mo ⚖</span></td>
+  <td class="num">$235</td>
+  <td class="num">48</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/qZ8AAeSwDqFqhO5l/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Twilight Masquerade Booster Box<span class="sub">Twilight Masquerade</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span><span class="pill" title="late print — reprint waves typical (est.) · H · rotated" style="margin-left:4px">🖨⏳ 26mo</span></td>
+  <td class="num">$388</td>
+  <td class="num">48</td>
+  <td><span class="spread ok">+7.2%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/xh0AAeSwSQRqBbM4/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Silver Tempest Booster Pack<span class="sub">Silver Tempest</span></span></td>
+  <td><span class="pill">BOOSTER PACK</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · F · rotated" style="margin-left:4px">📦🔒 45mo</span></td>
+  <td class="num">$15</td>
+  <td class="num">48</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/LEQAAeSwPGtqbXoF/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Scarlet & Violet Base Pokemon Center Elite Trainer Box<span class="sub">Scarlet & Violet</span></span></td>
+  <td><span class="pill">PC ETB</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · G · rotated" style="margin-left:4px">📦🔒 40mo</span></td>
+  <td class="num">$325</td>
+  <td class="num">47</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/3jAAAOSwfCdn2evl/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Darkness Ablaze Booster Pack<span class="sub">Darkness Ablaze</span></span></td>
+  <td><span class="pill">BOOSTER PACK</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · D · rotated" style="margin-left:4px">📦🔒 72mo</span></td>
+  <td class="num">$14</td>
+  <td class="num">46</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/3R4AAeSwJY1qR~pi/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Vivid Voltage Booster Pack<span class="sub">Vivid Voltage</span></span></td>
+  <td><span class="pill">BOOSTER PACK</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · D · rotated" style="margin-left:4px">📦🔒 69mo</span></td>
+  <td class="num">$14</td>
+  <td class="num">46</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/Z2IAAeSwE8pqJYPs/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Brilliant Stars Booster Pack<span class="sub">Brilliant Stars</span></span></td>
+  <td><span class="pill">BOOSTER PACK</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · F · rotated" style="margin-left:4px">📦🔒 53mo</span></td>
+  <td class="num">$20</td>
+  <td class="num">45</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/tlIAAeSwwrlqUnLi/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Obsidian Flames Booster Box<span class="sub">Obsidian Flames</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · G · rotated" style="margin-left:4px">📦🔒 36mo</span></td>
+  <td class="num">$417</td>
+  <td class="num">44</td>
+  <td><span class="spread ok">+13.2%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/g4EAAOSwhwFnmqfW/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Crown Zenith Booster Pack<span class="sub">Crown Zenith</span></span></td>
+  <td><span class="pill">BOOSTER PACK</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · F · rotated" style="margin-left:4px">📦🔒 43mo</span></td>
+  <td class="num">$33</td>
+  <td class="num">44</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/HCYAAeSwgglqGkav/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Evolutions Elite Trainer Box<span class="sub">Evolutions</span></span></td>
+  <td><span class="pill">ETB</span></td>
+  <td class="num">$650</td>
+  <td class="num">43</td>
+  <td><span class="spread ok">-19.9%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/4nIAAeSwAZtqTjL5/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Temporal Forces Booster Box<span class="sub">Temporal Forces</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span><span class="pill" title="late print — reprint waves typical (est.) · H · rotated" style="margin-left:4px">🖨⏳ 28mo</span></td>
+  <td class="num">$350</td>
+  <td class="num">43</td>
+  <td><span class="spread ok">+15%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/WvkAAeSwLKhoZ-2k/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Twilight Masquerade Booster Pack<span class="sub">Twilight Masquerade</span></span></td>
+  <td><span class="pill">BOOSTER PACK</span><span class="pill" title="late print — reprint waves typical (est.) · H · rotated" style="margin-left:4px">🖨⏳ 26mo</span></td>
+  <td class="num">$14</td>
+  <td class="num">43</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/ZxIAAeSwdJpqY7-J/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>151 Booster Pack<span class="sub">151</span></span></td>
+  <td><span class="pill">BOOSTER PACK</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · G · rotated" style="margin-left:4px">📦🔒 34mo</span></td>
+  <td class="num">$30</td>
+  <td class="num">40</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/sLUAAeSwDF1qZrVr/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Crown Zenith Pokemon Center Elite Trainer Box<span class="sub">Crown Zenith</span></span></td>
+  <td><span class="pill">PC ETB</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · F · rotated" style="margin-left:4px">📦🔒 43mo</span></td>
+  <td class="num">$606</td>
+  <td class="num">40</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/z6IAAeSwN8dqFge-/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Shrouded Fable Pokemon Center Elite Trainer Box<span class="sub">Shrouded Fable</span></span></td>
+  <td><span class="pill">PC ETB</span><span class="pill" title="late print — reprint waves typical (est.) · H · rotated" style="margin-left:4px">🖨⏳ 24mo</span></td>
+  <td class="num">$193</td>
+  <td class="num">40</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/p3wAAOSwxpxoP1Hu/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Sword & Shield Booster Pack<span class="sub">Sword & Shield</span></span></td>
+  <td><span class="pill">BOOSTER PACK</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · D · rotated" style="margin-left:4px">📦🔒 78mo</span></td>
+  <td class="num">$20</td>
+  <td class="num">38</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/gg8AAeSwXudqe4uc/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Mega Evolution Elite Trainer Box<span class="sub">Mega Evolution</span></span></td>
+  <td><span class="pill">ETB</span><span class="pill" title="active print (est.) · ⚖ I · Standard-legal" style="margin-left:4px">🖨 10mo ⚖</span></td>
+  <td class="num">$119</td>
+  <td class="num">37</td>
+  <td><span class="spread ok">-2%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/E9MAAeSwSx9p8CQi/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Battle Styles Booster Pack<span class="sub">Battle Styles</span></span></td>
+  <td><span class="pill">BOOSTER PACK</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · E · rotated" style="margin-left:4px">📦🔒 65mo</span></td>
+  <td class="num">$12</td>
+  <td class="num">36</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/uZIAAeSwhthqhROF/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Fusion Strike Booster Pack<span class="sub">Fusion Strike</span></span></td>
+  <td><span class="pill">BOOSTER PACK</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · E · rotated" style="margin-left:4px">📦🔒 57mo</span></td>
+  <td class="num">$24</td>
+  <td class="num">36</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/No8AAeSwBXxqdgXm/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Obsidian Flames Pokemon Center Elite Trainer Box<span class="sub">Obsidian Flames</span></span></td>
+  <td><span class="pill">PC ETB</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · G · rotated" style="margin-left:4px">📦🔒 36mo</span></td>
+  <td class="num">$775</td>
+  <td class="num">36</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/nc0AAeSwSe9opJqJ/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Paradox Rift Booster Pack<span class="sub">Paradox Rift</span></span></td>
+  <td><span class="pill">BOOSTER PACK</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · G · rotated" style="margin-left:4px">📦🔒 33mo</span></td>
+  <td class="num">$13</td>
+  <td class="num">35</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/~esAAeSwdhFqcQwg/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Brilliant Stars Pokemon Center Elite Trainer Box<span class="sub">Brilliant Stars</span></span></td>
+  <td><span class="pill">PC ETB</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · F · rotated" style="margin-left:4px">📦🔒 53mo</span></td>
+  <td class="num">$285</td>
+  <td class="num">35</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/Kl8AAeSwGgtots5O/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Scarlet & Violet Base Booster Box<span class="sub">Scarlet & Violet</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · G · rotated" style="margin-left:4px">📦🔒 40mo</span></td>
+  <td class="num">$329</td>
+  <td class="num">35</td>
+  <td><span class="spread ok">+8.3%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/S0EAAeSwLUpp9Sr5/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Evolutions Booster Box<span class="sub">Evolutions</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span></td>
+  <td class="num">$2,700</td>
+  <td class="num">34</td>
+  <td><span class="spread ok">+7.6%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/xdgAAeSw-~pqXOHS/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Paldea Evolved Booster Pack<span class="sub">Paldea Evolved</span></span></td>
+  <td><span class="pill">BOOSTER PACK</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · G · rotated" style="margin-left:4px">📦🔒 38mo</span></td>
+  <td class="num">$20</td>
+  <td class="num">34</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/LhIAAeSwcIBp~zrC/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Twilight Masquerade Pokemon Center Elite Trainer Box<span class="sub">Twilight Masquerade</span></span></td>
+  <td><span class="pill">PC ETB</span><span class="pill" title="late print — reprint waves typical (est.) · H · rotated" style="margin-left:4px">🖨⏳ 26mo</span></td>
+  <td class="num">$211</td>
+  <td class="num">33</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/1~MAAeSwxO5psFZC/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Temporal Forces Booster Pack<span class="sub">Temporal Forces</span></span></td>
+  <td><span class="pill">BOOSTER PACK</span><span class="pill" title="late print — reprint waves typical (est.) · H · rotated" style="margin-left:4px">🖨⏳ 28mo</span></td>
+  <td class="num">$15</td>
+  <td class="num">33</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/rNAAAeSwD5hqGd3V/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Crimson Invasion Elite Trainer Box<span class="sub">Crimson Invasion</span></span></td>
+  <td><span class="pill">ETB</span></td>
+  <td class="num">$309</td>
+  <td class="num">31</td>
+  <td><span class="spread ok">+41.5%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/6f8AAeSw24RqXa8D/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Fusion Strike Pokemon Center Elite Trainer Box<span class="sub">Fusion Strike</span></span></td>
+  <td><span class="pill">PC ETB</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · E · rotated" style="margin-left:4px">📦🔒 57mo</span></td>
+  <td class="num">$550</td>
+  <td class="num">30</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/M8oAAeSwxMpqXnGD/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Celebrations Booster Bundle<span class="sub">Celebrations</span></span></td>
+  <td><span class="pill">BOOSTER BUNDLE</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · E · rotated" style="margin-left:4px">📦🔒 58mo</span></td>
+  <td class="num">$80</td>
+  <td class="num">29</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/cSEAAeSw4atpBTN2/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Mega Evolution Enhanced Booster Box<span class="sub">Mega Evolution</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span><span class="pill" title="active print (est.) · ⚖ I · Standard-legal" style="margin-left:4px">🖨 10mo ⚖</span></td>
+  <td class="num">$340</td>
+  <td class="num">29</td>
+  <td><span class="spread ok">+9.8%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/C04AAeSwsJhpOAdD/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Paldean Fates Booster Pack<span class="sub">Paldean Fates</span></span></td>
+  <td><span class="pill">BOOSTER PACK</span><span class="pill" title="late print — reprint waves typical (est.) · G · rotated" style="margin-left:4px">🖨⏳ 30mo</span></td>
+  <td class="num">$35</td>
+  <td class="num">29</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/jX8AAOSwZm9nKlgT/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Surging Sparks Booster Pack<span class="sub">Surging Sparks</span></span></td>
+  <td><span class="pill">BOOSTER PACK</span><span class="pill" title="late print — reprint waves typical (est.) · H · rotated" style="margin-left:4px">🖨⏳ 21mo</span></td>
+  <td class="num">$10</td>
+  <td class="num">28</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/keoAAeSwsyxqRtQf/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Journey Together Booster Pack<span class="sub">Journey Together</span></span></td>
+  <td><span class="pill">BOOSTER PACK</span><span class="pill" title="late print — reprint waves typical (est.) · ⚖ I · Standard-legal" style="margin-left:4px">🖨⏳ 16mo ⚖</span></td>
+  <td class="num">$9</td>
+  <td class="num">28</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/kpsAAeSwiwRqE9cy/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Burning Shadows Elite Trainer Box<span class="sub">Burning Shadows</span></span></td>
+  <td><span class="pill">ETB</span></td>
+  <td class="num">$379</td>
+  <td class="num">28</td>
+  <td><span class="spread ok">+17.7%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/XcEAAeSwN8dqEncl/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Chaos Rising Booster Pack<span class="sub">Chaos Rising</span></span></td>
+  <td><span class="pill">BOOSTER PACK</span><span class="pill" title="active print (est.) · ⚖ J · Standard-legal" style="margin-left:4px">🖨 2mo ⚖</span></td>
+  <td class="num">$10</td>
+  <td class="num">28</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/EVoAAeSw4U1qeitS/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Silver Tempest Booster Bundle<span class="sub">Silver Tempest</span></span></td>
+  <td><span class="pill">BOOSTER BUNDLE</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · F · rotated" style="margin-left:4px">📦🔒 45mo</span></td>
+  <td class="num">$117</td>
+  <td class="num">28</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/aIwAAeSwbp5qh3tI/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Destined Rivals Booster Pack<span class="sub">Destined Rivals</span></span></td>
+  <td><span class="pill">BOOSTER PACK</span><span class="pill" title="late print — reprint waves typical (est.) · ⚖ I · Standard-legal" style="margin-left:4px">🖨⏳ 14mo ⚖</span></td>
+  <td class="num">$12</td>
+  <td class="num">27</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/1v8AAeSw8XNqJv3q/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Paradox Rift Pokemon Center Elite Trainer Box<span class="sub">Paradox Rift</span></span></td>
+  <td><span class="pill">PC ETB</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · G · rotated" style="margin-left:4px">📦🔒 33mo</span></td>
+  <td class="num">$290</td>
+  <td class="num">27</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/FSQAAeSwc5lqYBr~/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Pitch Black Booster Pack<span class="sub">Pitch Black</span></span></td>
+  <td><span class="pill">BOOSTER PACK</span><span class="pill" title="active print (est.) · ⚖ J · Standard-legal" style="margin-left:4px">🖨 1mo ⚖</span></td>
+  <td class="num">$9</td>
+  <td class="num">27</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/S78AAeSwTM9qR5~e/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Obsidian Flames Booster Pack<span class="sub">Obsidian Flames</span></span></td>
+  <td><span class="pill">BOOSTER PACK</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · G · rotated" style="margin-left:4px">📦🔒 36mo</span></td>
+  <td class="num">$16</td>
+  <td class="num">27</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/6ZMAAeSwSFFqV8wg/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Stellar Crown Booster Pack<span class="sub">Stellar Crown</span></span></td>
+  <td><span class="pill">BOOSTER PACK</span><span class="pill" title="late print — reprint waves typical (est.) · G · rotated" style="margin-left:4px">🖨⏳ 23mo</span></td>
+  <td class="num">$18</td>
+  <td class="num">27</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/jG0AAeSw0lVp-hZb/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Ascended Heroes Booster Pack<span class="sub">Ascended Heroes</span></span></td>
+  <td><span class="pill">BOOSTER PACK</span><span class="pill" title="active print (est.) · ⚖ J · Standard-legal" style="margin-left:4px">🖨 6mo ⚖</span></td>
+  <td class="num">$16</td>
+  <td class="num">26</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/bTEAAeSwNoNqhMYw/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Crown Zenith Booster Bundle<span class="sub">Crown Zenith</span></span></td>
+  <td><span class="pill">BOOSTER BUNDLE</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · F · rotated" style="margin-left:4px">📦🔒 43mo</span></td>
+  <td class="num">$220</td>
+  <td class="num">26</td>
+  <td><span class="spread ok">0%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/pCwAAeSwcyhqTHpI/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Obsidian Flames Booster Bundle<span class="sub">Obsidian Flames</span></span></td>
+  <td><span class="pill">BOOSTER BUNDLE</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · G · rotated" style="margin-left:4px">📦🔒 36mo</span></td>
+  <td class="num">$150</td>
+  <td class="num">26</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/hWcAAeSwQIBqTDZs/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Astral Radiance Booster Pack<span class="sub">Astral Radiance</span></span></td>
+  <td><span class="pill">BOOSTER PACK</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · F · rotated" style="margin-left:4px">📦🔒 50mo</span></td>
+  <td class="num">$13</td>
+  <td class="num">26</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/6SUAAeSwLHNpQ0~Q/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Burning Shadows Booster Box<span class="sub">Burning Shadows</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span></td>
+  <td class="num">$1,521</td>
+  <td class="num">25</td>
+  <td><span class="spread ok">+23.8%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/zw0AAeSwBfVpwATV/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Silver Tempest Pokemon Center Elite Trainer Box<span class="sub">Silver Tempest</span></span></td>
+  <td><span class="pill">PC ETB</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · F · rotated" style="margin-left:4px">📦🔒 45mo</span></td>
+  <td class="num">$450</td>
+  <td class="num">25</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/oNQAAeSwHbhpH0B7/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Prismatic Evolutions Booster Pack<span class="sub">Prismatic Evolutions</span></span></td>
+  <td><span class="pill">BOOSTER PACK</span><span class="pill" title="late print — reprint waves typical (est.) · H · rotated" style="margin-left:4px">🖨⏳ 19mo</span></td>
+  <td class="num">$17</td>
+  <td class="num">24</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/BOsAAeSwdDpqGJu9/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Temporal Forces Booster Bundle<span class="sub">Temporal Forces</span></span></td>
+  <td><span class="pill">BOOSTER BUNDLE</span><span class="pill" title="late print — reprint waves typical (est.) · H · rotated" style="margin-left:4px">🖨⏳ 28mo</span></td>
+  <td class="num">$95</td>
+  <td class="num">24</td>
+  <td><span class="spread ok">+5.9%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/eUYAAeSwMPVqOeZn/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Lost Origin Booster Box<span class="sub">Lost Origin</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · F · rotated" style="margin-left:4px">📦🔒 47mo</span></td>
+  <td class="num">$775</td>
+  <td class="num">24</td>
+  <td><span class="spread ok">+6.7%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/akMAAeSwqmpqcWpz/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Lost Origin Pokemon Center Elite Trainer Box<span class="sub">Lost Origin</span></span></td>
+  <td><span class="pill">PC ETB</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · F · rotated" style="margin-left:4px">📦🔒 47mo</span></td>
+  <td class="num">$460</td>
+  <td class="num">23</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/L58AAeSw459qbbyl/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Mega Evolution Booster Box<span class="sub">Mega Evolution</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span><span class="pill" title="active print (est.) · ⚖ I · Standard-legal" style="margin-left:4px">🖨 10mo ⚖</span></td>
+  <td class="num">$333</td>
+  <td class="num">23</td>
+  <td><span class="spread ok">+1.9%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/CMYAAeSwOjlqfltk/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Sword & Shield Booster Bundle<span class="sub">Sword & Shield</span></span></td>
+  <td><span class="pill">BOOSTER BUNDLE</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · D · rotated" style="margin-left:4px">📦🔒 78mo</span></td>
+  <td class="num">$190</td>
+  <td class="num">22</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/EJUAAeSwfFdo3YHi/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Phantasmal Flames Booster Pack<span class="sub">Phantasmal Flames</span></span></td>
+  <td><span class="pill">BOOSTER PACK</span><span class="pill" title="active print (est.) · ⚖ I · Standard-legal" style="margin-left:4px">🖨 9mo ⚖</span></td>
+  <td class="num">$15</td>
+  <td class="num">21</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/rL8AAeSw69pqhHsb/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Unbroken Bonds Booster Box<span class="sub">Unbroken Bonds</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span></td>
+  <td class="num">$3,206</td>
+  <td class="num">19</td>
+  <td><span class="spread ok">+25.8%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/s-YAAeSw-ploteTL/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Unified Minds Booster Box<span class="sub">Unified Minds</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span></td>
+  <td class="num">$4,015</td>
+  <td class="num">19</td>
+  <td><span class="spread ok">+33.5%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/~AQAAeSwKA1qRr0C/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Evolving Skies Pokemon Center Elite Trainer Box<span class="sub">Evolving Skies</span></span></td>
+  <td><span class="pill">PC ETB</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · E · rotated" style="margin-left:4px">📦🔒 59mo</span></td>
+  <td class="num">$1,200</td>
+  <td class="num">19</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/OIQAAeSwsL5p2Vv5/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Paldea Evolved Booster Bundle<span class="sub">Paldea Evolved</span></span></td>
+  <td><span class="pill">BOOSTER BUNDLE</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · G · rotated" style="margin-left:4px">📦🔒 38mo</span></td>
+  <td class="num">$150</td>
+  <td class="num">19</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/4YkAAeSwbvhqCmpq/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Paldea Evolved Pokemon Center Elite Trainer Box<span class="sub">Paldea Evolved</span></span></td>
+  <td><span class="pill">PC ETB</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · G · rotated" style="margin-left:4px">📦🔒 38mo</span></td>
+  <td class="num">$700</td>
+  <td class="num">18</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/K8oAAeSwan9qZa-F/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Mega Evolution Pokemon Center Elite Trainer Box<span class="sub">Mega Evolution</span></span></td>
+  <td><span class="pill">PC ETB</span><span class="pill" title="active print (est.) · ⚖ I · Standard-legal" style="margin-left:4px">🖨 10mo ⚖</span></td>
+  <td class="num">$230</td>
+  <td class="num">18</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/GtoAAeSwQEpo1dSW/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Ultra Prism Booster Box<span class="sub">Ultra Prism</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span></td>
+  <td class="num">$1,995</td>
+  <td class="num">17</td>
+  <td><span class="spread ok">+36%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/EN4AAeSw9SVqh7Ce/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Mega Evolution Booster Bundle<span class="sub">Mega Evolution</span></span></td>
+  <td><span class="pill">BOOSTER BUNDLE</span><span class="pill" title="active print (est.) · ⚖ I · Standard-legal" style="margin-left:4px">🖨 10mo ⚖</span></td>
+  <td class="num">$70</td>
+  <td class="num">16</td>
+  <td><span class="spread ok">+10.2%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/vFAAAeSwflRqcPym/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Celestial Storm Booster Box<span class="sub">Celestial Storm</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span></td>
+  <td class="num">$3,060</td>
+  <td class="num">15</td>
+  <td><span class="spread ok">+24.2%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/D-sAAeSwfoNqeij8/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Cosmic Eclipse Booster Box<span class="sub">Cosmic Eclipse</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span></td>
+  <td class="num">$5,150</td>
+  <td class="num">15</td>
+  <td><span class="spread ok">+24.1%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/~sgAAeSw509qSUhx/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Shining Legends Elite Trainer Box<span class="sub">Shining Legends</span></span></td>
+  <td><span class="pill">ETB</span></td>
+  <td class="num">$1,500</td>
+  <td class="num">14</td>
+  <td><span class="spread ok">+56.7%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/w2IAAeSw2SRqej0C/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Forbidden Light Booster Box<span class="sub">Forbidden Light</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span></td>
+  <td class="num">$1,899</td>
+  <td class="num">14</td>
+  <td><span class="spread ok">+15.2%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/QbYAAeSw~LpqYS~C/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Chilling Reign Pokemon Center Elite Trainer Box<span class="sub">Chilling Reign</span></span></td>
+  <td><span class="pill">PC ETB</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · E · rotated" style="margin-left:4px">📦🔒 62mo</span></td>
+  <td class="num">$299</td>
+  <td class="num">14</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/JEAAAeSwGflqhTCN/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Scarlet & Violet Booster Pack<span class="sub">Scarlet & Violet</span></span></td>
+  <td><span class="pill">BOOSTER PACK</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · G · rotated" style="margin-left:4px">📦🔒 40mo</span></td>
+  <td class="num">$15</td>
+  <td class="num">13</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/rF0AAeSwA1BpMRIx/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Paradox Rift Booster Bundle<span class="sub">Paradox Rift</span></span></td>
+  <td><span class="pill">BOOSTER BUNDLE</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · G · rotated" style="margin-left:4px">📦🔒 33mo</span></td>
+  <td class="num">$115</td>
+  <td class="num">13</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/qdEAAOSwmEJj6m~H/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Lost Origin Booster Bundle<span class="sub">Lost Origin</span></span></td>
+  <td><span class="pill">BOOSTER BUNDLE</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · F · rotated" style="margin-left:4px">📦🔒 47mo</span></td>
+  <td class="num">$225</td>
+  <td class="num">12</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/-80AAeSw9i1pxZZ~/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Perfect Order Booster Pack<span class="sub">Perfect Order</span></span></td>
+  <td><span class="pill">BOOSTER PACK</span><span class="pill" title="active print (est.) · ⚖ J · Standard-legal" style="margin-left:4px">🖨 4mo ⚖</span></td>
+  <td class="num">$8</td>
+  <td class="num">11</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/qiUAAeSw1uFqaTla/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Guardians Rising Elite Trainer Box<span class="sub">Guardians Rising</span></span></td>
+  <td><span class="pill">ETB</span></td>
+  <td class="num">$600</td>
+  <td class="num">11</td>
+  <td><span class="spread ok">+44.4%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/xEMAAeSwUC1qKk8z/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Temporal Forces Pokemon Center Elite Trainer Box<span class="sub">Temporal Forces</span></span></td>
+  <td><span class="pill">PC ETB</span><span class="pill" title="late print — reprint waves typical (est.) · H · rotated" style="margin-left:4px">🖨⏳ 28mo</span></td>
+  <td class="num">$224</td>
+  <td class="num">11</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/jUMAAeSwvM9qXwoB/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Champion's Path Booster Pack<span class="sub">Champion's Path</span></span></td>
+  <td><span class="pill">BOOSTER PACK</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · D · rotated" style="margin-left:4px">📦🔒 70mo</span></td>
+  <td class="num">$28</td>
+  <td class="num">11</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/Pc4AAeSwAnFp-obx/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Crimson Invasion Booster Box<span class="sub">Crimson Invasion</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span></td>
+  <td class="num">$1,014</td>
+  <td class="num">10</td>
+  <td><span class="spread ok">+53.4%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/OssAAeSwW15prw9w/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Pokemon 151 Pokemon Center Elite Trainer Box<span class="sub">Pokemon 151</span></span></td>
+  <td><span class="pill">PC ETB</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · G · rotated" style="margin-left:4px">📦🔒 34mo</span></td>
+  <td class="num">$1,563</td>
+  <td class="num">10</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/WV0AAeSwJHdqe8lq/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Sword & Shield Base Elite Trainer Box<span class="sub">Sword & Shield</span></span></td>
+  <td><span class="pill">ETB</span><span class="pill" title="likely EOL — supply fixed (est.) (est.) · D · rotated" style="margin-left:4px">📦🔒 78mo</span></td>
+  <td class="num">$183</td>
+  <td class="num">10</td>
+  <td><span class="spread ok">+10.9%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/JXEAAeSwZVNqNyJ1/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Guardians Rising Booster Box<span class="sub">Guardians Rising</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span></td>
+  <td class="num">$1,650</td>
+  <td class="num">8</td>
+  <td><span class="spread ok">-9.6%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/4i4AAOSwpjJoFKVZ/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Shrouded Fable Booster Pack<span class="sub">Shrouded Fable</span></span></td>
+  <td><span class="pill">BOOSTER PACK</span><span class="pill" title="late print — reprint waves typical (est.) · H · rotated" style="margin-left:4px">🖨⏳ 24mo</span></td>
+  <td class="num">$17</td>
+  <td class="num">8</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/FacAAeSwamJqBDCf/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Lost Thunder Booster Box<span class="sub">Lost Thunder</span></span></td>
+  <td><span class="pill">BOOSTER BOX</span></td>
+  <td class="num">$2,177</td>
+  <td class="num">7</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/g3MAAeSw-5xpH0Rn/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Mega Evolution Booster Pack<span class="sub">Mega Evolution</span></span></td>
+  <td><span class="pill">BOOSTER PACK</span><span class="pill" title="active print (est.) · ⚖ I · Standard-legal" style="margin-left:4px">🖨 10mo ⚖</span></td>
+  <td class="num">$10</td>
+  <td class="num">6</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/aYsAAeSwCclqeVzy/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Forbidden Light Elite Trainer Box<span class="sub">Forbidden Light</span></span></td>
+  <td><span class="pill">ETB</span></td>
+  <td class="num">$715</td>
+  <td class="num">6</td>
+  <td><span class="spread ok">+5.4%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/qZEAAeSwo41pwZ~F/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Dragon Majesty Elite Trainer Box<span class="sub">Dragon Majesty</span></span></td>
+  <td><span class="pill">ETB</span></td>
+  <td class="num">$1,500</td>
+  <td class="num">5</td>
+  <td><span class="spread ok">+9.6%</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr>
+<tr>
+  <td class="name" style="display:flex;align-items:center;gap:10px"><img src="https://i.ebayimg.com/images/g/e4UAAeSwy0Vqe65y/s-l1600.jpg" style="width:42px;background:#0b0d14;border-radius:5px;padding:3px;border:1px solid rgba(255,255,255,.07)" alt=""><span>Lost Thunder Elite Trainer Box<span class="sub">Lost Thunder</span></span></td>
+  <td><span class="pill">ETB</span></td>
+  <td class="num">$700</td>
+  <td class="num">3</td>
+  <td><span class="spread na">—</span></td>
+  <td><span class="dot live"></span>live</td>
+</tr></tbody></table></main>
+<footer>Prices: Catchem-data, eBay active listings (measured) · Spread: vs TCG-side ask (PPT), internal instrument · Buy Pressure &amp; heat states arrive with calibration · Generated 2026-08-21T04:43Z · Catch'em. Catch Feels.</footer>
+</body></html>

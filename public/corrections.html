@@ -1,0 +1,49 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Sora:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<title>Catch'em — Corrections</title><style>
+body{background:#0b0d14;color:#f4f5f8;font:16px/1.62 Sora,system-ui,sans-serif;margin:0;padding:40px 18px;max-width:720px;margin-inline:auto}
+h1{font:800 30px Syne,sans-serif;margin:0 0 6px}
+.lede{color:#98a1b5;font-size:15px;margin:0 0 30px}
+h2{font:700 17px Syne,sans-serif;color:#36d399;margin:34px 0 12px}
+.c{background:#141824;border:1px solid rgba(255,255,255,.07);border-left:3px solid #64a0ff;border-radius:12px;padding:14px 16px;margin:12px 0}
+.d{font:700 11px JetBrains Mono,monospace;color:#98a1b5;letter-spacing:.06em;margin-bottom:6px}
+.w{font-size:15.5px;margin-bottom:8px}
+.f{font-size:14px;color:#c7cbd6;margin-top:4px}
+.chip{display:inline-block;font:700 9px JetBrains Mono,monospace;padding:2px 7px;border-radius:99px;border:1px solid;margin-left:6px;letter-spacing:.06em}
+.m{color:#ffb84d;border-color:rgba(255,184,77,.5)}.i{color:#36d399;border-color:rgba(54,211,153,.45)}
+.row{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:14.5px}
+.row em{display:block;color:#98a1b5;font-style:normal;font-size:12.5px}
+.mono{font-family:JetBrains Mono,monospace;color:#98a1b5;font-size:12.5px;white-space:nowrap}
+.foot{margin-top:40px;padding-top:16px;border-top:1px solid rgba(255,255,255,.07);font-size:13px;color:#5c637a}
+a{color:#36d399;text-decoration:none}
+</style>
+<h1>Corrections</h1>
+<p class="lede">Every number we publish is measured, and every measurement can be wrong. When one is, it gets fixed and it gets recorded here — dated, permanent, and findable. We don't do quiet edits.</p>
+
+<h2>Currently held back</h2>
+<p class="lede" style="margin-bottom:10px">Products our checks are holding out of published reads until they re-verify. They stay visible in the data; they just don't headline.</p>
+
+  <div class="row"><span><b>pgo-etb</b><em>median read $240 against an observed ~$205 market; multi-item listings suspected in the top half</em></span><span class="mono">held since 2026-08-21</span></div>
+
+<h2>Correction log</h2>
+
+  <div class="c">
+    <div class="d">2026-08-21 <span class="chip i">CAUGHT BEFORE PUBLICATION</span></div>
+    <div class="w">Share cards were minted in a format social platforms reject, and long text inside them was being dropped when converted.</div>
+    <div class="f"><b>Fixed:</b> Cards now render as PNG with the text drawn natively.</div>
+    <div class="f"><b>So it can't recur:</b> Every card rasterizes as part of the daily run, so the format that ships is the format that was checked.</div>
+  </div>
+  <div class="c">
+    <div class="d">2026-08-21 <span class="chip m">AFFECTED A PUBLISHED NUMBER</span></div>
+    <div class="w">Our Pokemon GO Elite Trainer Box figure read high. Multi-quantity listings ("lot of 2", "2x", sealed cases) were passing our filters and lifting medians on any product with an active lot market.</div>
+    <div class="f"><b>Fixed:</b> The product is held out of published reads until it re-verifies. The filter now rejects multi-item listings across all 207 products.</div>
+    <div class="f"><b>So it can't recur:</b> A multi-item pattern guard runs at fetch time, and a durable quarantine file keeps a held product held even through a full data rebuild.</div>
+  </div>
+  <div class="c">
+    <div class="d">2026-08-20 <span class="chip i">CAUGHT BEFORE PUBLICATION</span></div>
+    <div class="w">Our sealed index baseline included the day we changed pricing methods, so part of the first move measured our own cleanup rather than the market.</div>
+    <div class="f"><b>Fixed:</b> The baseline was moved to the first full day under the current method and the history rebuilt from source snapshots.</div>
+    <div class="f"><b>So it can't recur:</b> New sets also sit out their first 90 days, so launch-window noise never enters the index.</div>
+  </div>
+
+<div class="foot">Updated 2026-08-22 · How our numbers are made: <a href="/methodology.html">methodology</a> · ⚡ Catch'em</div>

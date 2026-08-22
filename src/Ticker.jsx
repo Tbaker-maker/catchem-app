@@ -82,7 +82,13 @@ padding:14px;margin-bottom:10px;display:flex;gap:12px;height:100%}
    different heights (Tyler, 2026-08-22). Grid + stretch makes them match. */
 .d3row{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;align-items:stretch}
 .d3row>*{margin-bottom:0}
-.c3 img{width:76px;height:76px;object-fit:contain;border-radius:8px;background:#070910;align-self:flex-start}
+.c3 img{width:76px;height:76px;object-fit:contain;border-radius:8px;background:#070910;align-self:flex-start;cursor:zoom-in}
+/* 76px is a thumbnail on a 400px card — desktop has the room and we now hold
+   1000px sources (Tyler, 2026-08-22). Tap any product photo to enlarge. */
+@media(min-width:880px){.c3 img{width:104px;height:104px}}
+.lbx{position:fixed;inset:0;background:rgba(7,9,16,.94);display:flex;align-items:center;justify-content:center;z-index:90;padding:24px;cursor:zoom-out}
+.lbx img{max-width:min(680px,92vw);max-height:86vh;object-fit:contain;border-radius:16px;background:#0b0d14;border:1px solid var(--line)}
+.lbx .cap{position:absolute;bottom:22px;left:0;right:0;text-align:center;color:var(--dim);font-size:13px;padding:0 20px}
 .c3b{flex:1;min-width:0}
 .c3t{display:flex;align-items:center;gap:8px}
 .nm{font-size:13.5px;font-weight:600;display:block;margin:3px 0 1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -492,6 +498,13 @@ export default function Ticker() {
   //   /studio       — Story Kits (Studio v0, §14)
   //   /overlay      — OBS browser source (transparent, auto-refreshing)
   const [route, setRoute] = useState(parseRoute);
+  const [zoom, setZoom] = useState(null); // {src,name} — tap-to-enlarge product photo
+  const Lightbox = () => zoom ? (<div className="lbx" onClick={() => setZoom(null)} role="dialog" aria-label={`${zoom.name} enlarged`}>
+    <img src={zoom.src} alt={zoom.name} onClick={(e) => e.stopPropagation()} />
+    <div className="cap">{zoom.name} · tap anywhere to close</div>
+  </div>) : null;
+  useEffect(() => { if (!zoom) return; const k = e => e.key === "Escape" && setZoom(null);
+    window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k); }, [zoom]);
   const touchY = useRef(null);
   // §20 mode: one localStorage key; accent + order + lead line only.
   const [mode, setMode] = React.useState(() => {
@@ -569,7 +582,7 @@ export default function Ticker() {
   if (route?.name === "overlay") return <Overlay />;
 
   if (loading && !feed)
-    return (<div className={"tk-root " + modeCls}><style>{css}</style><main className="tk-phone">
+    return (<div className={"tk-root " + modeCls}><style>{css}</style><Lightbox /><main className="tk-phone">
       <div className="tk-head"><div className="tk-wm">CATCH<b>'EM</b></div>
         <button onClick={() => { const n = cur === "USD" ? "CAD" : "USD"; setCur(n); localStorage.setItem("cur", n); CURR.c = n; }}
           style={{ marginLeft: "auto", background: "var(--raised)", border: "1px solid var(--line)", color: cur === "CAD" ? "var(--green)" : "var(--dim)", borderRadius: 8, font: "700 10px 'JetBrains Mono'", padding: "4px 8px" }}
@@ -583,7 +596,7 @@ export default function Ticker() {
       {[0,1,2,3,4].map(i => <div className="skel" key={i} aria-hidden="true" />)}
       <div className="load">reading the tape…</div></main></div>);
   if (err && !feed)
-    return (<div className={"tk-root " + modeCls}><style>{css}</style><main className="tk-phone">
+    return (<div className={"tk-root " + modeCls}><style>{css}</style><Lightbox /><main className="tk-phone">
       <div className="tk-banner">Couldn't reach the feed ({err}). <button className="tk-refresh" onClick={load}>retry</button></div></main></div>);
 
   const p = feed.panel || {};
@@ -617,7 +630,7 @@ export default function Ticker() {
     const line = why || x.why;
     return (
     <div className="c3" key={x.id}>
-      {x.imageUrl ? <img src={x.imageUrl} alt="" loading="lazy" width={compact ? 64 : 76} height={compact ? 64 : 76} style={compact ? { width: 64, height: 64 } : null} /> : null}
+      {x.imageUrl ? <img src={x.imageUrl} alt="" loading="lazy" onClick={() => setZoom({ src: x.imageUrl, name: x.name })} width={compact ? 64 : 76} height={compact ? 64 : 76} style={compact ? { width: 64, height: 64 } : null} /> : null}
       <div className="c3b">
         <div className="c3t"><span className="lbl">{x.subtype || "sealed"}</span>
           {x.chip ? <Chip cls={x.chip} onTap={() => showReceipts(x.name, x.provenance)} /> : null}{compact && line ? <I t={line} /> : null}<Star id={x.id} /></div>
@@ -1487,7 +1500,7 @@ export default function Ticker() {
   // §19 Show Mode gets its own shell: no header, no tab bar — a screen
   // built for a convention hall, not a feed browse.
   if (route?.name === "show") return (
-    <div className={"tk-root "+modeCls}><style>{css}</style>
+    <div className={"tk-root "+modeCls}><style>{css}</style><Lightbox />
       <main className="tk-phone"><ShowMode /></main>
     </div>);
 

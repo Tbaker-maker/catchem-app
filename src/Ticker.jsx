@@ -811,7 +811,7 @@ export default function Ticker() {
       </div></div>}
       {d3.graded && !d3.graded.gated && <ProductCard x={{ id: "d3-graded", name: d3.graded.name, price: d3.graded.raw, chip: d3.graded.chip, subtype: "graded pick" }} why={d3.graded.reason} />}
       {d3.raw && <ProductCard x={{ id: "d3-raw", name: `${d3.raw.name} (${d3.raw.set})`, price: d3.raw.price, chip: d3.raw.chip, subtype: "chase",
-        imageUrl: (feed.chases || []).find(c => c.name === d3.raw.name)?.imageUrl }} why={d3.raw.reason} />}
+        imageUrl: (feed.chases || []).find(c => c.name === d3.raw.name)?.imageUrl }} why={d3.raw.explain || d3.raw.reason} />}
       </div>
 
       {feed.ripOrHold && (<>

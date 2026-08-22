@@ -97,7 +97,18 @@ border-radius:10px;padding:10px 12px;font:400 13px var(--sans);margin-bottom:8px
 .fchips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
 .fchip{background:var(--panel);border:1px solid var(--line);color:var(--dim);border-radius:99px;
 padding:6px 12px;font-size:11px;cursor:pointer;min-height:32px}
-.fchip.on{color:var(--green);border-color:var(--green)}
+.fchip.on{color:var(--acc,var(--green));border-color:var(--acc,var(--green))}
+/* §20 MODES — a lens, not a filter: accent + order only. --acc tints
+   chips and section headers; numbers never change with it. */
+.tk-root{--acc:var(--green)}
+.tk-root.m-flipper{--acc:#64a0ff}
+.tk-root.m-grader{--acc:#c77dff}
+.tk-root.m-collector{--acc:#36d399}
+.tk-sec{border-left:2px solid var(--acc,transparent);padding-left:7px}
+.mode-lead{font:600 13px var(--sans);color:var(--txt);margin:2px 0 12px}
+.mode-lead b{color:var(--acc,var(--green))}
+.mrow{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--acc,var(--green));border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:13px}
+.mrow b{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .tabs{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;
 display:grid;grid-template-columns:repeat(4,1fr);background:#0b0d14;border-top:1px solid var(--line);
 padding-bottom:env(safe-area-inset-bottom);z-index:20}
@@ -342,6 +353,22 @@ function renderDealZoneCard(x, z, dateStr, setShareImg) {
   } else draw(null);
 }
 
+/* §20 MODES — a lens on the SAME data: order + accent + lead line only.
+   The Honesty Law (enforced by scripts/mode-diff-test.mjs in the data
+   repo): every figure renders in every mode; position may move, values
+   may not. Vendors are Flippers; Show Mode's selling toggle is the
+   vendor face (§22: mode ≠ portal ≠ context). */
+const MODE_DEF = {
+  balanced:  { chip: "Balanced 🟢🔵🟣", cls: "", pre: ["idx"], post: ["leadPrint", "leadSpread", "leadGraded"],
+               lead: <>The whole market at a glance — <b>every number, every mode</b>.</> },
+  collector: { chip: "Collector 🟢", cls: "m-collector", pre: ["idx", "leadPrint"], post: ["leadSpread", "leadGraded"],
+               lead: <>Can you still get it — and what is it? <b>Print windows lead.</b></> },
+  flipper:   { chip: "Flipper 🔵", cls: "m-flipper", pre: ["idx", "leadSpread"], post: ["leadPrint", "leadGraded"],
+               lead: <>What moved — and what would you clear? <b>The gaps lead.</b></> },
+  grader:    { chip: "Grader 🟣", cls: "m-grader", pre: ["idx", "leadGraded"], post: ["leadPrint", "leadSpread"],
+               lead: <>Worth slabbing? <b>The premium math leads</b> — cautions included.</> },
+};
+
 /* /overlay — OBS browser source (Studio §14). Transparent background, brand
    fonts, auto-refreshes from the feed every 5 minutes. Modes:
      /overlay            (or ?mode=index) → Sealed Index level + Δ + spark
@@ -441,6 +468,13 @@ export default function Ticker() {
   //   /overlay      — OBS browser source (transparent, auto-refreshing)
   const [route, setRoute] = useState(parseRoute);
   const touchY = useRef(null);
+  // §20 mode: one localStorage key; accent + order + lead line only.
+  const [mode, setMode] = React.useState(() => {
+    const m = (typeof localStorage !== "undefined" && localStorage.getItem("mode")) || "balanced";
+    return MODE_DEF[m] ? m : "balanced";
+  });
+  const setModeKeep = (m) => { setMode(m); try { localStorage.setItem("mode", m); } catch {} };
+  const modeCls = MODE_DEF[mode]?.cls || "";
   // §19 Show Mode: cached-feed stamp (null = live fetch) + PWA install hook.
   const [cachedAt, setCachedAt] = React.useState(null);
   const [installEvt, setInstallEvt] = React.useState(null);
@@ -510,7 +544,7 @@ export default function Ticker() {
   if (route?.name === "overlay") return <Overlay />;
 
   if (loading && !feed)
-    return (<div className="tk-root"><style>{css}</style><main className="tk-phone">
+    return (<div className={"tk-root " + modeCls}><style>{css}</style><main className="tk-phone">
       <div className="tk-head"><div className="tk-wm">CATCH<b>'EM</b></div>
         <button onClick={() => { const n = cur === "USD" ? "CAD" : "USD"; setCur(n); localStorage.setItem("cur", n); CURR.c = n; }}
           style={{ marginLeft: "auto", background: "var(--raised)", border: "1px solid var(--line)", color: cur === "CAD" ? "var(--green)" : "var(--dim)", borderRadius: 8, font: "700 10px 'JetBrains Mono'", padding: "4px 8px" }}
@@ -524,7 +558,7 @@ export default function Ticker() {
       {[0,1,2,3,4].map(i => <div className="skel" key={i} aria-hidden="true" />)}
       <div className="load">reading the tape…</div></main></div>);
   if (err && !feed)
-    return (<div className="tk-root"><style>{css}</style><main className="tk-phone">
+    return (<div className={"tk-root " + modeCls}><style>{css}</style><main className="tk-phone">
       <div className="tk-banner">Couldn't reach the feed ({err}). <button className="tk-refresh" onClick={load}>retry</button></div></main></div>);
 
   const p = feed.panel || {};
@@ -575,15 +609,39 @@ export default function Ticker() {
     const ixSeries = (feed.indexHistory || []).map(r => r[1]);
     const ixDelta = ixSeries.length >= 2 && ixSeries[ixSeries.length - 2]
       ? { pct: ((ixSeries[ixSeries.length - 1] - ixSeries[ixSeries.length - 2]) / ixSeries[ixSeries.length - 2]) * 100 } : null;
-    return (<>
-      {six && (
-        <div className="tk-idx">
+    /* §20 MODE LEAD ROWS — present in EVERY mode (the Honesty Law: modes
+       reorder, never hide), only their POSITION changes. Each row shows
+       figures the app already publishes on its own screen. */
+    const pw0 = (feed.printWatch || [])[0];
+    const sg0 = (feed.signals || [])[0];
+    const leadPrint = pw0 ? (
+      <div className="mrow" key="leadPrint" role="button" tabIndex={0} style={{ cursor: "pointer" }} onClick={() => openTool("printwatch")}>
+        <span>⏳ {pw0.set} print window</span><b>{pw0.daysLeft}d left (est.)</b>
+      </div>) : null;
+    const leadSpread = sg0 ? (
+      <div className="mrow" key="leadSpread" role="button" tabIndex={0} style={{ cursor: "pointer" }} onClick={() => openProduct(sg0.id)}>
+        <span>⚡ {sg0.name}</span><b>{sg0.spreadPct > 0 ? "+" : ""}{sg0.spreadPct}% gap</b>
+      </div>) : null;
+    const leadGraded = (
+      <div className="mrow" key="leadGraded">
+        <span>🎓 Grading Premium {d3.graded?.gated ? "🔒 unlocks with licensing" : ""}</span>
+        <b style={{ fontFamily: "var(--sans)", fontWeight: 600, fontSize: 12, color: "var(--dim)" }}>the 9 rarely pays — only the 10<I t="The PSA-9 tax: on established sets a 9 usually returns less than the raw card plus the grading fee. Fresh sets can invert this." a="house-reads" /></b>
+      </div>);
+    const S = {
+      idx: six ? (
+        <div className="tk-idx" key="idx">
           <div className="cell"><div className="lbl">Sealed Index<I t="One number for the whole shelf: every tracked product vs its own starting price, averaged. Breadth counts how many rose vs fell." a="index" /></div>
             <div className="big">{six.level}</div></div>
           <div className="cell" style={{ textAlign: "center" }}><Delta d={ixDelta} /><Spark pts={ixSeries} w={62} h={18} /></div>
           <div className="cell" style={{ textAlign: "right" }}><div className="lbl">breadth</div>
             <div className="d" style={{ fontSize: 12 }}><span className="u">▲{six.breadth?.up ?? 0}</span> <span className="dn">▼{six.breadth?.down ?? 0}</span></div></div>
-        </div>)}
+        </div>) : null,
+      leadPrint, leadSpread, leadGraded,
+    };
+    const M = MODE_DEF[mode] || MODE_DEF.balanced;
+    return (<>
+      <div className="mode-lead">{M.lead}</div>
+      {M.pre.map(k => S[k])}
       {(feed.eraIndexes || []).length > 0 && (
         <div className="eras">
           {feed.eraIndexes.map(e => {
@@ -622,6 +680,15 @@ export default function Ticker() {
         ? <div className="c3"><div className="c3b"><div className="why">Tape's one day old — movers land tomorrow.<I t="Movers compare the last two committed days of market history — the same real lines for every visitor, first visit included. The clean tape began 2026-08-18." a="history" /></div></div></div>
         : movers.slice(0, 3).map(x => <ProductCard x={x} key={x.id} />)}
 
+      {M.post.map(k => S[k])}
+      {/* §20: mode selection offered AFTER the app has been useful — a
+          strip at the foot, never a gate. Switching is instant + reversible. */}
+      <div className="tk-sec">Set the app up for you</div>
+      <div className="fchips" style={{ marginBottom: 4 }}>
+        {Object.entries(MODE_DEF).map(([k, m]) => (
+          <button key={k} className={"fchip" + (mode === k ? " on" : "")} onClick={() => setModeKeep(k)}>{m.chip}</button>))}
+      </div>
+      <div className="note" style={{ margin: "0 0 12px" }}>A mode reorders and tints — it never hides or changes a number.<I t="The Mode Honesty Law: same truth, different first screen. Anything a mode de-emphasises stays one tap away, never removed — and a machine test fails the build if any mode drops a figure." a="house-reads" /></div>
       <EmailCapture />
       <div className="note" style={{ textAlign: "center", margin: "16px 0" }}>{feed.disclosure}<I t="Buy Pressure is estimated from listing-count changes — inventory draining or building. It is not reported sales; nobody outside the marketplaces has real sales data." a="buy-pressure" /></div>
     </>);
@@ -1294,12 +1361,12 @@ export default function Ticker() {
   // §19 Show Mode gets its own shell: no header, no tab bar — a screen
   // built for a convention hall, not a feed browse.
   if (route?.name === "show") return (
-    <div className="tk-root"><style>{css}</style>
+    <div className={"tk-root "+modeCls}><style>{css}</style>
       <main className="tk-phone"><ShowMode /></main>
     </div>);
 
   return (
-    <div className="tk-root">
+    <div className={"tk-root " + modeCls}>
       <style>{css}</style>
       <main className="tk-phone">
         <div className="tk-head">

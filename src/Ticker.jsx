@@ -77,7 +77,11 @@ padding:14px 16px;display:flex;align-items:center;gap:16px;margin-bottom:14px}
 .tk-sec{font:700 11px var(--mono);color:var(--dim);letter-spacing:.08em;
 text-transform:uppercase;margin:32px 0 12px;display:flex;justify-content:space-between;align-items:center}
 .c3{background:var(--panel);border:1px solid var(--line);border-radius:16px;
-padding:14px;margin-bottom:10px;display:flex;gap:12px}
+padding:14px;margin-bottom:10px;display:flex;gap:12px;height:100%}
+/* Daily Three: three cards of different content lengths were rendering three
+   different heights (Tyler, 2026-08-22). Grid + stretch makes them match. */
+.d3row{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;align-items:stretch}
+.d3row>*{margin-bottom:0}
 .c3 img{width:76px;height:76px;object-fit:contain;border-radius:8px;background:#070910;align-self:flex-start}
 .c3b{flex:1;min-width:0}
 .c3t{display:flex;align-items:center;gap:8px}
@@ -690,7 +694,9 @@ export default function Ticker() {
         </div>)}
 
       <div className="tk-sec">The Daily Three</div>
+      <div className="d3row">
       {d3.sealed && <ProductCard x={{ id: "d3-sealed", name: d3.sealed.name, price: d3.sealed.ebay, tcg: d3.sealed.tcg,
+        imageUrl: (feed.products || []).find(p => p.name === d3.sealed.name)?.img,
         spreadPct: d3.sealed.spreadPct, listings: d3.sealed.listings, chip: d3.sealed.chip, subtype: "sealed pick" }} why={d3.sealed.reason} />}
       {d3.shelf && <div className="c3"><div className="c3b">
         <div className="c3t"><span className="lbl">shelf pick</span><span className="chip">READ</span></div>
@@ -701,7 +707,9 @@ export default function Ticker() {
         <div className="why">{d3.shelf.explain}</div>
       </div></div>}
       {d3.graded && !d3.graded.gated && <ProductCard x={{ id: "d3-graded", name: d3.graded.name, price: d3.graded.raw, chip: d3.graded.chip, subtype: "graded pick" }} why={d3.graded.reason} />}
-      {d3.raw && <ProductCard x={{ id: "d3-raw", name: `${d3.raw.name} (${d3.raw.set})`, price: d3.raw.price, chip: d3.raw.chip, subtype: "chase" }} why={d3.raw.reason} />}
+      {d3.raw && <ProductCard x={{ id: "d3-raw", name: `${d3.raw.name} (${d3.raw.set})`, price: d3.raw.price, chip: d3.raw.chip, subtype: "chase",
+        imageUrl: (feed.chases || []).find(c => c.name === d3.raw.name)?.imageUrl }} why={d3.raw.reason} />}
+      </div>
 
       {feed.ripOrHold && (<>
         <div className="tk-sec">🗳 Rip or Hold?<I t="One-tap daily vote in the Discord — results revisited in tomorrow's Pulse. The crowd keeps a track record, just like we do." a="house-reads" /></div>

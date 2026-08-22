@@ -1455,6 +1455,11 @@ export default function Ticker() {
           </div>
           <div className="why">{i.why}</div>
           {sel === i.id && (<>
+            {/* The scope caveat travels WITH the copy, not in a file the
+                creator will never open. Artist counts are scoped to the sets
+                we track, and anyone reposting one needs that in front of them
+                at the moment they hit Copy. */}
+            {i.scope && <div className="why" style={{ color: "var(--dim)", borderLeft: "2px solid var(--acc-dim)", paddingLeft: 8, margin: "8px 0" }}>{i.scope}</div>}
             <div style={{ display: "flex", gap: 6, margin: "10px 0 8px" }}>
               {TABS.map(([k, l]) => i.platforms?.[k] != null && (
                 <button key={k} className={"fchip" + (tab === k ? " on" : "")} onClick={() => setTab(k)}>{l}</button>))}

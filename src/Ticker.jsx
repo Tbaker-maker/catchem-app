@@ -1532,6 +1532,11 @@ export default function Ticker() {
   return (
     <div className={"tk-root " + modeCls}>
       <style>{css}</style>
+      {/* The main route was the ONE branch that never mounted this, so every
+          product photo on the Today screen set the zoom state and rendered
+          nothing — tap-to-enlarge was dead on the only screen that carries
+          photos. The other three routes had it. Verified live 2026-08-22. */}
+      <Lightbox />
       <main className="tk-phone">
         <div className="tk-head">
           <div className="tk-wm">⚡CATCH<b>'EM</b></div>

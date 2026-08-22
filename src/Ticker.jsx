@@ -711,7 +711,10 @@ export default function Ticker() {
       {d3.sealed && <ProductCard x={{ id: "d3-sealed", name: d3.sealed.name, price: d3.sealed.ebay, tcg: d3.sealed.tcg,
         imageUrl: (feed.products || []).find(p => p.name === d3.sealed.name)?.img,
         spreadPct: d3.sealed.spreadPct, listings: d3.sealed.listings, chip: d3.sealed.chip, subtype: "sealed pick" }} why={d3.sealed.whyChosen || d3.sealed.reason} />}
-      {d3.shelf && <div className="c3"><div className="c3b">
+      {d3.shelf && <div className="c3">
+        {(() => { const im = (feed.products || []).find(p => p.name === d3.shelf.name)?.img;
+          return im ? <img src={im} alt="" loading="lazy" onClick={() => setZoom({ src: im, name: d3.shelf.name })} /> : null; })()}
+        <div className="c3b">
         <div className="c3t"><span className="lbl">shelf pick</span><span className="chip">READ</span></div>
         <b className="nm">{d3.shelf.name}</b>
         <div className="hero" style={{ fontSize: 22 }}>{d3.shelf.prev} → {d3.shelf.listings}

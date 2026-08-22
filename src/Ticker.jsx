@@ -810,6 +810,9 @@ export default function Ticker() {
       <div className="mode-lead">{M.lead}</div>
       {M.pre.map(k => S[k])}
       {(feed.eraIndexes || []).length > 0 && (
+        <div className="lbl" style={{ margin: "16px 0 8px", color: "var(--dim)" }}>
+          THE SAME MARKET, BY ERA — each starts at 100 like the index above
+        </div>
         <div className="eras">
           {feed.eraIndexes.map(e => {
             const s = (feed.eraHistory?.[e.era] || []).map(r => r[1]);
@@ -817,9 +820,18 @@ export default function Ticker() {
             return (
               <div className="era" key={e.era}>
                 <div className="lbl">{e.era}</div>
-                <div className="elvl">{fmt(e.level)}</div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}><Delta d={ed} /><Spark pts={s} w={62} h={18} /></div>
-                <div className="esub">{e.products} products · {e.listingsPerProduct} l/p</div>
+                {/* UNIT MISMATCH (Tyler, 2026-08-23: "the charts under the index
+                    confuse me"). The heading above says SEALED INDEX 100 — a
+                    point scale. These strips showed $1,499.99 — a median price.
+                    Same visual family, two different units, so they read as a
+                    breakdown of the index while measuring something else
+                    entirely. They already CARRY an index value and never showed
+                    it. Now the index leads, matching the parent, and the dollar
+                    figure sits underneath as what it is: a typical price. */}
+                <div className="elvl">{e.index != null ? e.index : fmt(e.level)}</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}><Delta d={ed} /><Spark pts={s} w={62} h={16} /></div>
+                <div className="esub">typical box {fmt(e.boxMedian ?? e.level)}</div>
+                <div className="esub">{e.products} products · {e.listingsPerProduct} listings each</div>
               </div>);
           })}
         </div>)}

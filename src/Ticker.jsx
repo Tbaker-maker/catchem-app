@@ -645,8 +645,17 @@ export default function Ticker() {
         <div className="hero">{fmt(x.price)} <Delta d={deltaFor(feed, x.id)} /><Spark pts={seriesFor(feed, x.id)} /></div>
         <div className="strip">
           {x.listings != null && <span className="st">Listings<b>{x.listings}</b></span>}
-          {x.spreadPct != null && <span className="st">Spread<b>{pctFmt(x.spreadPct)}</b></span>}
-          {x.tcg != null && <span className="st">TCG<b>{fmt(x.tcg)}</b></span>}
+          {/* The Spread is a footnote stat now, not a headline (Tyler,
+              2026-08-22). Wherever it still appears it carries the reason it
+              was demoted: our eBay figure includes postage, the TCGplayer
+              figure does not, and no shipping-inclusive TCG price is
+              purchasable at any tier — so the gap always reads wider than it
+              is, worst on cheap products. The label is permanent, not a
+              temporary caveat. */}
+          {x.spreadPct != null && <span className="st">Spread<b>{pctFmt(x.spreadPct)}</b>
+            <I t="Our eBay figure includes shipping; the TCGplayer figure excludes it, because that is how the source reports it and no shipping-inclusive figure is available to us. The gap therefore reads wider than it truly is, most of all on cheap products. Treat it as context, not a signal." a="the spread" /></span>}
+          {x.tcg != null && <span className="st">TCG<b>{fmt(x.tcg)}</b>
+            <I t="TCGplayer market price: their average of recent completed sales on the US marketplace. It is an item price and excludes shipping." a="the TCG figure" /></span>}
           {x.perPack != null && <span className="st">Per pack<b>{fmt(x.perPack)}</b></span>}
         </div>
         {line && !compact && <div className="why">{line}</div>}

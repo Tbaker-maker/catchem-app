@@ -754,10 +754,23 @@ export default function Ticker() {
       <div className="mrow" key="leadSpread" role="button" tabIndex={0} style={{ cursor: "pointer" }} onClick={() => openProduct(sg0.id)}>
         <span>⚡ {sg0.name}</span><b>{sg0.spreadPct > 0 ? "+" : ""}{sg0.spreadPct}% gap</b>
       </div>) : null;
+    // ADJACENCY IMPLIES RELATIONSHIP (Tyler, 2026-08-23). This sat flush under
+    // the Sealed Index with no separation, so it read as a caption on it — and
+    // grading premium is about SINGLE CARDS, which the sealed index does not
+    // measure at all. Two unrelated instruments touching is how a page starts
+    // looking sloppy even when every number on it is right.
+    //
+    // The copy was cryptic too: "the 9 rarely pays — only the 10" assumes the
+    // reader already knows what a 9 and a 10 are, which is the Cliff Rule.
     const leadGraded = (
-      <div className="mrow" key="leadGraded">
-        <span>🎓 Grading Premium</span>
-        <b style={{ fontFamily: "var(--sans)", fontWeight: 600, fontSize: 12, color: "var(--dim)" }}>the 9 rarely pays — only the 10<I t="The PSA-9 tax: on established sets a 9 usually returns less than the raw card plus the grading fee. Fresh sets can invert this." a="house-reads" /></b>
+      <div key="leadGraded" style={{ marginTop: 18 }}>
+        <div className="lbl" style={{ margin: "0 0 6px", color: "var(--dim)" }}>SINGLE CARDS — a different market to the index above</div>
+        <div className="mrow">
+          <span>🎓 Is grading worth it?</span>
+          <b style={{ fontFamily: "var(--sans)", fontWeight: 600, fontSize: 12, color: "var(--dim)" }}>
+            A PSA 10 usually pays for the grading. A PSA 9 usually does not.<I t="Grading costs the same whatever score you get back. On established cards a 10 normally sells for enough more than an ungraded copy to cover that cost; a 9 often does not, so the odds of getting a 10 decide whether it was worth sending." />
+          </b>
+        </div>
       </div>);
     const S = {
       idx: six ? (

@@ -738,10 +738,10 @@ export default function Ticker() {
         : (<>
           {/* Top movers must show BOTH directions. Showing only gainers reads
               as hype and hides half the market (Tyler, 2026-08-22). */}
-          <div className="lbl" style={{ margin: "2px 0 6px", color: "var(--green)" }}>▲ Biggest gains today</div>
+          <div className="lbl" style={{ margin: "2px 0 6px", color: "var(--green)" }}>▲ Top gains</div>
           {movers.filter(x => x.delta.pct > 0).slice(0, 3).map(x => <ProductCard x={x} key={x.id} density="compact" />)}
           {movers.some(x => x.delta.pct < 0) && (<>
-            <div className="lbl" style={{ margin: "14px 0 6px", color: "#ef5a5a" }}>▼ Biggest falls today</div>
+            <div className="lbl" style={{ margin: "14px 0 6px", color: "#ef5a5a" }}>▼ Top losses</div>
             {movers.filter(x => x.delta.pct < 0).slice(-3).reverse().map(x => <ProductCard x={x} key={x.id} density="compact" />)}
           </>)}
         </>)}

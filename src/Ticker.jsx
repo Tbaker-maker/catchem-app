@@ -189,6 +189,7 @@ const parseRoute = () => {
   if (path.startsWith("/studio/archive")) return { name: "studio-archive" };
   if (path.startsWith("/studio/posts")) return { name: "studio-posts", mine: new URLSearchParams(window.location.search).get("mine") === "1" };
   if (path.startsWith("/studio")) return { name: "studio" };
+  if (path.startsWith("/show")) return { name: "show" };
   const tool = path.match(/^\/tools\/([a-z-]+)/);
   if (tool) return { name: "tool", tool: tool[1] };
   // legacy tab URLs redirect into Tools (IA v2, §15)
@@ -274,6 +275,61 @@ function renderShareCard(x, dateStr, setShareImg) {
     g.fillText("asks cluster between clean floor and median", 40, y0 + 176);
     g.fillStyle = "#5c637a"; g.font = "600 11px Sora, sans-serif";
     g.fillText("catchemtcg.com — every number carries its receipts", 40, 578);
+    try { setShareImg(cv.toDataURL("image/png")); }
+    catch { if (photo) draw(null); else setShareImg(null); }
+  };
+  if (x.img) {
+    const im = new Image();
+    im.crossOrigin = "anonymous";
+    im.onload = () => draw(im);
+    im.onerror = () => draw(null);
+    im.src = x.img;
+  } else draw(null);
+}
+
+/* §19 Deal Zone share card — the asset shown ACROSS a table, so it is built
+   for arm's length: three huge mono numbers, a band, nothing subtle. PNG
+   only (canvas → dataURL), every figure labeled EST., USD stamped. */
+function renderDealZoneCard(x, z, dateStr, setShareImg) {
+  const cv = document.createElement("canvas");
+  cv.width = 500; cv.height = 640;
+  const g = cv.getContext("2d");
+  // money on this card always shows cents — "$2,836.3" reads like a typo
+  // across a table (the shared fmt drops trailing zeros)
+  const fmt = (n) => "$" + Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const draw = (photo) => {
+    g.fillStyle = "#0b0d14"; g.fillRect(0, 0, 500, 640);
+    g.fillStyle = "#141824"; g.strokeStyle = "rgba(255,255,255,.12)";
+    g.fillRect(20, 20, 460, 600); g.strokeRect(20, 20, 460, 600);
+    g.fillStyle = "#f4f5f8"; g.font = "800 26px Syne, sans-serif";
+    g.fillText("⚡CATCH", 40, 62);
+    g.fillStyle = "#36d399"; g.fillText("'EM", 158, 62);
+    g.fillStyle = "#8a93a8"; g.font = "700 11px 'JetBrains Mono', monospace";
+    g.fillText("DEAL ZONE · " + dateStr + " · USD · ALL FIGURES EST.", 40, 84);
+    if (photo) { try { g.drawImage(photo, 175, 96, 150, 150); } catch {} }
+    g.fillStyle = "#f4f5f8"; g.font = "600 18px Sora, sans-serif";
+    const nm = x.name.length > 40 ? x.name.slice(0, 38) + "…" : x.name;
+    g.fillText(nm, 40, photo ? 276 : 130);
+    const y0 = photo ? 292 : 150;
+    // the band: flat green zone, white ask marker (brand law: no gradients)
+    g.fillStyle = "rgba(54,211,153,.35)"; g.fillRect(40, y0 + 8, 420, 16);
+    const askPct = Math.min(0.97, Math.max(0.03, (z.ask - z.sellerFloor) / (z.buyerCeiling - z.sellerFloor)));
+    g.fillStyle = "#f4f5f8"; g.fillRect(40 + 420 * askPct - 2, y0, 4, 32);
+    g.fillStyle = "#8a93a8"; g.font = "700 10px 'JetBrains Mono', monospace";
+    g.fillText("ASK " + fmt(z.ask), Math.min(360, Math.max(40, 40 + 420 * askPct - 30)), y0 + 46);
+    const row = (label, val, y, color) => {
+      g.fillStyle = color; g.font = "700 40px 'JetBrains Mono', monospace";
+      g.fillText(fmt(val), 40, y);
+      g.fillStyle = "#8a93a8"; g.font = "700 12px 'JetBrains Mono', monospace";
+      g.fillText(label, 40, y + 20);
+    };
+    row("SELLER FLOOR — KEEPS THIS ONLINE, AFTER FEES (EST.)", z.sellerFloor, y0 + 106, "#f4f5f8");
+    row("MIDPOINT — THE FAIR HANDSHAKE", z.midpoint, y0 + 176, "#36d399");
+    row("BUYER CEILING — PAYS THIS ONLINE, W/ TAX (EST.)", z.buyerCeiling, y0 + 246, "#f4f5f8");
+    g.fillStyle = "#ffb84d"; g.font = "600 13px Sora, sans-serif";
+    g.fillText("Any cash price in the band beats eBay — for both sides.", 40, y0 + 286);
+    g.fillStyle = "#5c637a"; g.font = "600 11px Sora, sans-serif";
+    g.fillText("catchemtcg.com/methodology#deal-zone — the receipts", 40, 598);
     try { setShareImg(cv.toDataURL("image/png")); }
     catch { if (photo) draw(null); else setShareImg(null); }
   };
@@ -385,6 +441,14 @@ export default function Ticker() {
   //   /overlay      — OBS browser source (transparent, auto-refreshing)
   const [route, setRoute] = useState(parseRoute);
   const touchY = useRef(null);
+  // §19 Show Mode: cached-feed stamp (null = live fetch) + PWA install hook.
+  const [cachedAt, setCachedAt] = React.useState(null);
+  const [installEvt, setInstallEvt] = React.useState(null);
+  React.useEffect(() => {
+    const h = (e) => { e.preventDefault(); setInstallEvt(e); };
+    window.addEventListener("beforeinstallprompt", h);
+    return () => window.removeEventListener("beforeinstallprompt", h);
+  }, []);
   // CAD display toggle state — lived inside Overlay by accident (e528fa4),
   // where Ticker's header/loading returns referenced it: ReferenceError,
   // whole app crashed. Belongs here, before any conditional return.
@@ -411,7 +475,16 @@ export default function Ticker() {
       const f = await r.json();
       setFeed(f); setErr(null);
       setStreak(bumpStreak(f.date));
-    } catch (e) { setErr(String(e.message || e)); }
+      // §19 Show Mode offline posture: last good feed persists so a
+      // convention hall with no signal still gets numbers, stamped.
+      try { localStorage.setItem("feedCache", JSON.stringify({ at: Date.now(), feed: f })); setCachedAt(null); } catch {}
+    } catch (e) {
+      try {
+        const c = JSON.parse(localStorage.getItem("feedCache") || "null");
+        if (c?.feed) { setFeed(c.feed); setCachedAt(c.at); setErr(null); }
+        else setErr(String(e.message || e));
+      } catch { setErr(String(e.message || e)); }
+    }
     finally { setLoading(false); }
   }, []);
   useEffect(() => { load(); }, [load]);
@@ -825,6 +898,140 @@ export default function Ticker() {
 
   /* Product detail (/product/{id}) — mockup v3 parity: photo, price+Δ, range
      bar, 6-stat grid, history chart, share card. Landers deep-link here. */
+  /* ── §19 THE SHOW FLOOR ──────────────────────────────────────────────
+     zoneFor: the engine's zone, recomputed client-side ONLY from the
+     model's own numeric fields (taxPctDefault, feeTiers) + the user's
+     saved settings. The rates live in ONE place — the feed. */
+  const zoneFor = (id) => {
+    const z = feed?.dealZone?.byId?.[id];
+    if (!z) return null;
+    const m = feed?.dealZone?.model;
+    if (!m?.feeTiers) return z; // old cached feed: engine numbers as-is
+    const tiers = m.feeTiers;
+    const defTier = tiers.find(t => t.default) || tiers[0];
+    const tier = tiers.find(t => t.id === localStorage.getItem("dzTier")) || defTier;
+    const taxRaw = localStorage.getItem("dzTax");
+    const taxPct = taxRaw != null && taxRaw !== "" && !isNaN(parseFloat(taxRaw)) ? parseFloat(taxRaw) : m.taxPctDefault;
+    if (tier.id === defTier.id && taxPct === m.taxPctDefault) return z; // engine defaults
+    const r2 = (n) => Math.round(n * 100) / 100;
+    const buyerCeiling = r2(z.ask * (1 + taxPct / 100));
+    const sellerFloor = r2(z.ask * (1 - tier.pct / 100) - tier.fixed);
+    if (sellerFloor <= 0 || buyerCeiling <= sellerFloor) return z;
+    return { ...z, buyerCeiling, sellerFloor,
+      zoneWidth: r2(buyerCeiling - sellerFloor),
+      zonePct: Math.round((buyerCeiling - sellerFloor) / z.ask * 1000) / 10,
+      midpoint: r2((buyerCeiling + sellerFloor) / 2), custom: true };
+  };
+
+  /* The band — one glance: floor → midpoint → ceiling, ask marked. */
+  const DealZoneBand = ({ z, big }) => {
+    if (!z) return null;
+    const askPct = Math.min(97, Math.max(3, ((z.ask - z.sellerFloor) / (z.buyerCeiling - z.sellerFloor)) * 100));
+    const num = { font: `700 ${big ? 26 : 15}px 'JetBrains Mono',monospace`, fontVariantNumeric: "tabular-nums", display: "block" };
+    return (<div>
+      <div style={{ position: "relative", height: big ? 12 : 8, background: "rgba(54,211,153,.35)", borderRadius: 99 }}>
+        <span style={{ position: "absolute", left: `${askPct}%`, top: big ? -5 : -3, width: 3, height: big ? 22 : 14, background: "var(--txt)", borderRadius: 2, transform: "translateX(-50%)" }} />
+      </div>
+      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6 }} className="esub">
+        <span>seller floor<b style={num}>{fmt(z.sellerFloor)}</b></span>
+        <span style={{ textAlign: "center" }}>midpoint<b style={{ ...num, color: "var(--green)" }}>{fmt(z.midpoint)}</b></span>
+        <span style={{ textAlign: "right" }}>buyer ceiling<b style={num}>{fmt(z.buyerCeiling)}</b></span>
+      </div>
+    </div>);
+  };
+
+  /* /show — SHOW MODE: a convention-hall screen. Huge search, huge
+     numbers, minimal chrome, offline via the cached feed. */
+  const ShowMode = () => {
+    const [q, setQ] = useState("");
+    const [pick, setPick] = useState(null);
+    const [side, setSide] = useState(localStorage.getItem("dzSide") || "buying");
+    const [sheet, setSheet] = useState(false);
+    const [shareImg, setShareImg] = useState(null);
+    const [, bump] = useState(0); // settings save → recompute
+    const m = feed?.dealZone?.model;
+    const results = q.length >= 2
+      ? [...ix.values()].filter(p => p.name.toLowerCase().includes(q.toLowerCase()) && p.price != null).slice(0, 8)
+      : [];
+    const x = pick ? ix.get(pick) : null;
+    const z = pick ? zoneFor(pick) : null;
+    const setSideKeep = (s) => { setSide(s); localStorage.setItem("dzSide", s); };
+    const stamp = cachedAt ? new Date(cachedAt) : null;
+    const bigNum = { font: "800 44px 'JetBrains Mono',monospace", fontVariantNumeric: "tabular-nums", color: "var(--green)" };
+    const tiers = m?.feeTiers || [];
+    const curTier = tiers.find(t => t.id === localStorage.getItem("dzTier")) || tiers.find(t => t.default) || tiers[0];
+    const curTax = (() => { const v = localStorage.getItem("dzTax"); return v != null && v !== "" && !isNaN(parseFloat(v)) ? parseFloat(v) : m?.taxPctDefault; })();
+    return (<>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "14px 0 10px" }}>
+        <a href="/" style={{ color: "var(--dim)", textDecoration: "none", fontSize: 22 }} onClick={(e) => { e.preventDefault(); window.history.pushState({}, "", "/"); setRoute(null); }}>←</a>
+        <div className="tk-wm" style={{ fontSize: 19 }}>SHOW<b> MODE</b></div>
+        <div style={{ marginLeft: "auto", display: "flex", gap: 8, alignItems: "center" }}>
+          {stamp
+            ? <span className="lbl" style={{ color: "var(--gold)" }}>cached at {String(stamp.getHours()).padStart(2, "0")}:{String(stamp.getMinutes()).padStart(2, "0")}</span>
+            : <span className="lbl" style={{ color: "var(--green)" }}>live · cached ✓</span>}
+          <button className="fchip" onClick={() => setSheet(true)} aria-label="tax and fee settings">⚙</button>
+        </div>
+      </div>
+      <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+        <button className={"fchip" + (side === "buying" ? " on" : "")} style={{ flex: 1, padding: "12px 0", fontSize: 15 }} onClick={() => setSideKeep("buying")}>I'm buying</button>
+        <button className={"fchip" + (side === "selling" ? " on" : "")} style={{ flex: 1, padding: "12px 0", fontSize: 15 }} onClick={() => setSideKeep("selling")}>I'm selling</button>
+      </div>
+      <input value={q} onChange={(e) => { setQ(e.target.value); setPick(null); }} placeholder="Search any product…" aria-label="search products"
+        style={{ width: "100%", background: "var(--panel)", border: "1px solid var(--line)", color: "var(--txt)", borderRadius: 14, padding: "18px 16px", font: "600 20px 'Sora',sans-serif" }} />
+      {results.length > 0 && !pick && (
+        <div style={{ marginTop: 8 }}>
+          {results.map(p => (
+            <button key={p.id} onClick={() => { setPick(p.id); setShareImg(null); }}
+              style={{ display: "flex", width: "100%", justifyContent: "space-between", alignItems: "center", gap: 8, background: "var(--panel)", border: "1px solid var(--line)", color: "var(--txt)", borderRadius: 12, padding: "14px 14px", marginBottom: 6, font: "600 16px 'Sora',sans-serif", cursor: "pointer", textAlign: "left" }}>
+              <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</span>
+              <b className="mono" style={{ flex: "none" }}>{fmt(p.price)}</b>
+            </button>))}
+        </div>)}
+      {x && z && (<>
+        <div className="lbl" style={{ marginTop: 16 }}>{x.name}</div>
+        {side === "buying" ? (<>
+          <div style={bigNum}>{fmt(z.buyerCeiling)}</div>
+          <div className="esub" style={{ marginBottom: 12 }}>your walk-away ceiling (est.) — above this, buy it online instead. A buyer pays about {fmt(z.buyerCeiling)} online after shipping and tax.</div>
+        </>) : (<>
+          <div style={bigNum}>{fmt(z.sellerFloor)}</div>
+          <div className="esub" style={{ marginBottom: 12 }}>your booth floor (est.) — cash above this beats listing it. A seller keeps about {fmt(z.sellerFloor)} online after fees.</div>
+        </>)}
+        <DealZoneBand z={z} big />
+        {z.custom && <div className="esub" style={{ marginTop: 6, color: "var(--gold)" }}>your rates: {curTax}% tax · {curTier?.label}</div>}
+        <div className="grid6" style={{ marginTop: 14 }}>
+          <span className="st">Median<b>{fmt(x.price)}</b><span style={{ display: "block", fontSize: 9.5 }}>delivered · est.</span></span>
+          <span className="st">Clean floor<b>{fmt(x.floor)}</b></span>
+          <span className="st">Listings<b>{x.listings ?? "—"}</b></span>
+        </div>
+        <button className="fchip on" style={{ marginTop: 14, padding: "12px 18px", fontSize: 15 }}
+          onClick={() => renderDealZoneCard({ name: x.name, img: x.imageUrl }, z, today, setShareImg)}>Deal Zone card 📸</button>
+        {shareImg && (<>
+          <img src={shareImg} alt="deal zone card" style={{ width: "100%", borderRadius: 12, marginTop: 10 }} />
+          <div className="note">Long-press to save — show it across the table.</div>
+        </>)}
+      </>)}
+      {!pick && !results.length && (
+        <div className="note" style={{ margin: "16px 0" }}>Built for the table: search a product, get the referee numbers. Works offline once loaded.{installEvt ? <> <button className="fchip on" style={{ marginLeft: 6 }} onClick={async () => { installEvt.prompt(); setInstallEvt(null); }}>Install app</button></> : /iphone|ipad/i.test(navigator.userAgent) ? " Tip: Share → Add to Home Screen for one-tap access." : ""}</div>)}
+      {sheet && (
+        <div role="dialog" aria-label="tax and fee settings" style={{ position: "fixed", inset: 0, background: "rgba(7,9,16,.8)", display: "flex", alignItems: "flex-end", zIndex: 40 }} onClick={() => setSheet(false)}>
+          <div style={{ background: "var(--panel)", borderRadius: "16px 16px 0 0", padding: 18, width: "100%", maxWidth: 420, margin: "0 auto" }} onClick={(e) => e.stopPropagation()}>
+            <div className="lbl">Your rates (est. · saved on this device)</div>
+            <label className="esub" style={{ display: "block", margin: "12px 0 4px" }}>Sales-tax rate %</label>
+            <input type="number" step="0.1" min="0" max="15" defaultValue={curTax}
+              onChange={(e) => { localStorage.setItem("dzTax", e.target.value); bump(n => n + 1); }}
+              style={{ width: "100%", background: "var(--bg)", border: "1px solid var(--line)", color: "var(--txt)", borderRadius: 10, padding: "12px", font: "600 18px 'JetBrains Mono',monospace" }} />
+            <label className="esub" style={{ display: "block", margin: "12px 0 4px" }}>Seller fee tier</label>
+            {tiers.map(t => (
+              <button key={t.id} className={"fchip" + (curTier?.id === t.id ? " on" : "")} style={{ display: "block", width: "100%", textAlign: "left", marginBottom: 6, padding: "10px 12px" }}
+                onClick={() => { localStorage.setItem("dzTier", t.id); bump(n => n + 1); }}>
+                {t.label} — {t.pct}%{t.fixed ? ` + $${t.fixed.toFixed(2)}` : ""}{t.note ? ` · ${t.note}` : ""}</button>))}
+            <div className="note" style={{ marginTop: 8 }}>Rates come from the day's feed model — one source of truth. Zones recompute instantly.</div>
+            <button className="fchip on" style={{ marginTop: 8, width: "100%", padding: "12px 0" }} onClick={() => setSheet(false)}>Done</button>
+          </div>
+        </div>)}
+    </>);
+  };
+
   const ProductDetail = ({ id }) => {
     const [shareImg, setShareImg] = useState(null);
     const x = ix.get(id);
@@ -894,6 +1101,12 @@ export default function Ticker() {
           <span className="st">Age · phase<b>{life?.ageMonths != null ? life.ageMonths + "mo" : "—"}</b><span style={{ display: "block", fontSize: 9.5 }}>{life?.phase ?? "—"}</span></span>
           <span className="st">⚖ Legality<b>{life?.legalTag ?? "—"}</b><span style={{ display: "block", fontSize: 9.5 }}>{life?.standardLegal ? "Standard" : life ? "rotated" : ""}</span></span>
         </div>
+        {(() => { const z = zoneFor(id); return z ? (
+          <div className="c3" style={{ flexDirection: "column", marginTop: 12 }}>
+            <div className="lbl">Deal Zone (est.)<I t="A buyer's true online cost is the delivered total plus sales tax; a seller's true online outcome is the ask minus fees. Any cash price between them beats eBay for both sides." a="deal-zone" /></div>
+            <DealZoneBand z={z} />
+            <div className="esub" style={{ marginTop: 8 }}>A buyer pays about <b className="mono">{fmt(z.buyerCeiling)}</b> online after shipping and tax (est.) · a seller keeps about <b className="mono">{fmt(z.sellerFloor)}</b> online after fees (est.)</div>
+          </div>) : null; })()}
         <Chart />
         <button className="fchip on" style={{ marginTop: 12 }}
           onClick={() => renderShareCard({ name: x.name, median: x.price, floorClean: x.floor, listings: x.listings, vintage: x.vintage, img: x.imageUrl }, today, setShareImg)}>
@@ -1077,6 +1290,13 @@ export default function Ticker() {
       </>) : <div className="note">Pick two products.</div>}
     </>);
   };
+
+  // §19 Show Mode gets its own shell: no header, no tab bar — a screen
+  // built for a convention hall, not a feed browse.
+  if (route?.name === "show") return (
+    <div className="tk-root"><style>{css}</style>
+      <main className="tk-phone"><ShowMode /></main>
+    </div>);
 
   return (
     <div className="tk-root">

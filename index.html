@@ -14,7 +14,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <!-- unlisted: the interactive app is not for indexing; public surfaces live on catchemtcg.com -->
     <meta name="robots" content="noindex,nofollow" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#0b0d14" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- the feed IS the LCP: hero numbers render only after this host answers -->
+    <link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Sora:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
     <style>
       /* pre-hydration paint only — canonical values live in src/tokens.css

@@ -66,6 +66,25 @@ let feed = null;
 try { const r = await fetch(FEED_URL); if (r.ok) feed = await r.json(); }
 catch { console.warn("landers: feed fetch failed — hubs get no lifecycle/premium columns this build"); }
 const feedById = new Map((feed?.products ?? []).map(p => [p.id, p]));
+// §19 Deal Zone — engine-computed referee numbers per product (all est.).
+const dealZone = feed?.dealZone?.byId ?? {};
+
+// The Deal Zone band, server-rendered per lander. One glance: seller floor
+// → midpoint → buyer ceiling with the ask marked; a plain-English line per
+// side; depth behind the methodology anchor. Every figure labeled est.
+function dealZoneBlock(id) {
+  const z = dealZone[id];
+  if (!z) return "";
+  const span = z.buyerCeiling - z.sellerFloor;
+  const askPct = Math.min(97, Math.max(3, ((z.ask - z.sellerFloor) / span) * 100)).toFixed(1);
+  return `
+<div class="dz">
+<i>Deal Zone (est.) · the show-floor referee</i>
+<div class="dzband"><span class="dzask" style="left:${askPct}%"></span></div>
+<div class="dzrow"><span>seller floor<b>${usd(z.sellerFloor)}</b></span><span>midpoint<b>${usd(z.midpoint)}</b></span><span>buyer ceiling<b>${usd(z.buyerCeiling)}</b></span></div>
+<p class="read">A buyer pays about <b>${usd(z.buyerCeiling)}</b> online after shipping and tax (est.). A seller keeps about <b>${usd(z.sellerFloor)}</b> online after fees (est.). Any cash price between them beats eBay for both sides — the zone is ${usd(z.zoneWidth)} wide (${z.zonePct}% of the ask). <a href="/methodology#deal-zone">How this works →</a></p>
+</div>`;
+}
 
 
 // Brand tokens sync (build-time): freshest tokens.css from Catchem-data —
@@ -170,7 +189,8 @@ ${spark(p.priceHistory)}
 ${perPack != null ? `<div class="st"><i>Per pack</i><b>${usd(perPack)}</b><span>median ÷ ${nPacks} packs</span></div>` : ""}
 ${premiumPct != null ? `<div class="st"><i>Sealed premium</i><b>${premiumPct > 0 ? "+" : ""}${premiumPct}%</b><span>vs the loose-pack lane (${usd(loose)}/pack)</span></div>` : ""}
 </div>
-<p class="read">Asks cluster between the clean floor and the median — offers under the floor are reaching; asks past the median need a reason.</p>`
+<p class="read">Asks cluster between the clean floor and the median — offers under the floor are reaching; asks past the median need a reason.</p>
+${dealZoneBlock(p.id)}`
     : `<div class="nam"><b>No active listings today.</b> ${nam
         ? "This market trades via auctions and sold comps, so there is no honest fair-range to print. We show gaps, not guesses."
         : "No publishable price cleared our filters today."}</div>`;
@@ -198,6 +218,12 @@ img.ph{max-width:220px;width:100%;border-radius:10px;background:#070910;display:
 .read{color:var(--dim);font-size:13px;margin:10px 0}
 .nam{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;color:var(--dim);font-size:13.5px;margin:14px 0}.nam b{color:var(--txt)}
 .receipts{font:11.5px/1.6 'JetBrains Mono',monospace;color:var(--dim);border-left:2px solid var(--gold);padding-left:12px;margin:20px 0}
+.dz{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:13px;margin:16px 0}
+.dz i{font:11px 'JetBrains Mono',monospace;font-style:normal;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:10px}
+.dzband{position:relative;height:8px;border-radius:99px;background:rgba(54,211,153,.35)}
+.dzask{position:absolute;top:-3px;width:3px;height:14px;background:var(--txt);border-radius:2px;transform:translateX(-50%)}
+.dzrow{display:flex;justify-content:space-between;margin-top:8px;font-size:10.5px;color:var(--dim)}
+.dzrow b{display:block;font:700 15px 'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;color:var(--txt)}
 .cta{display:inline-block;background:var(--green);color:#0b0d14;font-weight:700;border-radius:9px;padding:11px 18px;text-decoration:none;margin:8px 0 4px}
 .sib{font-size:12px;color:var(--dim);margin-top:22px;line-height:2}
 footer{margin-top:28px;font:11px 'JetBrains Mono',monospace;color:var(--dim)}</style></head><body>

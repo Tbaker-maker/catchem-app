@@ -439,7 +439,10 @@ function Overlay() {
   useEffect(() => {
     document.documentElement.style.background = "transparent";
     document.body.style.background = "transparent";
-    const load = async () => { try { const r = await fetch(FEED_URL, { cache: "no-store" }); if (r.ok) setFeed(await r.json()); } catch {} };
+    // 20s ceiling: the browser will eventually give up on its own, but not before
+    // a phone on bad mobile data has stared at an empty screen for far longer
+    // than anyone waits. Failing fast lets the cached-feed fallback take over.
+    const load = async () => { try { const r = await fetch(FEED_URL, { cache: "no-store", signal: AbortSignal.timeout(20000) }); if (r.ok) setFeed(await r.json()); } catch {} };
     load();
     const t = setInterval(load, 5 * 60 * 1000);
     return () => clearInterval(t);
@@ -484,7 +487,7 @@ function EmailCapture() {
     try {
       const body = new FormData();
       body.append("email", email);
-      const r = await fetch(CAPTURE_URL, { method: "POST", body, headers: { Accept: "application/json" } });
+      const r = await fetch(CAPTURE_URL, { method: "POST", body, headers: { Accept: "application/json" }, signal: AbortSignal.timeout(20000) });
       if (!r.ok) throw new Error();
       lsSet("mail:v1", true);
       setState("done");

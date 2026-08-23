@@ -71,12 +71,48 @@ for (const f of await readdir(join(ROOT, "public/sets")).catch(() => [])) {
   hubs++;
 }
 
-// 5 · robots + sitemap (host rewritten to the public domain)
+// 5 · creators + the editor
+// THE INDEX IS FETCHED RELATIVE TO THE PAGE. build.html does a bare
+// `fetch("card-index.json")`, and Workers assets serve extensionless — so the
+// editor lives at /build with no trailing slash, which makes the relative base
+// "/" and resolves the index to /card-index.json. Both therefore sit at the
+// served ROOT. Putting them in a /build/ subdirectory instead would only work
+// if every visitor arrived at the trailing-slash form, which nothing guarantees.
+const editor = await fetchOr(`${RAW}/build.html`);
+const index = await fetchOr(`${RAW}/card-index.json`);
+let creators = await fetchOr(`${RAW}/creators.html`);
+if (editor && index) {
+  await writeFile(join(OUT, "build.html"), publicize(editor));
+  await writeFile(join(OUT, "card-index.json"), index);
+} else if (editor && !index) {
+  // An editor with no index is a search box that finds nothing. Ship neither.
+  throw new Error("build.html present but card-index.json missing — refusing to ship an editor that cannot load its catalogue");
+}
+if (creators) await writeFile(join(OUT, "creators.html"), publicize(creators));
+
+// 6 · composites, served from our own domain so downloads need no CORS
+let imgs = 0;
+try {
+  const names = JSON.parse(await (await fetch(
+    "https://api.github.com/repos/Tbaker-maker/Catchem-data/contents/research/assets/img",
+    { headers: { "User-Agent": "catchem-site-build" } })).text());
+  if (Array.isArray(names)) {
+    await mkdir(join(OUT, "img"), { recursive: true });
+    for (const n of names.filter(x => x.name?.endsWith(".png"))) {
+      const r = await fetch(n.download_url);
+      if (!r.ok) continue;
+      await writeFile(join(OUT, "img", n.name), Buffer.from(await r.arrayBuffer()));
+      imgs++;
+    }
+  }
+} catch { /* composites are an enhancement; the pages stand without them */ }
+
+// 7 · robots + sitemap (host rewritten to the public domain)
 await writeFile(join(OUT, "robots.txt"), "User-agent: *\nAllow: /\nSitemap: https://catchemtcg.com/sitemap.xml\n");
 try {
   const sm = await readFile(join(ROOT, "public/sitemap.xml"), "utf-8");
   await writeFile(join(OUT, "sitemap.xml"), sm.replaceAll("app.catchemtcg.com", "catchemtcg.com"));
 } catch {}
 
-console.log(`✓ site-public assembled: landing + methodology + corrections${pulse ? " + pulse" : ""}${board ? " + board" : ""} + ${landers} landers + ${hubs} set hubs`);
+console.log(`✓ site-public assembled: landing + methodology + corrections${pulse ? " + pulse" : ""}${board ? " + board" : ""} + ${landers} landers + ${hubs} set hubs${editor ? " + /build editor" : ""}${creators ? " + /creators" : ""}${imgs ? ` + ${imgs} composite(s)` : ""}`);
 console.log("  deploy: npx wrangler deploy -c wrangler.site.jsonc");

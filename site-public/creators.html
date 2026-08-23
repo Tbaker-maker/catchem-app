@@ -1,0 +1,343 @@
+<!doctype html><meta charset="utf-8"><title>Catch'em Creators</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{--bg:#070910;--surf:#0f1219;--ink:#e9ecf3;--dim:#8b93a7;--green:#36d399;--line:rgba(255,255,255,.08)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif;padding:32px 20px 90px}
+.wrap{max-width:940px;margin:0 auto}
+h1{font-size:32px;margin:0 0 4px;letter-spacing:-.4px}
+.sub{color:var(--dim);margin:0 0 26px}
+.proof{border-left:3px solid var(--green);background:var(--surf);padding:14px 18px;border-radius:0 10px 10px 0;margin:0 0 30px}
+.proof b{color:var(--green)}
+.card{background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:20px;margin:0 0 18px}
+.top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.title{font-size:20px;font-weight:700}
+.artist{color:var(--dim);font-size:14px}
+.why{color:#c3cad8;font-size:14.5px;margin:8px 0 14px}
+.pair{display:flex;gap:14px;align-items:flex-start}
+.pair img{width:132px;aspect-ratio:745/1040;object-fit:contain;border-radius:8px;background:#0b0d14}
+.meta{color:var(--dim);font-size:12.5px;text-align:center;margin-top:6px;width:132px}
+.act{margin-left:auto;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+button{background:var(--green);color:#070910;border:0;border-radius:9px;padding:11px 18px;
+  font-size:14.5px;font-weight:700;cursor:pointer;white-space:nowrap}
+button.ghost{background:transparent;color:var(--dim);border:1px solid var(--line);font-weight:500}
+.msg{color:var(--dim);font-size:12.5px;min-height:16px}
+.note{color:var(--dim);font-size:13.5px;margin-top:34px;border-top:1px solid var(--line);padding-top:18px}
+.setup{margin-top:16px;border-top:1px solid var(--line);padding-top:16px}
+.facts{color:#c3cad8;font-size:14px;background:#0b0d14;border-radius:9px;padding:12px 14px;margin-bottom:12px}
+.angles{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.angle{background:transparent;border:1px solid var(--line);color:var(--dim);font-weight:500;font-size:13px;padding:8px 12px}
+.angle.on{border-color:var(--green);color:var(--green)}
+textarea{width:100%;background:#0b0d14;border:1px solid var(--line);border-radius:9px;color:var(--ink);
+  padding:12px 14px;font:15px/1.5 inherit;resize:vertical}
+.hint{color:var(--dim);font-size:12.5px;margin:6px 0 12px;min-height:16px}
+.row2{display:flex;gap:8px;flex-wrap:wrap}
+.warn{color:#8b93a7;font-size:12.5px;margin-top:10px}
+@media(max-width:620px){.pair img,.meta{width:104px}.act{margin:12px 0 0;align-items:stretch;width:100%}}
+</style>
+<div class="wrap">
+<h1>Catch'em Creators</h1>
+<p class="sub">Pairings worth posting. Pick one, download the image, write your own words.
+ &nbsp;·&nbsp; <a href="/build" style="color:#36d399">Or build your own &rsaquo;</a></p>
+
+<div class="proof"><b>The shape below is not a guess.</b> One post using it — Base Set Charizard beside the 151 Blastoise ex, same illustrator, 154 views and 9 likes at a bad hour from a small account, plus an unsolicited reply from a verified creator. <b>One post is an anecdote, not a model</b>, and these are ranked on what made that one work rather than on what we can prove.</div>
+
+<div class="card">
+  <div class="top"><span class="title">Charizard 1999 &nbsp;→&nbsp; Blastoise ex 2023</span>
+    <span class="artist">Mitsuhiro Arita · 24 years</span></div>
+  <div class="why">24 years apart · both are Pokémon nobody needs introduced · both are the good version, not a common · cards people actually chase</div>
+  <div class="pair">
+    <div><img src="https://images.pokemontcg.io/base1/4_hires.png" alt="Charizard" loading="lazy"><div class="meta">Base<br>1999</div></div>
+    <div><img src="https://images.pokemontcg.io/sv3pt5/200_hires.png" alt="Blastoise ex" loading="lazy"><div class="meta">151<br>2023</div></div>
+    <div class="act">
+      <button onclick="grab(0)">Download image</button>
+      <button class="ghost" onclick="setup(0)">Set up the post</button>
+      <div class="msg" id="m0"></div>
+    </div>
+  </div>
+  <div class="setup" id="s0" style="display:none">
+    <div class="facts"><b>The facts, so you do not have to look them up:</b>
+      Mitsuhiro Arita illustrated <b>Charizard</b> in Base (1999, Rare Holo)
+      and <b>Blastoise ex</b> in 151 (2023, Special Illustration Rare). 24 years apart.</div>
+    <div class="angles"><button class="angle" onclick="pick(0,0)">The disbelief angle</button><button class="angle" onclick="pick(0,1)">The permission angle</button><button class="angle" onclick="pick(0,2)">The quiet-career angle</button><button class="angle" onclick="pick(0,3)">The question angle</button></div>
+    <textarea id="t0" rows="3" placeholder="Pick an angle above, then make it sound like you."></textarea>
+    <div class="hint" id="h0"></div>
+    <div class="row2"><button onclick="toX(0)">Open X with this</button>
+      <button class="ghost" onclick="grab(0)">Download the image first</button></div>
+    <div class="warn">Rewrite it. Fifty creators posting the same sentence helps nobody — the words are the part that has to be yours.</div>
+  </div>
+</div>
+<div class="card">
+  <div class="top"><span class="title">Lugia 2000 &nbsp;→&nbsp; Tyranitar 2018</span>
+    <span class="artist">Hironobu Yoshida · 18 years</span></div>
+  <div class="why">18 years apart · both are Pokémon nobody needs introduced · both are the good version, not a common · cards people actually chase</div>
+  <div class="pair">
+    <div><img src="https://images.pokemontcg.io/neo1/9_hires.png" alt="Lugia" loading="lazy"><div class="meta">Neo Genesis<br>2000</div></div>
+    <div><img src="https://images.pokemontcg.io/sm7/87_hires.png" alt="Tyranitar" loading="lazy"><div class="meta">Celestial Storm<br>2018</div></div>
+    <div class="act">
+      <button onclick="grab(1)">Download image</button>
+      <button class="ghost" onclick="setup(1)">Set up the post</button>
+      <div class="msg" id="m1"></div>
+    </div>
+  </div>
+  <div class="setup" id="s1" style="display:none">
+    <div class="facts"><b>The facts, so you do not have to look them up:</b>
+      Hironobu Yoshida illustrated <b>Lugia</b> in Neo Genesis (2000, Rare Holo)
+      and <b>Tyranitar</b> in Celestial Storm (2018, Rare Holo). 18 years apart.</div>
+    <div class="angles"><button class="angle" onclick="pick(1,0)">The disbelief angle</button><button class="angle" onclick="pick(1,1)">The permission angle</button><button class="angle" onclick="pick(1,2)">The quiet-career angle</button><button class="angle" onclick="pick(1,3)">The question angle</button></div>
+    <textarea id="t1" rows="3" placeholder="Pick an angle above, then make it sound like you."></textarea>
+    <div class="hint" id="h1"></div>
+    <div class="row2"><button onclick="toX(1)">Open X with this</button>
+      <button class="ghost" onclick="grab(1)">Download the image first</button></div>
+    <div class="warn">Rewrite it. Fifty creators posting the same sentence helps nobody — the words are the part that has to be yours.</div>
+  </div>
+</div>
+<div class="card">
+  <div class="top"><span class="title">Flareon δ 2005 &nbsp;→&nbsp; Pikachu 2023</span>
+    <span class="artist">Kouki Saitou · 18 years</span></div>
+  <div class="why">18 years apart · both are Pokémon nobody needs introduced · both are the good version, not a common · cards people actually chase</div>
+  <div class="pair">
+    <div><img src="https://images.pokemontcg.io/ex11/5_hires.png" alt="Flareon δ" loading="lazy"><div class="meta">Delta Species<br>2005</div></div>
+    <div><img src="https://images.pokemontcg.io/swsh12pt5gg/GG30_hires.png" alt="Pikachu" loading="lazy"><div class="meta">Crown Zenith Galarian Gallery<br>2023</div></div>
+    <div class="act">
+      <button onclick="grab(2)">Download image</button>
+      <button class="ghost" onclick="setup(2)">Set up the post</button>
+      <div class="msg" id="m2"></div>
+    </div>
+  </div>
+  <div class="setup" id="s2" style="display:none">
+    <div class="facts"><b>The facts, so you do not have to look them up:</b>
+      Kouki Saitou illustrated <b>Flareon δ</b> in Delta Species (2005, Rare Holo)
+      and <b>Pikachu</b> in Crown Zenith Galarian Gallery (2023, Trainer Gallery Rare Holo). 18 years apart.</div>
+    <div class="angles"><button class="angle" onclick="pick(2,0)">The disbelief angle</button><button class="angle" onclick="pick(2,1)">The permission angle</button><button class="angle" onclick="pick(2,2)">The quiet-career angle</button><button class="angle" onclick="pick(2,3)">The question angle</button></div>
+    <textarea id="t2" rows="3" placeholder="Pick an angle above, then make it sound like you."></textarea>
+    <div class="hint" id="h2"></div>
+    <div class="row2"><button onclick="toX(2)">Open X with this</button>
+      <button class="ghost" onclick="grab(2)">Download the image first</button></div>
+    <div class="warn">Rewrite it. Fifty creators posting the same sentence helps nobody — the words are the part that has to be yours.</div>
+  </div>
+</div>
+<div class="card">
+  <div class="top"><span class="title">Venusaur ex 2004 &nbsp;→&nbsp; Machamp V 2022</span>
+    <span class="artist">Ryo Ueda · 18 years</span></div>
+  <div class="why">18 years apart · both are Pokémon nobody needs introduced · both are the good version, not a common · cards people actually chase</div>
+  <div class="pair">
+    <div><img src="https://images.pokemontcg.io/ex6/112_hires.png" alt="Venusaur ex" loading="lazy"><div class="meta">FireRed &amp; LeafGreen<br>2004</div></div>
+    <div><img src="https://images.pokemontcg.io/swsh10/171_hires.png" alt="Machamp V" loading="lazy"><div class="meta">Astral Radiance<br>2022</div></div>
+    <div class="act">
+      <button onclick="grab(3)">Download image</button>
+      <button class="ghost" onclick="setup(3)">Set up the post</button>
+      <div class="msg" id="m3"></div>
+    </div>
+  </div>
+  <div class="setup" id="s3" style="display:none">
+    <div class="facts"><b>The facts, so you do not have to look them up:</b>
+      Ryo Ueda illustrated <b>Venusaur ex</b> in FireRed &amp; LeafGreen (2004, Rare Holo EX)
+      and <b>Machamp V</b> in Astral Radiance (2022, Rare Ultra). 18 years apart.</div>
+    <div class="angles"><button class="angle" onclick="pick(3,0)">The disbelief angle</button><button class="angle" onclick="pick(3,1)">The permission angle</button><button class="angle" onclick="pick(3,2)">The quiet-career angle</button><button class="angle" onclick="pick(3,3)">The question angle</button></div>
+    <textarea id="t3" rows="3" placeholder="Pick an angle above, then make it sound like you."></textarea>
+    <div class="hint" id="h3"></div>
+    <div class="row2"><button onclick="toX(3)">Open X with this</button>
+      <button class="ghost" onclick="grab(3)">Download the image first</button></div>
+    <div class="warn">Rewrite it. Fifty creators posting the same sentence helps nobody — the words are the part that has to be yours.</div>
+  </div>
+</div>
+<div class="card">
+  <div class="top"><span class="title">Flareon 1999 &nbsp;→&nbsp; Eevee 2019</span>
+    <span class="artist">Kagemaru Himeno · 20 years</span></div>
+  <div class="why">20 years apart · both are Pokémon nobody needs introduced · both are the good version, not a common</div>
+  <div class="pair">
+    <div><img src="https://images.pokemontcg.io/base2/3_hires.png" alt="Flareon" loading="lazy"><div class="meta">Jungle<br>1999</div></div>
+    <div><img src="https://images.pokemontcg.io/sm115/48_hires.png" alt="Eevee" loading="lazy"><div class="meta">Hidden Fates<br>2019</div></div>
+    <div class="act">
+      <button onclick="grab(4)">Download image</button>
+      <button class="ghost" onclick="setup(4)">Set up the post</button>
+      <div class="msg" id="m4"></div>
+    </div>
+  </div>
+  <div class="setup" id="s4" style="display:none">
+    <div class="facts"><b>The facts, so you do not have to look them up:</b>
+      Kagemaru Himeno illustrated <b>Flareon</b> in Jungle (1999, Rare Holo)
+      and <b>Eevee</b> in Hidden Fates (2019, Rare Holo). 20 years apart.</div>
+    <div class="angles"><button class="angle" onclick="pick(4,0)">The disbelief angle</button><button class="angle" onclick="pick(4,1)">The permission angle</button><button class="angle" onclick="pick(4,2)">The quiet-career angle</button><button class="angle" onclick="pick(4,3)">The question angle</button></div>
+    <textarea id="t4" rows="3" placeholder="Pick an angle above, then make it sound like you."></textarea>
+    <div class="hint" id="h4"></div>
+    <div class="row2"><button onclick="toX(4)">Open X with this</button>
+      <button class="ghost" onclick="grab(4)">Download the image first</button></div>
+    <div class="warn">Rewrite it. Fifty creators posting the same sentence helps nobody — the words are the part that has to be yours.</div>
+  </div>
+</div>
+<div class="card">
+  <div class="top"><span class="title">Rayquaza ★ 2005 &nbsp;→&nbsp; Snorlax V 2020</span>
+    <span class="artist">Masakazu Fukuda · 15 years</span></div>
+  <div class="why">15 years apart · both are Pokémon nobody needs introduced · both are the good version, not a common · cards people actually chase</div>
+  <div class="pair">
+    <div><img src="https://images.pokemontcg.io/ex8/107_hires.png" alt="Rayquaza ★" loading="lazy"><div class="meta">Deoxys<br>2005</div></div>
+    <div><img src="https://images.pokemontcg.io/swsh1/141_hires.png" alt="Snorlax V" loading="lazy"><div class="meta">Sword &amp; Shield<br>2020</div></div>
+    <div class="act">
+      <button onclick="grab(5)">Download image</button>
+      <button class="ghost" onclick="setup(5)">Set up the post</button>
+      <div class="msg" id="m5"></div>
+    </div>
+  </div>
+  <div class="setup" id="s5" style="display:none">
+    <div class="facts"><b>The facts, so you do not have to look them up:</b>
+      Masakazu Fukuda illustrated <b>Rayquaza ★</b> in Deoxys (2005, Rare Holo Star)
+      and <b>Snorlax V</b> in Sword &amp; Shield (2020, Rare Holo V). 15 years apart.</div>
+    <div class="angles"><button class="angle" onclick="pick(5,0)">The disbelief angle</button><button class="angle" onclick="pick(5,1)">The permission angle</button><button class="angle" onclick="pick(5,2)">The quiet-career angle</button><button class="angle" onclick="pick(5,3)">The question angle</button></div>
+    <textarea id="t5" rows="3" placeholder="Pick an angle above, then make it sound like you."></textarea>
+    <div class="hint" id="h5"></div>
+    <div class="row2"><button onclick="toX(5)">Open X with this</button>
+      <button class="ghost" onclick="grab(5)">Download the image first</button></div>
+    <div class="warn">Rewrite it. Fifty creators posting the same sentence helps nobody — the words are the part that has to be yours.</div>
+  </div>
+</div>
+<div class="card">
+  <div class="top"><span class="title">Tyranitar 2003 &nbsp;→&nbsp; Dragonite 2022</span>
+    <span class="artist">Naoyo Kimura · 19 years</span></div>
+  <div class="why">19 years apart · both are Pokémon nobody needs introduced · both are the good version, not a common</div>
+  <div class="pair">
+    <div><img src="https://images.pokemontcg.io/ecard2/H28_hires.png" alt="Tyranitar" loading="lazy"><div class="meta">Aquapolis<br>2003</div></div>
+    <div><img src="https://images.pokemontcg.io/swsh12/131_hires.png" alt="Dragonite" loading="lazy"><div class="meta">Silver Tempest<br>2022</div></div>
+    <div class="act">
+      <button onclick="grab(6)">Download image</button>
+      <button class="ghost" onclick="setup(6)">Set up the post</button>
+      <div class="msg" id="m6"></div>
+    </div>
+  </div>
+  <div class="setup" id="s6" style="display:none">
+    <div class="facts"><b>The facts, so you do not have to look them up:</b>
+      Naoyo Kimura illustrated <b>Tyranitar</b> in Aquapolis (2003, Rare Holo)
+      and <b>Dragonite</b> in Silver Tempest (2022, Rare Holo). 19 years apart.</div>
+    <div class="angles"><button class="angle" onclick="pick(6,0)">The disbelief angle</button><button class="angle" onclick="pick(6,1)">The permission angle</button><button class="angle" onclick="pick(6,2)">The quiet-career angle</button><button class="angle" onclick="pick(6,3)">The question angle</button></div>
+    <textarea id="t6" rows="3" placeholder="Pick an angle above, then make it sound like you."></textarea>
+    <div class="hint" id="h6"></div>
+    <div class="row2"><button onclick="toX(6)">Open X with this</button>
+      <button class="ghost" onclick="grab(6)">Download the image first</button></div>
+    <div class="warn">Rewrite it. Fifty creators posting the same sentence helps nobody — the words are the part that has to be yours.</div>
+  </div>
+</div>
+<div class="card">
+  <div class="top"><span class="title">Rayquaza C 2009 &nbsp;→&nbsp; Lugia V 2022</span>
+    <span class="artist">kawayoo · 13 years</span></div>
+  <div class="why">13 years apart · both are Pokémon nobody needs introduced · both are the good version, not a common · cards people actually chase</div>
+  <div class="pair">
+    <div><img src="https://images.pokemontcg.io/pl3/8_hires.png" alt="Rayquaza C" loading="lazy"><div class="meta">Supreme Victors<br>2009</div></div>
+    <div><img src="https://images.pokemontcg.io/swsh12/186_hires.png" alt="Lugia V" loading="lazy"><div class="meta">Silver Tempest<br>2022</div></div>
+    <div class="act">
+      <button onclick="grab(7)">Download image</button>
+      <button class="ghost" onclick="setup(7)">Set up the post</button>
+      <div class="msg" id="m7"></div>
+    </div>
+  </div>
+  <div class="setup" id="s7" style="display:none">
+    <div class="facts"><b>The facts, so you do not have to look them up:</b>
+      kawayoo illustrated <b>Rayquaza C</b> in Supreme Victors (2009, Rare Holo)
+      and <b>Lugia V</b> in Silver Tempest (2022, Rare Ultra). 13 years apart.</div>
+    <div class="angles"><button class="angle" onclick="pick(7,0)">The disbelief angle</button><button class="angle" onclick="pick(7,1)">The permission angle</button><button class="angle" onclick="pick(7,2)">The quiet-career angle</button><button class="angle" onclick="pick(7,3)">The question angle</button></div>
+    <textarea id="t7" rows="3" placeholder="Pick an angle above, then make it sound like you."></textarea>
+    <div class="hint" id="h7"></div>
+    <div class="row2"><button onclick="toX(7)">Open X with this</button>
+      <button class="ghost" onclick="grab(7)">Download the image first</button></div>
+    <div class="warn">Rewrite it. Fifty creators posting the same sentence helps nobody — the words are the part that has to be yours.</div>
+  </div>
+</div>
+<div class="card">
+  <div class="top"><span class="title">Alakazam 1999 &nbsp;→&nbsp; Machamp 2016</span>
+    <span class="artist">Ken Sugimori · 17 years</span></div>
+  <div class="why">17 years apart · both are Pokémon nobody needs introduced · both are the good version, not a common</div>
+  <div class="pair">
+    <div><img src="https://images.pokemontcg.io/base1/1_hires.png" alt="Alakazam" loading="lazy"><div class="meta">Base<br>1999</div></div>
+    <div><img src="https://images.pokemontcg.io/xy12/59_hires.png" alt="Machamp" loading="lazy"><div class="meta">Evolutions<br>2016</div></div>
+    <div class="act">
+      <button onclick="grab(8)">Download image</button>
+      <button class="ghost" onclick="setup(8)">Set up the post</button>
+      <div class="msg" id="m8"></div>
+    </div>
+  </div>
+  <div class="setup" id="s8" style="display:none">
+    <div class="facts"><b>The facts, so you do not have to look them up:</b>
+      Ken Sugimori illustrated <b>Alakazam</b> in Base (1999, Rare Holo)
+      and <b>Machamp</b> in Evolutions (2016, Rare Holo). 17 years apart.</div>
+    <div class="angles"><button class="angle" onclick="pick(8,0)">The disbelief angle</button><button class="angle" onclick="pick(8,1)">The permission angle</button><button class="angle" onclick="pick(8,2)">The quiet-career angle</button><button class="angle" onclick="pick(8,3)">The question angle</button></div>
+    <textarea id="t8" rows="3" placeholder="Pick an angle above, then make it sound like you."></textarea>
+    <div class="hint" id="h8"></div>
+    <div class="row2"><button onclick="toX(8)">Open X with this</button>
+      <button class="ghost" onclick="grab(8)">Download the image first</button></div>
+    <div class="warn">Rewrite it. Fifty creators posting the same sentence helps nobody — the words are the part that has to be yours.</div>
+  </div>
+</div>
+<div class="card">
+  <div class="top"><span class="title">Jolteon 2003 &nbsp;→&nbsp; Snorlax 2020</span>
+    <span class="artist">Atsuko Nishida · 17 years</span></div>
+  <div class="why">17 years apart · both are Pokémon nobody needs introduced · both are the good version, not a common</div>
+  <div class="pair">
+    <div><img src="https://images.pokemontcg.io/ex2/6_hires.png" alt="Jolteon" loading="lazy"><div class="meta">Sandstorm<br>2003</div></div>
+    <div><img src="https://images.pokemontcg.io/swsh4/131_hires.png" alt="Snorlax" loading="lazy"><div class="meta">Vivid Voltage<br>2020</div></div>
+    <div class="act">
+      <button onclick="grab(9)">Download image</button>
+      <button class="ghost" onclick="setup(9)">Set up the post</button>
+      <div class="msg" id="m9"></div>
+    </div>
+  </div>
+  <div class="setup" id="s9" style="display:none">
+    <div class="facts"><b>The facts, so you do not have to look them up:</b>
+      Atsuko Nishida illustrated <b>Jolteon</b> in Sandstorm (2003, Rare Holo)
+      and <b>Snorlax</b> in Vivid Voltage (2020, Rare Holo). 17 years apart.</div>
+    <div class="angles"><button class="angle" onclick="pick(9,0)">The disbelief angle</button><button class="angle" onclick="pick(9,1)">The permission angle</button><button class="angle" onclick="pick(9,2)">The quiet-career angle</button><button class="angle" onclick="pick(9,3)">The question angle</button></div>
+    <textarea id="t9" rows="3" placeholder="Pick an angle above, then make it sound like you."></textarea>
+    <div class="hint" id="h9"></div>
+    <div class="row2"><button onclick="toX(9)">Open X with this</button>
+      <button class="ghost" onclick="grab(9)">Download the image first</button></div>
+    <div class="warn">Rewrite it. Fifty creators posting the same sentence helps nobody — the words are the part that has to be yours.</div>
+  </div>
+</div>
+
+<div class="note"><b>We do not write your copy.</b> The post that worked did partly because the words were the creator's own — two conversational lines, no numbers in them. A hedge in a post reads as a lack of conviction, and borrowed copy reads as borrowed. The image carries the claim; the words carry the feeling, and the feeling has to be yours.</div>
+</div>
+<script>
+const PAIRS = [{"a":"https://images.pokemontcg.io/base1/4_hires.png","b":"https://images.pokemontcg.io/sv3pt5/200_hires.png","an":"Charizard","ay":"1999","bn":"Blastoise ex","by":"2023","artist":"Mitsuhiro Arita","years":24,"ids":["base1-4","sv3pt5-200"],"angles":[{"name":"The disbelief angle","seed":"It's wild that the person who drew Charizard in 1999 is still making cards today.","note":"What Tyler used. Works because it is a reaction, not a fact."},{"name":"The permission angle","seed":"24 years after Charizard, they let the same artist draw Blastoise ex.","note":"The 'they let him' framing implies a decision somebody made, which invites a reply."},{"name":"The quiet-career angle","seed":"Mitsuhiro Arita has been drawing Pokémon cards since 1999. Most people have never heard the name.","note":"Works on people who do not follow the market at all."},{"name":"The question angle","seed":"Which one is better? Charizard 1999 or Blastoise ex 2023. Same artist.","note":"A question gets replies. Replies are the whole game."}]},{"a":"https://images.pokemontcg.io/neo1/9_hires.png","b":"https://images.pokemontcg.io/sm7/87_hires.png","an":"Lugia","ay":"2000","bn":"Tyranitar","by":"2018","artist":"Hironobu Yoshida","years":18,"ids":["neo1-9","sm7-87"],"angles":[{"name":"The disbelief angle","seed":"It's wild that the person who drew Lugia in 2000 is still making cards today.","note":"What Tyler used. Works because it is a reaction, not a fact."},{"name":"The permission angle","seed":"18 years after Lugia, they let the same artist draw Tyranitar.","note":"The 'they let him' framing implies a decision somebody made, which invites a reply."},{"name":"The quiet-career angle","seed":"Hironobu Yoshida has been drawing Pokémon cards since 2000. Most people have never heard the name.","note":"Works on people who do not follow the market at all."},{"name":"The question angle","seed":"Which one is better? Lugia 2000 or Tyranitar 2018. Same artist.","note":"A question gets replies. Replies are the whole game."}]},{"a":"https://images.pokemontcg.io/ex11/5_hires.png","b":"https://images.pokemontcg.io/swsh12pt5gg/GG30_hires.png","an":"Flareon δ","ay":"2005","bn":"Pikachu","by":"2023","artist":"Kouki Saitou","years":18,"ids":["ex11-5","swsh12pt5gg-GG30"],"angles":[{"name":"The disbelief angle","seed":"It's wild that the person who drew Flareon δ in 2005 is still making cards today.","note":"What Tyler used. Works because it is a reaction, not a fact."},{"name":"The permission angle","seed":"18 years after Flareon δ, they let the same artist draw Pikachu.","note":"The 'they let him' framing implies a decision somebody made, which invites a reply."},{"name":"The quiet-career angle","seed":"Kouki Saitou has been drawing Pokémon cards since 2005. Most people have never heard the name.","note":"Works on people who do not follow the market at all."},{"name":"The question angle","seed":"Which one is better? Flareon δ 2005 or Pikachu 2023. Same artist.","note":"A question gets replies. Replies are the whole game."}]},{"a":"https://images.pokemontcg.io/ex6/112_hires.png","b":"https://images.pokemontcg.io/swsh10/171_hires.png","an":"Venusaur ex","ay":"2004","bn":"Machamp V","by":"2022","artist":"Ryo Ueda","years":18,"ids":["ex6-112","swsh10-171"],"angles":[{"name":"The disbelief angle","seed":"It's wild that the person who drew Venusaur ex in 2004 is still making cards today.","note":"What Tyler used. Works because it is a reaction, not a fact."},{"name":"The permission angle","seed":"18 years after Venusaur ex, they let the same artist draw Machamp V.","note":"The 'they let him' framing implies a decision somebody made, which invites a reply."},{"name":"The quiet-career angle","seed":"Ryo Ueda has been drawing Pokémon cards since 2004. Most people have never heard the name.","note":"Works on people who do not follow the market at all."},{"name":"The question angle","seed":"Which one is better? Venusaur ex 2004 or Machamp V 2022. Same artist.","note":"A question gets replies. Replies are the whole game."}]},{"a":"https://images.pokemontcg.io/base2/3_hires.png","b":"https://images.pokemontcg.io/sm115/48_hires.png","an":"Flareon","ay":"1999","bn":"Eevee","by":"2019","artist":"Kagemaru Himeno","years":20,"ids":["base2-3","sm115-48"],"angles":[{"name":"The disbelief angle","seed":"It's wild that the person who drew Flareon in 1999 is still making cards today.","note":"What Tyler used. Works because it is a reaction, not a fact."},{"name":"The permission angle","seed":"20 years after Flareon, they let the same artist draw Eevee.","note":"The 'they let him' framing implies a decision somebody made, which invites a reply."},{"name":"The quiet-career angle","seed":"Kagemaru Himeno has been drawing Pokémon cards since 1999. Most people have never heard the name.","note":"Works on people who do not follow the market at all."},{"name":"The question angle","seed":"Which one is better? Flareon 1999 or Eevee 2019. Same artist.","note":"A question gets replies. Replies are the whole game."}]},{"a":"https://images.pokemontcg.io/ex8/107_hires.png","b":"https://images.pokemontcg.io/swsh1/141_hires.png","an":"Rayquaza ★","ay":"2005","bn":"Snorlax V","by":"2020","artist":"Masakazu Fukuda","years":15,"ids":["ex8-107","swsh1-141"],"angles":[{"name":"The disbelief angle","seed":"It's wild that the person who drew Rayquaza ★ in 2005 is still making cards today.","note":"What Tyler used. Works because it is a reaction, not a fact."},{"name":"The permission angle","seed":"15 years after Rayquaza ★, they let the same artist draw Snorlax V.","note":"The 'they let him' framing implies a decision somebody made, which invites a reply."},{"name":"The quiet-career angle","seed":"Masakazu Fukuda has been drawing Pokémon cards since 2005. Most people have never heard the name.","note":"Works on people who do not follow the market at all."},{"name":"The question angle","seed":"Which one is better? Rayquaza ★ 2005 or Snorlax V 2020. Same artist.","note":"A question gets replies. Replies are the whole game."}]},{"a":"https://images.pokemontcg.io/ecard2/H28_hires.png","b":"https://images.pokemontcg.io/swsh12/131_hires.png","an":"Tyranitar","ay":"2003","bn":"Dragonite","by":"2022","artist":"Naoyo Kimura","years":19,"ids":["ecard2-H28","swsh12-131"],"angles":[{"name":"The disbelief angle","seed":"It's wild that the person who drew Tyranitar in 2003 is still making cards today.","note":"What Tyler used. Works because it is a reaction, not a fact."},{"name":"The permission angle","seed":"19 years after Tyranitar, they let the same artist draw Dragonite.","note":"The 'they let him' framing implies a decision somebody made, which invites a reply."},{"name":"The quiet-career angle","seed":"Naoyo Kimura has been drawing Pokémon cards since 2003. Most people have never heard the name.","note":"Works on people who do not follow the market at all."},{"name":"The question angle","seed":"Which one is better? Tyranitar 2003 or Dragonite 2022. Same artist.","note":"A question gets replies. Replies are the whole game."}]},{"a":"https://images.pokemontcg.io/pl3/8_hires.png","b":"https://images.pokemontcg.io/swsh12/186_hires.png","an":"Rayquaza C","ay":"2009","bn":"Lugia V","by":"2022","artist":"kawayoo","years":13,"ids":["pl3-8","swsh12-186"],"angles":[{"name":"The disbelief angle","seed":"It's wild that the person who drew Rayquaza C in 2009 is still making cards today.","note":"What Tyler used. Works because it is a reaction, not a fact."},{"name":"The permission angle","seed":"13 years after Rayquaza C, they let the same artist draw Lugia V.","note":"The 'they let him' framing implies a decision somebody made, which invites a reply."},{"name":"The quiet-career angle","seed":"kawayoo has been drawing Pokémon cards since 2009. Most people have never heard the name.","note":"Works on people who do not follow the market at all."},{"name":"The question angle","seed":"Which one is better? Rayquaza C 2009 or Lugia V 2022. Same artist.","note":"A question gets replies. Replies are the whole game."}]},{"a":"https://images.pokemontcg.io/base1/1_hires.png","b":"https://images.pokemontcg.io/xy12/59_hires.png","an":"Alakazam","ay":"1999","bn":"Machamp","by":"2016","artist":"Ken Sugimori","years":17,"ids":["base1-1","xy12-59"],"angles":[{"name":"The disbelief angle","seed":"It's wild that the person who drew Alakazam in 1999 is still making cards today.","note":"What Tyler used. Works because it is a reaction, not a fact."},{"name":"The permission angle","seed":"17 years after Alakazam, they let the same artist draw Machamp.","note":"The 'they let him' framing implies a decision somebody made, which invites a reply."},{"name":"The quiet-career angle","seed":"Ken Sugimori has been drawing Pokémon cards since 1999. Most people have never heard the name.","note":"Works on people who do not follow the market at all."},{"name":"The question angle","seed":"Which one is better? Alakazam 1999 or Machamp 2016. Same artist.","note":"A question gets replies. Replies are the whole game."}]},{"a":"https://images.pokemontcg.io/ex2/6_hires.png","b":"https://images.pokemontcg.io/swsh4/131_hires.png","an":"Jolteon","ay":"2003","bn":"Snorlax","by":"2020","artist":"Atsuko Nishida","years":17,"ids":["ex2-6","swsh4-131"],"angles":[{"name":"The disbelief angle","seed":"It's wild that the person who drew Jolteon in 2003 is still making cards today.","note":"What Tyler used. Works because it is a reaction, not a fact."},{"name":"The permission angle","seed":"17 years after Jolteon, they let the same artist draw Snorlax.","note":"The 'they let him' framing implies a decision somebody made, which invites a reply."},{"name":"The quiet-career angle","seed":"Atsuko Nishida has been drawing Pokémon cards since 2003. Most people have never heard the name.","note":"Works on people who do not follow the market at all."},{"name":"The question angle","seed":"Which one is better? Jolteon 2003 or Snorlax 2020. Same artist.","note":"A question gets replies. Replies are the whole game."}]}];
+function setup(i){ const el=document.getElementById("s"+i); el.style.display = el.style.display==="none" ? "block" : "none"; }
+function pick(i,k){
+  const a = PAIRS[i].angles[k];
+  document.getElementById("t"+i).value = a.seed;
+  document.getElementById("h"+i).textContent = a.note;
+  document.querySelectorAll("#s"+i+" .angle").forEach((b,j)=>b.classList.toggle("on", j===k));
+}
+function toX(i){
+  const t = document.getElementById("t"+i).value.trim();
+  if(!t){ document.getElementById("m"+i).textContent="pick an angle and write it first"; return; }
+  window.open("https://twitter.com/intent/tweet?text="+encodeURIComponent(t), "_blank");
+  document.getElementById("m"+i).textContent="X opened — attach the image you downloaded";
+}
+async function grab(i){
+  const p = PAIRS[i], msg = document.getElementById("m"+i);
+  msg.textContent = "composing…";
+  const CW=745, CH=1040, GAP=60, PAD=90, CAP=130, LAB=110;
+  const W = PAD*2 + CW*2 + GAP, H = PAD + CH + CAP + LAB + 90;
+  const cv = document.createElement("canvas"); cv.width=W; cv.height=H;
+  const g = cv.getContext("2d");
+  g.fillStyle="#070910"; g.fillRect(0,0,W,H);
+  try{
+    const imgs = await Promise.all([p.a,p.b].map(u => new Promise((res,rej)=>{
+      const im=new Image(); im.crossOrigin="anonymous"; im.onload=()=>res(im); im.onerror=rej; im.src=u; })));
+    imgs.forEach((im,k)=>{
+      const x = PAD + k*(CW+GAP);
+      g.drawImage(im, x, PAD, CW, CH);
+      g.fillStyle="#8a93a8"; g.font="28px system-ui,sans-serif"; g.textAlign="center";
+      g.fillText((k?p.bn:p.an)+" · "+(k?p.by:p.ay), x+CW/2, PAD+CH+52);
+    });
+    g.fillStyle="#f4f5f8"; g.font="800 52px system-ui,sans-serif"; g.textAlign="center";
+    g.fillText(p.years+" years apart. Same illustrator.", W/2, PAD+CH+CAP+40);
+    g.fillStyle="#36d399"; g.font="800 38px system-ui,sans-serif"; g.textAlign="left";
+    g.fillText("Catch'em", PAD, H-34);
+    g.fillStyle="#5c637a"; g.font="24px ui-monospace,monospace"; g.textAlign="right";
+    g.fillText(p.artist, W-PAD, H-34);
+    const a=document.createElement("a");
+    a.href=cv.toDataURL("image/png");
+    a.download="catchem-"+p.artist.replace(/[^a-z0-9]+/gi,"-").toLowerCase()+".png";
+    a.click();
+    msg.textContent="downloaded";
+  }catch(e){ msg.textContent="the image host blocked the copy — right-click each card and save instead"; }
+}
+</script>

@@ -89,6 +89,11 @@ if (editor && index) {
   throw new Error("build.html present but card-index.json missing — refusing to ship an editor that cannot load its catalogue");
 }
 if (creators) await writeFile(join(OUT, "creators.html"), publicize(creators));
+// The FAQ was orphaned — real reader-facing content (the index, berries,
+// provably-fair draws) written by no generator and reachable from nowhere. It
+// has an owner now (scripts/build-faq.mjs from data/faq.json), so it can ship.
+const faq = await fetchOr(`${RAW}/faq.html`);
+if (faq) await writeFile(join(OUT, "faq.html"), publicize(faq));
 
 // 6 · composites, served from our own domain so downloads need no CORS
 let imgs = 0;

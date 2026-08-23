@@ -1,0 +1,489 @@
+<!doctype html><meta charset="utf-8"><title>Catch'em Creators — build a post</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Sora:wght@300;400;600&family=JetBrains+Mono:wght@400;500&display=swap');
+:root{
+  --ink:#0a0c12; --panel:#11141c; --raise:#171b25; --line:#20252f;
+  --text:#e8ebf2; --soft:#8a93a6; --faint:#5a6273;
+  --live:#36d399; --warn:#d9a441;
+  --display:'Syne',system-ui,sans-serif; --body:'Sora',system-ui,sans-serif; --mono:'JetBrains Mono',ui-monospace,monospace;
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+*{box-sizing:border-box}
+html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body{margin:0;background:var(--ink);color:var(--text);font:300 16px/1.6 var(--body);padding:0 0 120px}
+.wrap{max-width:1000px;margin:0 auto;padding:0 24px}
+
+/* Masthead — type does the work, no hero graphic, no gradient. */
+.top{padding:56px 0 40px;border-bottom:1px solid var(--line);margin-bottom:40px}
+h1{font:800 clamp(34px,6vw,52px)/1 var(--display);letter-spacing:-.028em;margin:0 0 12px}
+h1 em{font-style:normal;color:var(--live)}
+.lede{color:var(--soft);font-size:17px;max-width:46ch;margin:0}
+
+/* Steps — a real sequence, so numbering earns its place. */
+.steps{display:grid;grid-template-columns:1.2fr .7fr 1fr 1.3fr;gap:22px;margin-bottom:44px}
+.refuse{background:#1a1410;border:1px solid #3d2f1a;border-radius:12px;padding:14px 17px;margin-bottom:18px;color:#d9a441;font-size:14px;line-height:1.55}
+.step{min-width:0}
+.step .n{font:500 11px/1 var(--mono);color:var(--faint);letter-spacing:.14em;display:block;margin-bottom:10px}
+.step .t{font:600 14.5px/1.3 var(--body);margin-bottom:12px;display:block}
+select,input{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:9px;
+  color:var(--text);padding:13px 14px;font:400 14.5px var(--body);transition:border-color .18s var(--ease)}
+select:focus,input:focus{outline:none;border-color:var(--live)}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{background:var(--panel);border:1px solid var(--line);color:var(--soft);border-radius:9px;
+  padding:10px 14px;font:400 13.5px var(--body);cursor:pointer;transition:all .18s var(--ease)}
+.chip:hover{border-color:var(--faint);color:var(--text)}
+.chip.on{border-color:var(--live);color:var(--live);background:rgba(54,211,153,.07)}
+.chip[data-n]{font-family:var(--mono);font-weight:500;min-width:44px;text-align:center}
+
+/* Ideas — a filmstrip, not a list. */
+.ideas{display:grid;gap:9px;margin-bottom:40px}
+.idea{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:17px 20px;
+  cursor:pointer;transition:all .2s var(--ease)}
+.idea:hover{border-color:var(--live);transform:translateY(-1px)}
+.idea b{display:block;font:600 16.5px/1.35 var(--body);margin-bottom:4px}
+.idea i{font-style:normal;color:var(--faint);font:400 12.5px var(--mono);display:block}
+.idea .hook{color:var(--soft);font-size:14px;margin-top:9px}
+
+/* THE SIGNATURE: the binder page. Empty pockets show what still fits. */
+.page-label{font:500 11px/1 var(--mono);color:var(--faint);letter-spacing:.14em;margin-bottom:14px}
+.binder{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;
+  display:grid;gap:12px;justify-content:center;margin-bottom:16px}
+.pocket{aspect-ratio:745/1040;border-radius:9px;background:var(--raise);
+  border:1px dashed var(--line);position:relative;overflow:hidden;
+  animation:settle .34s var(--ease) both}
+.pocket.filled{border-style:solid;border-color:transparent;background:transparent}
+.pocket img{width:100%;height:100%;object-fit:contain;display:block}
+.pocket .x{position:absolute;top:5px;right:5px;width:22px;height:22px;border-radius:50%;border:0;
+  background:rgba(10,12,18,.82);color:#fff;font-size:14px;line-height:1;cursor:pointer;opacity:0;
+  transition:opacity .16s var(--ease)}
+.pocket:hover .x{opacity:1}
+@keyframes settle{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.pocket{animation:none}.idea:hover{transform:none}}
+
+.status{font:400 13px var(--mono);color:var(--faint);margin-bottom:10px;min-height:18px}
+.tally{display:flex;gap:22px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);
+  border-radius:13px;padding:14px 18px;margin-bottom:20px}
+.tally div{min-width:0}
+.tally .k{font:500 10.5px var(--mono);color:var(--faint);letter-spacing:.13em;display:block;margin-bottom:3px}
+.tally .v{font:500 19px var(--mono);color:var(--text)}
+.tally .v.have{color:var(--live)}
+.pocket .own{position:absolute;bottom:5px;left:5px;border:0;border-radius:6px;padding:3px 7px;
+  font:500 9.5px var(--mono);cursor:pointer;background:rgba(10,12,18,.86);color:var(--faint);opacity:0;
+  transition:opacity .16s var(--ease)}
+.pocket:hover .own{opacity:1}
+.pocket .own.yes{opacity:1;background:var(--live);color:var(--ink)}
+.status.bad{color:var(--warn)}
+.acts{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+button.pri{background:var(--live);color:var(--ink);border:0;border-radius:13px;padding:14px 26px;
+  font:600 15px var(--body);cursor:pointer;transition:opacity .18s var(--ease)}
+button.pri:hover{opacity:.9}
+button.sec{background:transparent;color:var(--soft);border:1px solid var(--line);border-radius:13px;
+  padding:14px 20px;font:400 14.5px var(--body);cursor:pointer;transition:all .18s var(--ease)}
+button.sec:hover{border-color:var(--faint);color:var(--text)}
+button:disabled{opacity:.32;cursor:not-allowed}
+canvas{max-width:100%;border-radius:13px;margin-top:24px;display:none;border:1px solid var(--line)}
+
+/* Search — the escape hatch, deliberately quiet. */
+details{margin-bottom:36px;border-top:1px solid var(--line);padding-top:18px}
+summary{color:var(--faint);font:400 13.5px var(--body);cursor:pointer;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary:before{content:"→ ";color:var(--faint)}
+.controls{display:grid;grid-template-columns:2fr 1fr .8fr;gap:9px;margin:16px 0 12px}
+.results{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:9px;
+  max-height:290px;overflow-y:auto;padding:3px}
+.hit{cursor:pointer;text-align:center;border-radius:9px;padding:6px;transition:background .16s var(--ease)}
+.hit:hover{background:var(--raise)}
+.hit img{width:100%;aspect-ratio:745/1040;object-fit:contain;border-radius:9px;background:var(--raise)}
+.hit b{display:block;font:600 11px/1.3 var(--body);margin-top:6px}
+.hit i{display:block;font-style:normal;font:400 9.5px var(--mono);color:var(--faint);margin-top:2px}
+.hit .nocred{color:var(--warn)}
+.empty{color:var(--faint);font-size:14px;grid-column:1/-1;padding:22px 0;text-align:center}
+.foot{color:var(--faint);font-size:13px;margin-top:46px;border-top:1px solid var(--line);padding-top:20px;line-height:1.7}
+:focus-visible{outline:2px solid var(--live);outline-offset:2px}
+@media(max-width:760px){.steps{grid-template-columns:1fr;gap:22px}.controls{grid-template-columns:1fr}
+  .acts button{width:100%}}
+</style>
+<div class="wrap">
+<div class="top">
+  <h1>Build a page<em>.</em></h1>
+  <p class="lede">Pick a direction and we'll find combinations worth posting. Every image credits the illustrator.
+     &nbsp;·&nbsp; <a href="/creators" style="color:var(--live)">Or start from one we made &rsaquo;</a></p>
+</div>
+
+<div class="steps">
+  <div class="step"><span class="n">01 / SET</span><span class="t">Narrow it down, or don't</span>
+    <select id="fset"><option value="">Every set</option><option>151</option><option>Aquapolis</option><option>Ascended Heroes</option><option>Astral Radiance</option><option>Astral Radiance Trainer Gallery</option><option>BREAKpoint</option><option>BREAKthrough</option><option>BW Black Star Promos</option><option>Base</option><option>Base Set 2</option><option>Battle Styles</option><option>Best of Game</option><option>Black Bolt</option><option>Boundaries Crossed</option><option>Brilliant Stars</option><option>Brilliant Stars Trainer Gallery</option><option>Burning Shadows</option><option>Call of Legends</option><option>Celebrations</option><option>Celestial Storm</option><option>Chaos Rising</option><option>Chilling Reign</option><option>Cosmic Eclipse</option><option>Crimson Invasion</option><option>Crown Zenith</option><option>Crown Zenith Galarian Gallery</option><option>DP Black Star Promos</option><option>Dark Explorers</option><option>Darkness Ablaze</option><option>Delta Species</option><option>Deoxys</option><option>Destined Rivals</option><option>Diamond &amp; Pearl</option><option>Dragon Majesty</option><option>Dragon Vault</option><option>Dragons Exalted</option><option>EX Trainer Kit Latias</option><option>EX Trainer Kit Latios</option><option>Evolutions</option><option>Evolving Skies</option><option>Expedition Base Set</option><option>FireRed &amp; LeafGreen</option><option>Flashfire</option><option>Forbidden Light</option><option>Fossil</option><option>Generations</option><option>Great Encounters</option><option>Guardians Rising</option><option>Gym Challenge</option><option>Gym Heroes</option><option>HS—Undaunted</option><option>HS—Unleashed</option><option>HeartGold &amp; SoulSilver</option><option>Hidden Fates</option><option>Hidden Fates Shiny Vault</option><option>Holon Phantoms</option><option>Journey Together</option><option>Jungle</option><option>Legends Awakened</option><option>Lost Origin</option><option>Lost Origin Trainer Gallery</option><option>Lost Thunder</option><option>McDonald's Collection 2012</option><option>McDonald's Collection 2014</option><option>McDonald's Collection 2015</option><option>McDonald's Collection 2016</option><option>McDonald's Collection 2018</option><option>McDonald's Collection 2019</option><option>McDonald's Collection 2021</option><option>Mega Evolution</option><option>Neo Destiny</option><option>Neo Genesis</option><option>Neo Revelation</option><option>Next Destinies</option><option>Noble Victories</option><option>Obsidian Flames</option><option>POP Series 1</option><option>POP Series 3</option><option>POP Series 4</option><option>POP Series 5</option><option>POP Series 6</option><option>POP Series 7</option><option>POP Series 8</option><option>POP Series 9</option><option>Paldea Evolved</option><option>Paldean Fates</option><option>Paradox Rift</option><option>Perfect Order</option><option>Phantasmal Flames</option><option>Phantom Forces</option><option>Plasma Blast</option><option>Plasma Storm</option><option>Pokémon Futsal Collection</option><option>Pokémon GO</option><option>Power Keepers</option><option>Primal Clash</option><option>Prismatic Evolutions</option><option>Rebel Clash</option><option>Rising Rivals</option><option>Ruby &amp; Sapphire</option><option>SM Black Star Promos</option><option>SWSH Black Star Promos</option><option>Sandstorm</option><option>Scarlet &amp; Violet</option><option>Scarlet &amp; Violet Energies</option><option>Secret Wonders</option><option>Shining Fates Shiny Vault</option><option>Shining Legends</option><option>Shrouded Fable</option><option>Silver Tempest</option><option>Silver Tempest Trainer Gallery</option><option>Steam Siege</option><option>Stellar Crown</option><option>Stormfront</option><option>Sun &amp; Moon</option><option>Supreme Victors</option><option>Surging Sparks</option><option>Sword &amp; Shield</option><option>Team Rocket</option><option>Team Up</option><option>Temporal Forces</option><option>Twilight Masquerade</option><option>Ultra Prism</option><option>Unbroken Bonds</option><option>Unified Minds</option><option>Unseen Forces</option><option>Vivid Voltage</option><option>White Flare</option><option>Wizards Black Star Promos</option><option>XY</option></select></div>
+  <div class="step"><span class="n">02 / COUNT</span><span class="t">How many cards</span>
+    <div class="chips" id="fcount"><button class="chip" data-n="1">1</button><button class="chip" data-n="2">2</button><button class="chip" data-n="3">3</button><button class="chip" data-n="4">4</button><button class="chip" data-n="6">6</button><button class="chip" data-n="8">8</button><button class="chip" data-n="9">9</button></div></div>
+  <div class="step"><span class="n">03 / WHY</span><span class="t">What is this for</span>
+    <div class="chips" id="fintent">
+      <button class="chip on" data-i="post">A post</button>
+      <button class="chip" data-i="want">Want list</button>
+      <button class="chip" data-i="trade">Trade list</button>
+      <button class="chip" data-i="sell">Selling</button>
+    </div></div>
+  <div class="step"><span class="n">04 / ANGLE</span><span class="t">What kind of post</span>
+    <div class="chips" id="ftheme"></div></div>
+</div>
+
+<div id="refuse" class="refuse" hidden></div>
+<div id="ideas" class="ideas"></div>
+
+<details><summary>Search all 16,468 cards instead</summary>
+<div class="controls">
+  <input id="q" placeholder="Pokémon, illustrator, or set" autocomplete="off">
+  <select id="rar"><option value="">Any rarity</option>
+    <option>Special Illustration Rare</option><option>Illustration Rare</option>
+    <option>Rare Holo</option><option>Rare Secret</option><option>Rare Ultra</option></select>
+  <input id="yr" placeholder="Year" inputmode="numeric">
+</div>
+<div class="results" id="res"></div>
+</details>
+
+<div class="page-label" id="plabel">YOUR PAGE</div>
+<div class="binder" id="tray"></div>
+<div class="status" id="st"></div>
+<div class="tally" id="tally" hidden></div>
+<input id="label" placeholder="Your line — or leave it blank and let the cards talk" style="margin-bottom:18px">
+
+<div class="acts">
+  <button class="pri" id="make" disabled>Make the image</button>
+  <button class="sec" id="copy" hidden>Copy</button>
+  <button class="sec" id="share" hidden>Share</button>
+  <button class="sec" id="dl" hidden>Download</button>
+</div>
+<canvas id="cv"></canvas>
+
+<div class="foot">Every image carries the Catch'em mark and the illustrator's name — the credit isn't ours to remove.
+Cards marked in amber have no illustrator recorded in the public dataset. That's a backfill gap on recent sets,
+not a Pokémon decision, and you can still use them.</div>
+</div>
+<script>
+const THEMES = [{"id":"food","name":"Pokémon that are food","kind":"named list","hook":"Which one would you actually eat?","why":"Nobody expects a themed page of edible Pokémon and everybody has an opinion about Vanilluxe.","members":["Vanillite","Vanilluxe","Alcremie","Applin","Appletun","Slurpuff","Swirlix","Cherubi","Combee","Tropius","Milcery","Fidough","Dachsbun","Sinistea","Polteageist","Bounsweet","Steenee","Tsareena"],"bestAt":[4,6,9]},{"id":"babies","name":"The baby Pokémon","kind":"named list","hook":"Which page is going in the front of the binder?","why":"A real category with a real boundary — these are the pre-evolutions introduced from Gen II onward, not a mood.","members":["Pichu","Cleffa","Igglybuff","Togepi","Tyrogue","Smoochum","Elekid","Magby","Azurill","Wynaut","Budew","Chingling","Bonsly","Happiny","Munchlax","Riolu","Mantyke"],"bestAt":[6,9]},{"id":"ghosts","name":"Ghost-type nightmares","kind":"named list","hook":"Which one actually scared you as a kid?","why":"Ghost art is where illustrators are given the most room, and it shows.","members":["Gengar","Mimikyu","Dusknoir","Chandelure","Drifloon","Banette","Spiritomb","Froslass","Gholdengo"],"bestAt":[3,6,9]},{"id":"sleeping","name":"Pokémon caught napping","kind":"named list","hook":"Late night check-in. Who's still awake?","why":"Proved: the cropped Charmander post using this register did 791 views against a data post's 154, same account, same week.","members":["Snorlax","Komala","Jigglypuff","Drowzee","Hypno","Musharna","Munna"],"bestAt":[1,3,4]},{"id":"artist-career","name":"One artist, across the years","kind":"derived","basis":"artist field + earliest and latest hero card","hook":"{years} years apart. Same illustrator.","why":"The shape that landed first — Base Set Charizard beside the 151 Blastoise ex.","bestAt":[2,4]},{"id":"many-hands","name":"One Pokémon, many illustrators","kind":"derived","basis":"name + distinct artist values","hook":"{n} artists. One {mon}. Which is the definitive one?","why":"The differences argue for themselves and the post needs no words.","bestAt":[4,8]},{"id":"generations","name":"The same trio, across eras","kind":"derived","basis":"a named trio + releaseDate + rarity, three complete sets","hook":"Which row wins?","why":"Three eras stacked as rows. It asks rather than tells, which is what gets a reply instead of a scroll.","bestAt":[9]},{"id":"historic","name":"Cards with a story","kind":"derived","basis":"a sourced fact from data/knowledge.json plus the card it names","hook":"Most people have no idea this happened.","why":"Kadabra vanished from the card game for twenty-one years because a man who bends spoons sued. Every claim carries a source and a falsifier.","bestAt":[1,2]},{"id":"set-showcase","name":"The best of one set","kind":"derived","basis":"setId + rarity","hook":"Six from {set}. Which page are you filling first?","why":"Works for anybody currently opening that set, which is most people most of the time.","bestAt":[4,6,9]},{"id":"first-and-last","name":"An illustrator's debut","kind":"derived","basis":"earliest releaseDate for that artist","hook":"Everybody starts somewhere.","why":"A debut is a date in the data, not a judgment — and the contrast with their best-known work does the rest.","bestAt":[2]},{"id":"battle","name":"Card battle","kind":"derived","basis":"same Pokemon, comparable value, different illustrator or era","hook":"{mon}. {setA} or {setB}? No wrong answer, but you have one.","why":"A battle only works if it is CLOSE. A $2,000 card against a $12 one is not a debate, it is a price check with a question mark on it. Candidates are matched within 45% on value so nobody can settle it by pointing at a number - which forces an actual opinion, and an opinion is a reply.","bestAt":[2]},{"id":"controversy","name":"What actually happened","kind":"derived","basis":"a sourced fact from data/knowledge.json with a falsifier attached","hook":"Most people have no idea this happened.","why":"Controversy is the one topic where being wrong costs the most, so nothing here is remembered - it is cited or it is not published. Being wrong about a controversy is how you become one.","bestAt":[1,2]},{"id":"pseudo-legendary","name":"The pseudo-legendaries","hook":"Which one did you actually raise?","why":"600 base stat total, three-stage line, always a 1,250,000 EXP grind. Every player has one they put the hours into.","members":["Dragonite","Tyranitar","Salamence","Metagross","Garchomp","Hydreigon","Goodra","Kommo-o","Dragapult","Baxcalibur"],"bestAt":[3,4,6,9],"kind":"named list","verified":"10 of 10 present in the catalogue"},{"id":"mythicals","name":"The mythicals","hook":"How many of these did you actually get legitimately?","why":"Event-only distribution means most people never had them in-game. The cards are how a lot of players first saw them.","members":["Mew","Celebi","Jirachi","Deoxys","Manaphy","Darkrai","Shaymin","Arceus","Victini","Keldeo","Meloetta","Genesect","Diancie","Hoopa","Volcanion","Magearna","Marshadow","Zeraora","Melmetal","Zarude"],"bestAt":[4,6,8,9],"kind":"named list","verified":"20 of 20 present in the catalogue"},{"id":"fossils","name":"Revived from fossils","hook":"Which fossil did you pick, and do you regret it?","why":"A forced choice in every game that has them, and people remember which they took twenty years later.","members":["Omanyte","Omastar","Kabuto","Kabutops","Aerodactyl","Lileep","Cradily","Anorith","Armaldo","Cranidos","Rampardos","Shieldon","Bastiodon","Tirtouga","Carracosta","Archen","Archeops","Tyrunt","Tyrantrum","Amaura","Aurorus"],"bestAt":[4,6,8,9],"kind":"named list","verified":"21 of 21 present in the catalogue"},{"id":"cats","name":"Cat Pokémon","hook":"Which one is going in the binder?","why":"Cat art gets more personality than almost any other category, and everybody has a favourite for reasons they cannot defend.","members":["Meowth","Persian","Espeon","Litten","Torracat","Incineroar","Skitty","Delcatty","Purrloin","Liepard","Litleo","Pyroar","Sprigatito","Floragato","Meowscarada"],"bestAt":[4,6,9],"kind":"named list","verified":"15 of 15 present in the catalogue"},{"id":"dogs","name":"Dog Pokémon","hook":"Cats or dogs. Pick a side.","why":"Pairs directly against the cat page, which is the argument.","members":["Growlithe","Arcanine","Houndour","Houndoom","Poochyena","Mightyena","Electrike","Manectric","Lillipup","Herdier","Stoutland","Rockruff","Lycanroc","Fidough","Dachsbun"],"bestAt":[4,6,9],"kind":"named list","verified":"15 of 15 present in the catalogue"},{"id":"birds","name":"The regional birds","hook":"Every game gives you one. Which was yours?","why":"Every generation has an early-route bird nobody thinks about until they see them lined up.","members":["Pidgey","Pidgeot","Spearow","Fearow","Hoothoot","Noctowl","Taillow","Swellow","Starly","Staraptor","Pidove","Unfezant","Fletchling","Talonflame","Rookidee","Corviknight"],"bestAt":[4,6,8,9],"kind":"named list","verified":"16 of 16 present in the catalogue"},{"id":"ice","name":"Ice types","hook":"Which one belongs on a winter page?","why":"Ice art leans on light and texture more than any other type, and it reads beautifully in a grid.","members":["Articuno","Lapras","Glaceon","Froslass","Weavile","Mamoswine","Cryogonal","Beartic","Vanilluxe","Baxcalibur","Alolan"],"bestAt":[3,4,6,9],"kind":"named list","verified":"11 of 11 present in the catalogue"},{"id":"starters","name":"The starters","hook":"First pick, every time. Which one?","why":"The single most universal Pokémon memory there is. Everybody chose.","members":["Bulbasaur","Charmander","Squirtle","Chikorita","Cyndaquil","Totodile","Treecko","Torchic","Mudkip","Turtwig","Chimchar","Piplup","Snivy","Tepig","Oshawott","Chespin","Fennekin","Froakie","Rowlet","Litten","Popplio","Grookey","Scorbunny","Sobble","Sprigatito","Fuecoco","Quaxly"],"bestAt":[3,6,9],"kind":"named list","verified":"27 of 27 present in the catalogue"},{"id":"dragons","name":"Dragon types","hook":"Which dragon actually looks the part?","why":"The type people chase hardest, and the art usually knows it.","members":["Dratini","Dragonair","Dragonite","Kingdra","Vibrava","Flygon","Altaria","Salamence","Latias","Latios","Rayquaza","Garchomp","Hydreigon","Haxorus","Goodra","Noivern","Dragapult","Duraludon","Regidrago","Baxcalibur"],"bestAt":[4,6,8,9],"kind":"named list","verified":"20 of 20 present in the catalogue"},{"id":"beach","name":"Sun and water","hook":"Which page are you taking to the beach?","why":"A mood rather than a type, and the grid does the work.","members":["Lapras","Vaporeon","Blastoise","Wailord","Sharpedo","Corsola","Krabby","Kingler","Staryu","Starmie","Psyduck","Slowpoke","Squirtle","Wartortle","Dewgong","Seel"],"bestAt":[4,6,9],"kind":"named list","verified":"16 of 16 present in the catalogue"},{"id":"megas","name":"Mega Evolutions","hook":"Which mega deserved to come back?","why":"Gone for years, then back in 2025. Everybody has one they missed.","members":["Mega"],"matchMode":"startsWith","bestAt":[4,6,8,9],"kind":"named list","verified":"1 of 1 present in the catalogue"}];
+const SETS = ["151","Aquapolis","Ascended Heroes","Astral Radiance","Astral Radiance Trainer Gallery","BREAKpoint","BREAKthrough","BW Black Star Promos","Base","Base Set 2","Battle Styles","Best of Game","Black Bolt","Boundaries Crossed","Brilliant Stars","Brilliant Stars Trainer Gallery","Burning Shadows","Call of Legends","Celebrations","Celestial Storm","Chaos Rising","Chilling Reign","Cosmic Eclipse","Crimson Invasion","Crown Zenith","Crown Zenith Galarian Gallery","DP Black Star Promos","Dark Explorers","Darkness Ablaze","Delta Species","Deoxys","Destined Rivals","Diamond & Pearl","Dragon Majesty","Dragon Vault","Dragons Exalted","EX Trainer Kit Latias","EX Trainer Kit Latios","Evolutions","Evolving Skies","Expedition Base Set","FireRed & LeafGreen","Flashfire","Forbidden Light","Fossil","Generations","Great Encounters","Guardians Rising","Gym Challenge","Gym Heroes","HS—Undaunted","HS—Unleashed","HeartGold & SoulSilver","Hidden Fates","Hidden Fates Shiny Vault","Holon Phantoms","Journey Together","Jungle","Legends Awakened","Lost Origin","Lost Origin Trainer Gallery","Lost Thunder","McDonald's Collection 2012","McDonald's Collection 2014","McDonald's Collection 2015","McDonald's Collection 2016","McDonald's Collection 2018","McDonald's Collection 2019","McDonald's Collection 2021","Mega Evolution","Neo Destiny","Neo Genesis","Neo Revelation","Next Destinies","Noble Victories","Obsidian Flames","POP Series 1","POP Series 3","POP Series 4","POP Series 5","POP Series 6","POP Series 7","POP Series 8","POP Series 9","Paldea Evolved","Paldean Fates","Paradox Rift","Perfect Order","Phantasmal Flames","Phantom Forces","Plasma Blast","Plasma Storm","Pokémon Futsal Collection","Pokémon GO","Power Keepers","Primal Clash","Prismatic Evolutions","Rebel Clash","Rising Rivals","Ruby & Sapphire","SM Black Star Promos","SWSH Black Star Promos","Sandstorm","Scarlet & Violet","Scarlet & Violet Energies","Secret Wonders","Shining Fates Shiny Vault","Shining Legends","Shrouded Fable","Silver Tempest","Silver Tempest Trainer Gallery","Steam Siege","Stellar Crown","Stormfront","Sun & Moon","Supreme Victors","Surging Sparks","Sword & Shield","Team Rocket","Team Up","Temporal Forces","Twilight Masquerade","Ultra Prism","Unbroken Bonds","Unified Minds","Unseen Forces","Vivid Voltage","White Flare","Wizards Black Star Promos","XY"];
+const LAYOUTS = {"1":{"cols":1,"cardW":520,"name":"the single"},"2":{"cols":2,"cardW":430,"name":"the pairing"},"3":{"cols":3,"cardW":330,"name":"the trio"},"4":{"cols":4,"cardW":300,"name":"the row"},"6":{"cols":3,"cardW":300,"name":"the half page"},"8":{"cols":4,"cardW":250,"name":"the spread"},"9":{"cols":3,"cardW":270,"name":"the binder page"}};
+const SUPPORTED = Object.keys(LAYOUTS).map(Number);
+let INDEX = [], tray = [], blob = null;
+
+const imgUrl = (id) => "https://images.pokemontcg.io/" + id.slice(0, id.lastIndexOf("-")) + "/" + id.slice(id.lastIndexOf("-") + 1) + "_hires.png";
+
+fetch("card-index.json", { signal: AbortSignal.timeout(20000) }).then(r => r.json()).then(d => { INDEX = d; search(); })
+  .catch(() => { document.getElementById("res").innerHTML = "<div class='empty'>could not load the card index</div>"; });
+
+const el = id => document.getElementById(id);
+function search(){
+  const q = el("q").value.trim().toLowerCase(), rar = el("rar").value, yr = el("yr").value.trim();
+  if (!q && !rar && !yr) { el("res").innerHTML = "<div class='empty'>start typing to search</div>"; return; }
+  const hits = INDEX.filter(c =>
+    (!q || (c.n + " " + (c.a || "") + " " + c.s).toLowerCase().includes(q)) &&
+    (!rar || c.r === rar) && (!yr || c.y === yr)).slice(0, 60);
+  el("res").innerHTML = hits.length ? hits.map(c =>
+    `<div class="hit" onclick="add('${c.i}')"><img loading="lazy" src="${imgUrl(c.i)}" alt="">
+      <b>${c.n}</b><i>${c.s} · ${c.y}</i><i class="${c.a ? "" : "nocred"}">${c.a || "no credit recorded"}</i></div>`).join("")
+    : "<div class='empty'>nothing matched</div>";
+}
+["q","rar","yr"].forEach(id => el(id).addEventListener("input", search));
+
+function add(id){
+  if (tray.length >= 9) { setStatus("Nine is the most a frame holds.", true); return; }
+  const c = INDEX.find(x => x.i === id); if (!c) return;
+  tray.push(c); blob = null; render();
+}
+function remove(k){ tray.splice(k,1); blob = null; render(); }
+
+function setStatus(t, bad){ const s = el("st"); s.textContent = t; s.className = "status" + (bad ? " bad" : ""); }
+
+// OWN / WANT is browser-only, on purpose. The moment we store what somebody owns
+// we are holding collection data, which trips user-data-handling in the
+// compliance register. In the browser it is a planning tool; on a server it is a
+// liability we have not prepared for.
+let owned = {};
+try { owned = JSON.parse(localStorage.getItem("catchem-owned") || "{}"); } catch {}
+function toggleOwn(id){
+  owned[id] = !owned[id];
+  try { localStorage.setItem("catchem-owned", JSON.stringify(owned)); } catch {}
+  render();
+}
+
+function renderTally(){
+  const box = el("tally");
+  if (!tray.length) { box.hidden = true; return; }
+  box.hidden = false;
+  const priced = tray.filter(c => c.p != null);
+  const total = priced.reduce((s, c) => s + c.p, 0);
+  const have = tray.filter(c => owned[c.i]);
+  const haveVal = have.filter(c => c.p != null).reduce((s, c) => s + c.p, 0);
+  const missing = tray.length - priced.length;
+  const money = n => "$" + Math.round(n).toLocaleString();
+  // A total built from partial data must say so. Nine cards where two have no
+  // price is not a page total, it is seven cards plus a guess.
+  var html = "";
+  // SINGLE-QUOTED ATTRIBUTES, DELIBERATELY. These lines are emitted INTO an
+  // inline script, and the generator writes them from a template literal, where
+  // a backslash-quote is an escape that resolves to a bare quote. So the
+  // escaped class attribute here arrived in the output as a plain quoted
+  // attribute, sitting inside a double-quoted JS string — which terminated that
+  // string and left a stray identifier behind. The whole editor script failed
+  // to parse: INDEX, add() and search() were all undefined and the page did
+  // nothing at all. Single quotes need no escaping and cannot repeat it.
+  // (This comment avoids backticks for the same reason: it lives inside the
+  // template literal it describes.)
+  html += "<div><span class='k'>PAGE COST</span><span class='v'>" + money(total);
+  if (missing) html += " <span style='font-size:12px;color:var(--warn)'>+ " + missing + " unpriced</span>";
+  html += "</span></div>";
+  html += "<div><span class='k'>YOU HAVE</span><span class='v have'>" + have.length + " / " + tray.length + "</span></div>";
+  html += "<div><span class='k'>STILL TO FIND</span><span class='v'>" + money(total - haveVal) + "</span></div>";
+  if (priced.length) html += "<div><span class='k'>DEAREST</span><span class='v'>" + money(Math.max.apply(null, priced.map(c => c.p))) + "</span></div>";
+  box.innerHTML = html;
+}
+
+// INTENT drives the copy, the frame, and one refusal.
+let fIntent = "post";
+el("fintent").querySelectorAll(".chip").forEach(b => b.onclick = () => {
+  fIntent = b.dataset.i;
+  el("fintent").querySelectorAll(".chip").forEach(x => x.classList.toggle("on", x.dataset.i === fIntent));
+  render();
+});
+
+// SEALED stock imagery is standard - every sealed box looks identical and a
+// buyer is purchasing a SKU. SINGLES stock imagery is misrepresentation, because
+// the whole question on a single is condition and the buyer needs to see THAT
+// card. The refusal is the feature.
+function checkIntent(){
+  const box = el("refuse");
+  const singles = tray.filter(c => !/booster|elite trainer|bundle|collection|tin|box/i.test(c.n));
+  if (fIntent === "sell" && singles.length) {
+    box.hidden = false;
+    box.innerHTML = "<b>We will not make a sell image for singles.</b><br>" +
+      "The whole question on a single is condition, and a buyer needs to see the card you are actually sending. " +
+      "Stock art of a pristine copy is misrepresentation and marketplaces treat it that way. " +
+      "<br><br>Photograph the card and we will format your photo instead — or switch to <b>want</b>, <b>trade</b> or <b>a post</b>, where stock art is exactly right.";
+    return false;
+  }
+  box.hidden = true;
+  return true;
+}
+
+function render(){
+  const L = LAYOUTS[tray.length];
+  const box = el("tray");
+  // THE BINDER PAGE. Empty pockets are drawn for the rest of the chosen layout,
+  // so a creator sees how many more fit without being told - the constraint
+  // teaches itself, the way a nine-pocket page does in your hands.
+  const cols = L ? L.cols : Math.min(Math.max(tray.length, 3), 3);
+  const slots = L ? L.cols * Math.ceil(tray.length / L.cols) : Math.max(tray.length, 3);
+  box.style.gridTemplateColumns = `repeat(${cols}, minmax(0, ${cols > 3 ? 120 : 148}px))`;
+  let html = tray.map((c, k) =>
+    `<div class="pocket filled"><img src="${imgUrl(c.i)}" alt="${c.n}"><button class="x" onclick="remove(${k})" aria-label="Remove ${c.n}">×</button><button class="own ${owned[c.i] ? 'yes' : ''}" onclick="toggleOwn('${c.i}')">${owned[c.i] ? 'OWNED' : 'want'}</button></div>`).join("");
+  for (let i = tray.length; i < slots; i++) html += '<div class="pocket"></div>';
+  box.innerHTML = html || '<div class="pocket"></div><div class="pocket"></div><div class="pocket"></div>';
+  const allowed = checkIntent();
+  renderTally();
+  el("plabel").textContent = L ? ("YOUR PAGE — " + L.name.toUpperCase()) : "YOUR PAGE";
+
+  el("make").disabled = !L || !allowed;
+  el("cv").style.display = "none";
+  ["copy","share","dl"].forEach(i => el(i).hidden = true);
+  if (!tray.length) { setStatus("Pick an idea above, or search for a card."); return; }
+  if (L) {
+    const missing = tray.filter(c => !c.a).length;
+    setStatus(`${tray.length} cards · ${L.cols} across` + (missing ? ` · ${missing} without a recorded illustrator` : ""), false);
+  } else {
+    const below = SUPPORTED.filter(n => n < tray.length).pop(), above = SUPPORTED.find(n => n > tray.length);
+    setStatus(`${tray.length} cards has no frame. ${below ? "Remove " + (tray.length - below) : ""}${below && above ? " or add " + (above - tray.length) : ""}.`, true);
+  }
+}
+
+// THE FUNNEL. Three small questions, then real combinations - not a list of
+// themes but a list of POSTS, each already loadable into the tray. A creator
+// who arrives without an idea should leave with three.
+let fSet = "", fCount = 0, fTheme = null;
+
+function renderThemes(){
+  const box = el("ftheme");
+  const fits = THEMES.filter(t => !fCount || (t.bestAt || []).includes(fCount));
+  box.innerHTML = fits.map(t => `<button class="chip${fTheme===t.id?" on":""}" data-t="${t.id}">${t.name}</button>`).join("")
+    || "<span class='empty'>no theme suits that count — try another</span>";
+  box.querySelectorAll(".chip").forEach(b => b.onclick = () => { fTheme = b.dataset.t; renderThemes(); buildIdeas(); });
+}
+el("fcount").querySelectorAll(".chip").forEach(b => b.onclick = () => {
+  fCount = fCount === +b.dataset.n ? 0 : +b.dataset.n;
+  el("fcount").querySelectorAll(".chip").forEach(x => x.classList.toggle("on", +x.dataset.n === fCount));
+  if (fTheme && !THEMES.find(t => t.id === fTheme && (t.bestAt||[]).includes(fCount))) fTheme = null;
+  renderThemes(); buildIdeas();
+});
+el("fset").onchange = () => { fSet = el("fset").value; buildIdeas(); };
+
+const HERO_RX = /(Special Illustration|Illustration Rare|Rare Holo|Rare Secret|Rare Ultra|Rare Rainbow|Ultra Rare)/i;
+
+function buildIdeas(){
+  const box = el("ideas");
+  if (!fCount || !fTheme) { box.innerHTML = ""; return; }
+  const t = THEMES.find(x => x.id === fTheme);
+  const pool = INDEX.filter(c => (!fSet || c.s === fSet) && HERO_RX.test(c.r || ""));
+  const ideas = [];
+
+  if (t.kind === "named list") {
+    // A stored list, so the grouping is arguable rather than asserted.
+    const hits = pool.filter(c => t.members.some(m => c.n.startsWith(m)));
+    const byMon = {};
+    for (const c of hits) { const m = t.members.find(x => c.n.startsWith(x)); if (!byMon[m]) byMon[m] = c; }
+    const picked = Object.values(byMon).slice(0, fCount);
+    if (picked.length === fCount) ideas.push({ title: t.name, sub: picked.map(c=>c.n).join(" · "), hook: t.hook, cards: picked });
+  }
+  if (t.id === "many-hands") {
+    const byName = {};
+    for (const c of pool) (byName[c.n.split(" ")[0]] ||= []).push(c);
+    for (const [mon, list] of Object.entries(byName)) {
+      const seen = new Map();
+      for (const c of list) if (c.a && !seen.has(c.a)) seen.set(c.a, c);
+      if (seen.size >= fCount) ideas.push({ title: mon + " by " + fCount + " illustrators",
+        sub: [...seen.keys()].slice(0, fCount).join(" · "), hook: fCount + " artists. One " + mon + ". Which is definitive?",
+        cards: [...seen.values()].slice(0, fCount) });
+      if (ideas.length >= 6) break;
+    }
+  }
+  if (t.id === "artist-career" || t.id === "first-and-last") {
+    const byArtist = {};
+    for (const c of pool) if (c.a) (byArtist[c.a] ||= []).push(c);
+    for (const [artist, list] of Object.entries(byArtist)) {
+      if (list.length < fCount) continue;
+      const sorted = list.sort((a,b) => (a.y||"") < (b.y||"") ? -1 : 1);
+      const span = Number(sorted[sorted.length-1].y) - Number(sorted[0].y);
+      if (span < 8) continue;
+      const picked = fCount === 2 ? [sorted[0], sorted[sorted.length-1]]
+        : sorted.filter((_,i,arr) => i % Math.max(1, Math.floor(arr.length/fCount)) === 0).slice(0, fCount);
+      if (picked.length !== fCount) continue;
+      ideas.push({ title: artist, sub: picked.map(c => c.n + " " + c.y).join("  →  "),
+        hook: span + " years apart. Same illustrator.", cards: picked });
+      if (ideas.length >= 6) break;
+    }
+  }
+  if (t.id === "set-showcase" && fSet) {
+    const best = pool.slice(0, fCount);
+    if (best.length === fCount) ideas.push({ title: "The best of " + fSet, sub: best.map(c=>c.n).join(" · "),
+      hook: fCount + " from " + fSet + ". Which page are you filling first?", cards: best });
+  }
+
+  box.innerHTML = ideas.length ? ideas.slice(0,6).map((idea,k) =>
+    `<div class="idea" onclick="loadIdea(${k})"><b>${idea.title}</b><i>${idea.sub}</i><div class="hook">${idea.hook}</div></div>`).join("")
+    : "<div class='empty'>nothing fits that combination — try a different count or set</div>";
+  window.__ideas = ideas;
+}
+
+function loadIdea(k){
+  const idea = window.__ideas[k]; if (!idea) return;
+  tray = idea.cards.slice(); blob = null;
+  el("label").value = idea.hook;
+  render();
+  el("make").scrollIntoView({ behavior: "smooth", block: "center" });
+}
+renderThemes();
+
+el("make").onclick = async () => {
+  const L = LAYOUTS[tray.length]; if (!L) return;
+  setStatus("composing…");
+  const CW = 745, CH = 1040, GAP = 60, PAD = 90, CAP = tray.length <= 4 ? 70 : 0;
+  const LABEL = el("label").value.trim();
+  // Reserve height for the WRAPPED label, not one line of it. measureText needs
+  // a context we do not have yet, so estimate from character count at 52px bold
+  // (~28px per glyph across the usable width) and cap at the three lines the
+  // renderer will draw. Over-reserving costs blank pixels; under-reserving costs
+  // a caption printed through the footer.
+  const LABLINES = LABEL ? Math.min(3, Math.max(1, Math.ceil(LABEL.length / Math.floor((2535 - 160) / 28)))) : 0;
+  const LABH = LABEL ? 110 + (LABLINES - 1) * 62 : 0;
+  const ROWS = Math.ceil(tray.length / L.cols);
+  const W = PAD*2 + CW*L.cols + GAP*(L.cols-1);
+  const H = PAD + (CH+CAP)*ROWS + GAP*(ROWS-1) + LABH + (fIntent === "post" ? 110 : 190);
+  const cv = el("cv"); cv.width = W; cv.height = H;
+  const g = cv.getContext("2d");
+  g.fillStyle = "#070910"; g.fillRect(0,0,W,H);
+  try{
+    for (let i=0;i<tray.length;i++){
+      const u = imgUrl(tray[i].i);
+      const routes = [u, "https://images.weserv.nl/?url=" + encodeURIComponent(u.replace(/^https?:\/\//,"")) + "&w=745&output=png"];
+      let img = null;
+      for (const r of routes){
+        try{ img = await new Promise((res,rej)=>{ const im=new Image(); im.crossOrigin="anonymous";
+          im.onload=()=>res(im); im.onerror=()=>rej(); im.src=r; }); break; }catch{}
+      }
+      if (!img) throw new Error("could not load " + tray[i].n);
+      const x = PAD + (i % L.cols)*(CW+GAP), y = PAD + Math.floor(i/L.cols)*(CH+CAP+GAP);
+      g.drawImage(img, x, y, CW, CH);
+      if (CAP){ g.fillStyle="#8a93a8"; g.font="28px system-ui,sans-serif"; g.textAlign="center";
+        g.fillText(tray[i].n + " · " + tray[i].y, x+CW/2, y+CH+46); }
+    }
+    if (LABEL){ g.fillStyle="#f4f5f8"; g.font="800 52px system-ui,sans-serif"; g.textAlign="center";
+      // WRAP, DO NOT OVERFLOW. A 182-character label was drawn as one line and
+      // ran off BOTH edges — it started mid-word and ended mid-word, because
+      // fillText neither wraps nor clips, it just draws past the canvas. The
+      // label is the one field a creator controls, so it is the one most
+      // certain to be longer than anyone designing the layout expected.
+      // DOUBLE BACKSLASH. This string is written from a template literal, where
+      // \s is not a recognised escape and collapses to a bare s — so a regex
+      // written here as one backslash arrived in the browser as /s+/ and split
+      // the label on the LETTER s. Every s vanished: "absolutely" rendered as
+      // "ab olutely". Same root cause as the quote bug above, one line later.
+      var maxW = W - 160, words = LABEL.split(/\s+/), lines = [], cur = "";
+      for (var wi = 0; wi < words.length; wi++){
+        var trial = cur ? cur + " " + words[wi] : words[wi];
+        if (g.measureText(trial).width > maxW && cur){ lines.push(cur); cur = words[wi]; }
+        else cur = trial;
+      }
+      if (cur) lines.push(cur);
+      // Three lines is already a paragraph on a card; past that the label is
+      // doing the job the post's own text should do.
+      if (lines.length > 3){ lines = lines.slice(0,3); lines[2] = lines[2].replace(/\s+\S*$/, "") + "…"; }
+      for (var li = 0; li < lines.length; li++)
+        g.fillText(lines[li], W/2, H - 150 - (lines.length - 1 - li) * 62);
+    }
+    // WANT LIST FRAME. A post wants a clean image; a want list is a WORKING
+    // document. It gets held up at a table or pasted into a trade thread, so
+    // it needs the price under each card and a total at the bottom - the two
+    // things somebody deciding whether to help you actually needs.
+    if (fIntent === "want" || fIntent === "trade" || fIntent === "sell") {
+      const priced = tray.filter(c => c.p != null);
+      const total = priced.reduce((a, c) => a + c.p, 0);
+      g.fillStyle = "#8a93a8"; g.font = "26px system-ui,sans-serif"; g.textAlign = "center";
+      tray.forEach((c, i) => {
+        if (c.p == null) return;
+        const x = PAD + (i % L.cols) * (CW + GAP), y = PAD + Math.floor(i / L.cols) * (CH + CAP + GAP);
+        g.fillStyle = owned[c.i] ? "#36d399" : "#8a93a8";
+        g.fillText((owned[c.i] ? "HAVE  " : "") + "$" + Math.round(c.p).toLocaleString(), x + CW / 2, y + CH + (CAP ? 82 : 40));
+      });
+      const label = fIntent === "want" ? "Looking for" : fIntent === "trade" ? "Trade list" : "For sale";
+      g.fillStyle = "#f4f5f8"; g.font = "800 44px system-ui,sans-serif"; g.textAlign = "left";
+      g.fillText(label, PAD, H - 118);
+      g.font = "34px ui-monospace,monospace"; g.fillStyle = "#8a93a8"; g.textAlign = "right";
+      // A total built from partial data says so, here as everywhere.
+      const missing = tray.length - priced.length;
+      g.fillText("$" + Math.round(total).toLocaleString() + (missing ? "  +" + missing + " unpriced" : ""), W - PAD, H - 118);
+    }
+    // THE WATERMARK IS NOT OPTIONAL. Three points so cropping one corner does not
+    // remove it; faint, because a mark that ruins the image protects nothing.
+    g.save(); g.globalAlpha=0.16; g.fillStyle="#fff"; g.font="800 40px system-ui,sans-serif"; g.textAlign="center";
+    for (const [wx,wy] of [[W*0.27, PAD+CH*0.40],[W*0.73, PAD+CH*0.80]]){
+      g.save(); g.translate(wx,wy); g.rotate(-Math.PI/9); g.fillText("catchemtcg.com",0,0); g.restore(); }
+    g.restore();
+    g.fillStyle="#36d399"; g.font="800 40px system-ui,sans-serif"; g.textAlign="left";
+    g.fillText("Catch'em", PAD, H-40);
+    const artists = [...new Set(tray.map(c=>c.a).filter(Boolean))].slice(0,3).join(" · ");
+    g.fillStyle="#5c637a"; g.font="26px ui-monospace,monospace"; g.textAlign="right";
+    g.fillText(artists || "illustrator not recorded", W-PAD, H-40);
+
+    blob = await new Promise(r => cv.toBlob(r,"image/png"));
+    cv.style.display="block";
+    el("dl").hidden=false;
+    if (navigator.clipboard && window.ClipboardItem) el("copy").hidden=false;
+    if (navigator.canShare && navigator.canShare({files:[new File([""],"t.png",{type:"image/png"})]})) el("share").hidden=false;
+    setStatus("ready — " + W + "×" + H);
+  }catch(e){ setStatus("could not compose: " + (e.message||"unknown"), true); }
+};
+
+const fname = () => "catchem-" + (el("label").value.trim() || tray.map(c=>c.n).join("-") || "cards")
+  .replace(/[^a-z0-9]+/gi,"-").toLowerCase().slice(0,48) + ".png";
+el("dl").onclick = () => { const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=fname(); a.click(); };
+el("copy").onclick = async () => { try{ await navigator.clipboard.write([new ClipboardItem({"image/png":blob})]); setStatus("copied — paste into the post"); }catch(e){ setStatus("copy failed: "+e.message,true); } };
+el("share").onclick = async () => { try{ await navigator.share({files:[new File([blob],fname(),{type:"image/png"})]}); }catch(e){ if(e.name!=="AbortError") setStatus("share failed: "+e.message,true); } };
+</script>

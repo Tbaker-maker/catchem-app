@@ -42,7 +42,13 @@ await mkdir(join(OUT, "p"), { recursive: true });
 await mkdir(join(OUT, "sets"), { recursive: true });
 
 // 1 · landing
-await writeFile(join(OUT, "index.html"), await readFile(join(ROOT, "site-landing.html"), "utf-8"));
+// THE ROOT IS THE CLOSED-BETA LANDING. research/assets/index-landing.html is
+// the generated one and wins; site-landing.html stays as the fallback so a
+// RAW outage cannot leave the root blank. Refusing to ship SOMETHING at the
+// root would be worse than shipping the older page.
+const landing = await fetchOr(`${RAW}/index-landing.html`, join(ROOT, "site-landing.html"));
+if (!landing) throw new Error("no landing available — refusing to ship an empty root");
+await writeFile(join(OUT, "index.html"), publicize(landing));
 
 // 2 · methodology + corrections (freshest from the data repo; local mirror as fallback)
 const meth = await fetchOr(`${RAW}/methodology.html`, join(ROOT, "public/methodology.html"));

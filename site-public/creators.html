@@ -1,4 +1,4 @@
-<!doctype html><meta charset="utf-8"><title>Catch'em Creators</title>
+<!doctype html><meta charset="utf-8"><meta name="robots" content="noindex,nofollow,noarchive"><title>Catch'em Creators</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
 :root{--bg:#070910;--surf:#0f1219;--ink:#e9ecf3;--dim:#8b93a7;--green:#36d399;--line:rgba(255,255,255,.08)}
@@ -316,6 +316,10 @@ async function grab(i){
   const CW=745, CH=1040, GAP=60, PAD=90, CAP=130, LAB=110;
   const W = PAD*2 + CW*2 + GAP, H = PAD + CH + CAP + LAB + 90;
   const cv = document.createElement("canvas"); cv.width=W; cv.height=H;
+  // THUMBNAIL LEGIBILITY. Seen first as a ~400px feed preview and decided on
+  // there — text sized for the full canvas vanishes at that scale.
+  const thumbScale = 400 / W;
+  const px = (n) => Math.max(n, Math.round(n / thumbScale / 2.2));
   const g = cv.getContext("2d");
   g.fillStyle="#070910"; g.fillRect(0,0,W,H);
   try{

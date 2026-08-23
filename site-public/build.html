@@ -1,4 +1,4 @@
-<!doctype html><meta charset="utf-8"><title>Catch'em Creators — build a post</title>
+<!doctype html><meta charset="utf-8"><meta name="robots" content="noindex,nofollow,noarchive"><title>Catch'em Creators — build a post</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Sora:wght@300;400;600&family=JetBrains+Mono:wght@400;500&display=swap');
@@ -21,14 +21,14 @@ h1 em{font-style:normal;color:var(--live)}
 .lede{color:var(--soft);font-size:17px;max-width:46ch;margin:0}
 
 /* Steps — a real sequence, so numbering earns its place. */
-.steps{display:grid;grid-template-columns:1.2fr .7fr 1fr 1.3fr;gap:22px;margin-bottom:44px}
-.refuse{background:#1a1410;border:1px solid #3d2f1a;border-radius:12px;padding:14px 17px;margin-bottom:18px;color:#d9a441;font-size:14px;line-height:1.55}
+.steps{display:grid;grid-template-columns:1.1fr .6fr 1fr .9fr 1.2fr;gap:18px;margin-bottom:44px}
+.refuse{background:#1a1410;border:1px solid #3d2f1a;border-radius:13px;padding:14px 17px;margin-bottom:18px;color:#d9a441;font-size:14px;line-height:1.55}
 .step{min-width:0}
 .step .n{font:500 11px/1 var(--mono);color:var(--faint);letter-spacing:.14em;display:block;margin-bottom:10px}
 .step .t{font:600 14.5px/1.3 var(--body);margin-bottom:12px;display:block}
 select,input{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:9px;
   color:var(--text);padding:13px 14px;font:400 14.5px var(--body);transition:border-color .18s var(--ease)}
-select:focus,input:focus{outline:none;border-color:var(--live)}
+select:focus,input:focus{outline:none;border-color:var(--soft)}
 .chips{display:flex;flex-wrap:wrap;gap:7px}
 .chip{background:var(--panel);border:1px solid var(--line);color:var(--soft);border-radius:9px;
   padding:10px 14px;font:400 13.5px var(--body);cursor:pointer;transition:all .18s var(--ease)}
@@ -40,12 +40,25 @@ select:focus,input:focus{outline:none;border-color:var(--live)}
 .ideas{display:grid;gap:9px;margin-bottom:40px}
 .idea{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:17px 20px;
   cursor:pointer;transition:all .2s var(--ease)}
-.idea:hover{border-color:var(--live);transform:translateY(-1px)}
+.idea:hover{border-color:var(--faint);transform:translateY(-1px)}
 .idea b{display:block;font:600 16.5px/1.35 var(--body);margin-bottom:4px}
 .idea i{font-style:normal;color:var(--faint);font:400 12.5px var(--mono);display:block}
 .idea .hook{color:var(--soft);font-size:14px;margin-top:9px}
 
 /* THE SIGNATURE: the binder page. Empty pockets show what still fits. */
+/* SPEND THE ACCENT HERE. The designer flagged 16 uses across the page — an
+   accent used everywhere accents nothing. It now appears on the active state,
+   the primary action, and the streak day, because the streak is the one number
+   we actually want somebody to feel. */
+.streak{background:linear-gradient(180deg,rgba(54,211,153,.05),transparent),var(--panel);border:1px solid var(--line);border-radius:13px;
+  padding:15px 18px;margin-bottom:16px;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.streak .day{font:800 38px var(--display);color:var(--live);line-height:.95;letter-spacing:-.02em}
+.streak .desc{font:400 14px var(--body);color:var(--soft);flex:1;min-width:180px}
+.streak .desc b{color:var(--text);font-weight:600}
+.streak .left{font:500 11px var(--mono);color:var(--faint);letter-spacing:.1em}
+.streak button{background:transparent;border:1px solid var(--line);color:var(--soft);
+  border-radius:9px;padding:9px 14px;font:400 13px var(--body);cursor:pointer}
+.streak button.go{background:var(--live);color:var(--ink);border:0;font-weight:600}
 .page-label{font:500 11px/1 var(--mono);color:var(--faint);letter-spacing:.14em;margin-bottom:14px}
 .binder{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;
   display:grid;gap:12px;justify-content:center;margin-bottom:16px}
@@ -68,11 +81,11 @@ select:focus,input:focus{outline:none;border-color:var(--live)}
 .tally .k{font:500 10.5px var(--mono);color:var(--faint);letter-spacing:.13em;display:block;margin-bottom:3px}
 .tally .v{font:500 19px var(--mono);color:var(--text)}
 .tally .v.have{color:var(--live)}
-.pocket .own{position:absolute;bottom:5px;left:5px;border:0;border-radius:6px;padding:3px 7px;
+.pocket .own{position:absolute;bottom:5px;left:5px;border:0;border-radius:9px;padding:3px 7px;
   font:500 9.5px var(--mono);cursor:pointer;background:rgba(10,12,18,.86);color:var(--faint);opacity:0;
   transition:opacity .16s var(--ease)}
 .pocket:hover .own{opacity:1}
-.pocket .own.yes{opacity:1;background:var(--live);color:var(--ink)}
+.pocket .own.yes{opacity:1;background:var(--soft);color:var(--ink)}
 .status.bad{color:var(--warn)}
 .acts{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
 button.pri{background:var(--live);color:var(--ink);border:0;border-radius:13px;padding:14px 26px;
@@ -90,6 +103,12 @@ summary{color:var(--faint);font:400 13.5px var(--body);cursor:pointer;list-style
 summary::-webkit-details-marker{display:none}
 summary:before{content:"→ ";color:var(--faint)}
 .controls{display:grid;grid-template-columns:2fr 1fr .8fr;gap:9px;margin:16px 0 12px}
+.pager{display:flex;gap:10px;align-items:center;justify-content:center;margin-top:14px;
+  font:500 12.5px var(--mono);color:var(--faint)}
+.pager button{background:var(--panel);border:1px solid var(--line);color:var(--soft);
+  border-radius:9px;padding:9px 15px;font:400 13.5px var(--body);cursor:pointer}
+.pager button:disabled{opacity:.3;cursor:not-allowed}
+.pager input{width:70px;text-align:center;padding:8px;font:500 12.5px var(--mono)}
 .results{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:9px;
   max-height:290px;overflow-y:auto;padding:3px}
 .hit{cursor:pointer;text-align:center;border-radius:9px;padding:6px;transition:background .16s var(--ease)}
@@ -107,7 +126,7 @@ summary:before{content:"→ ";color:var(--faint)}
 <div class="wrap">
 <div class="top">
   <h1>Build a page<em>.</em></h1>
-  <p class="lede">Pick a direction and we'll find combinations worth posting. Every image credits the illustrator.
+  <p class="lede">Pick a direction and we'll find combinations worth posting. Every image credits the artist.
      &nbsp;·&nbsp; <a href="/creators" style="color:var(--live)">Or start from one we made &rsaquo;</a></p>
 </div>
 
@@ -116,31 +135,47 @@ summary:before{content:"→ ";color:var(--faint)}
     <select id="fset"><option value="">Every set</option><option>151</option><option>Aquapolis</option><option>Ascended Heroes</option><option>Astral Radiance</option><option>Astral Radiance Trainer Gallery</option><option>BREAKpoint</option><option>BREAKthrough</option><option>BW Black Star Promos</option><option>Base</option><option>Base Set 2</option><option>Battle Styles</option><option>Best of Game</option><option>Black Bolt</option><option>Boundaries Crossed</option><option>Brilliant Stars</option><option>Brilliant Stars Trainer Gallery</option><option>Burning Shadows</option><option>Call of Legends</option><option>Celebrations</option><option>Celestial Storm</option><option>Chaos Rising</option><option>Chilling Reign</option><option>Cosmic Eclipse</option><option>Crimson Invasion</option><option>Crown Zenith</option><option>Crown Zenith Galarian Gallery</option><option>DP Black Star Promos</option><option>Dark Explorers</option><option>Darkness Ablaze</option><option>Delta Species</option><option>Deoxys</option><option>Destined Rivals</option><option>Diamond &amp; Pearl</option><option>Dragon Majesty</option><option>Dragon Vault</option><option>Dragons Exalted</option><option>EX Trainer Kit Latias</option><option>EX Trainer Kit Latios</option><option>Evolutions</option><option>Evolving Skies</option><option>Expedition Base Set</option><option>FireRed &amp; LeafGreen</option><option>Flashfire</option><option>Forbidden Light</option><option>Fossil</option><option>Generations</option><option>Great Encounters</option><option>Guardians Rising</option><option>Gym Challenge</option><option>Gym Heroes</option><option>HS—Undaunted</option><option>HS—Unleashed</option><option>HeartGold &amp; SoulSilver</option><option>Hidden Fates</option><option>Hidden Fates Shiny Vault</option><option>Holon Phantoms</option><option>Journey Together</option><option>Jungle</option><option>Legends Awakened</option><option>Lost Origin</option><option>Lost Origin Trainer Gallery</option><option>Lost Thunder</option><option>McDonald's Collection 2012</option><option>McDonald's Collection 2014</option><option>McDonald's Collection 2015</option><option>McDonald's Collection 2016</option><option>McDonald's Collection 2018</option><option>McDonald's Collection 2019</option><option>McDonald's Collection 2021</option><option>Mega Evolution</option><option>Neo Destiny</option><option>Neo Genesis</option><option>Neo Revelation</option><option>Next Destinies</option><option>Noble Victories</option><option>Obsidian Flames</option><option>POP Series 1</option><option>POP Series 3</option><option>POP Series 4</option><option>POP Series 5</option><option>POP Series 6</option><option>POP Series 7</option><option>POP Series 8</option><option>POP Series 9</option><option>Paldea Evolved</option><option>Paldean Fates</option><option>Paradox Rift</option><option>Perfect Order</option><option>Phantasmal Flames</option><option>Phantom Forces</option><option>Plasma Blast</option><option>Plasma Storm</option><option>Pokémon Futsal Collection</option><option>Pokémon GO</option><option>Power Keepers</option><option>Primal Clash</option><option>Prismatic Evolutions</option><option>Rebel Clash</option><option>Rising Rivals</option><option>Ruby &amp; Sapphire</option><option>SM Black Star Promos</option><option>SWSH Black Star Promos</option><option>Sandstorm</option><option>Scarlet &amp; Violet</option><option>Scarlet &amp; Violet Energies</option><option>Secret Wonders</option><option>Shining Fates Shiny Vault</option><option>Shining Legends</option><option>Shrouded Fable</option><option>Silver Tempest</option><option>Silver Tempest Trainer Gallery</option><option>Steam Siege</option><option>Stellar Crown</option><option>Stormfront</option><option>Sun &amp; Moon</option><option>Supreme Victors</option><option>Surging Sparks</option><option>Sword &amp; Shield</option><option>Team Rocket</option><option>Team Up</option><option>Temporal Forces</option><option>Twilight Masquerade</option><option>Ultra Prism</option><option>Unbroken Bonds</option><option>Unified Minds</option><option>Unseen Forces</option><option>Vivid Voltage</option><option>White Flare</option><option>Wizards Black Star Promos</option><option>XY</option></select></div>
   <div class="step"><span class="n">02 / COUNT</span><span class="t">How many cards</span>
     <div class="chips" id="fcount"><button class="chip" data-n="1">1</button><button class="chip" data-n="2">2</button><button class="chip" data-n="3">3</button><button class="chip" data-n="4">4</button><button class="chip" data-n="6">6</button><button class="chip" data-n="8">8</button><button class="chip" data-n="9">9</button></div></div>
-  <div class="step"><span class="n">03 / WHY</span><span class="t">What is this for</span>
+  <div class="step"><span class="n">03 / SLAB</span><span class="t">Show them slabbed</span>
+    <div class="chips" id="fslab">
+      <button class="chip on" data-s="">Raw</button>
+      <button class="chip" data-s="green">Green</button>
+      <button class="chip" data-s="gold">Gold</button>
+      <button class="chip" data-s="black">Black</button>
+      <button class="chip" data-s="ice">Ice</button>
+    </div></div>
+  <div class="step"><span class="n">04 / WHY</span><span class="t">What is this for</span>
     <div class="chips" id="fintent">
       <button class="chip on" data-i="post">A post</button>
       <button class="chip" data-i="want">Want list</button>
       <button class="chip" data-i="trade">Trade list</button>
       <button class="chip" data-i="sell">Selling</button>
     </div></div>
-  <div class="step"><span class="n">04 / ANGLE</span><span class="t">What kind of post</span>
+  <div class="step"><span class="n">05 / ANGLE</span><span class="t">What kind of post</span>
     <div class="chips" id="ftheme"></div></div>
 </div>
 
 <div id="refuse" class="refuse" hidden></div>
 <div id="ideas" class="ideas"></div>
 
-<details><summary>Search all 16,468 cards instead</summary>
+<details open><summary>Search all 16,468 cards instead</summary>
 <div class="controls">
-  <input id="q" placeholder="Pokémon, illustrator, or set" autocomplete="off">
+  <input id="q" placeholder="Pokémon, artist, or set" autocomplete="off">
   <select id="rar"><option value="">Any rarity</option>
     <option>Special Illustration Rare</option><option>Illustration Rare</option>
     <option>Rare Holo</option><option>Rare Secret</option><option>Rare Ultra</option></select>
   <input id="yr" placeholder="Year" inputmode="numeric">
 </div>
 <div class="results" id="res"></div>
+<div class="pager" id="pager"></div>
 </details>
 
+<div class="streak" id="streakstart">
+  <span class="desc"><b>Start a streak.</b> Pick a filter and post from it daily — the filter is what keeps your series yours.</span>
+  <select id="sfilter" style="width:auto;min-width:190px"></select>
+  <select id="sper" style="width:auto"><option value="1">1 a day</option><option value="2" selected>2 a day</option><option value="3">3 a day</option></select>
+  <button class='go' onclick='beginStreak()'>Begin</button>
+</div>
+<div class="streak" id="streakbar" hidden></div>
 <div class="page-label" id="plabel">YOUR PAGE</div>
 <div class="binder" id="tray"></div>
 <div class="status" id="st"></div>
@@ -155,35 +190,107 @@ summary:before{content:"→ ";color:var(--faint)}
 </div>
 <canvas id="cv"></canvas>
 
-<div class="foot">Every image carries the Catch'em mark and the illustrator's name — the credit isn't ours to remove.
-Cards marked in amber have no illustrator recorded in the public dataset. That's a backfill gap on recent sets,
+<div class="foot">Every image carries the Catch'em mark and the artist's name — the credit isn't ours to remove.
+Cards marked in amber have no artist recorded in the public dataset. That's a backfill gap on recent sets,
 not a Pokémon decision, and you can still use them.</div>
 </div>
 <script>
-const THEMES = [{"id":"food","name":"Pokémon that are food","kind":"named list","hook":"Which one would you actually eat?","why":"Nobody expects a themed page of edible Pokémon and everybody has an opinion about Vanilluxe.","members":["Vanillite","Vanilluxe","Alcremie","Applin","Appletun","Slurpuff","Swirlix","Cherubi","Combee","Tropius","Milcery","Fidough","Dachsbun","Sinistea","Polteageist","Bounsweet","Steenee","Tsareena"],"bestAt":[4,6,9]},{"id":"babies","name":"The baby Pokémon","kind":"named list","hook":"Which page is going in the front of the binder?","why":"A real category with a real boundary — these are the pre-evolutions introduced from Gen II onward, not a mood.","members":["Pichu","Cleffa","Igglybuff","Togepi","Tyrogue","Smoochum","Elekid","Magby","Azurill","Wynaut","Budew","Chingling","Bonsly","Happiny","Munchlax","Riolu","Mantyke"],"bestAt":[6,9]},{"id":"ghosts","name":"Ghost-type nightmares","kind":"named list","hook":"Which one actually scared you as a kid?","why":"Ghost art is where illustrators are given the most room, and it shows.","members":["Gengar","Mimikyu","Dusknoir","Chandelure","Drifloon","Banette","Spiritomb","Froslass","Gholdengo"],"bestAt":[3,6,9]},{"id":"sleeping","name":"Pokémon caught napping","kind":"named list","hook":"Late night check-in. Who's still awake?","why":"Proved: the cropped Charmander post using this register did 791 views against a data post's 154, same account, same week.","members":["Snorlax","Komala","Jigglypuff","Drowzee","Hypno","Musharna","Munna"],"bestAt":[1,3,4]},{"id":"artist-career","name":"One artist, across the years","kind":"derived","basis":"artist field + earliest and latest hero card","hook":"{years} years apart. Same illustrator.","why":"The shape that landed first — Base Set Charizard beside the 151 Blastoise ex.","bestAt":[2,4]},{"id":"many-hands","name":"One Pokémon, many illustrators","kind":"derived","basis":"name + distinct artist values","hook":"{n} artists. One {mon}. Which is the definitive one?","why":"The differences argue for themselves and the post needs no words.","bestAt":[4,8]},{"id":"generations","name":"The same trio, across eras","kind":"derived","basis":"a named trio + releaseDate + rarity, three complete sets","hook":"Which row wins?","why":"Three eras stacked as rows. It asks rather than tells, which is what gets a reply instead of a scroll.","bestAt":[9]},{"id":"historic","name":"Cards with a story","kind":"derived","basis":"a sourced fact from data/knowledge.json plus the card it names","hook":"Most people have no idea this happened.","why":"Kadabra vanished from the card game for twenty-one years because a man who bends spoons sued. Every claim carries a source and a falsifier.","bestAt":[1,2]},{"id":"set-showcase","name":"The best of one set","kind":"derived","basis":"setId + rarity","hook":"Six from {set}. Which page are you filling first?","why":"Works for anybody currently opening that set, which is most people most of the time.","bestAt":[4,6,9]},{"id":"first-and-last","name":"An illustrator's debut","kind":"derived","basis":"earliest releaseDate for that artist","hook":"Everybody starts somewhere.","why":"A debut is a date in the data, not a judgment — and the contrast with their best-known work does the rest.","bestAt":[2]},{"id":"battle","name":"Card battle","kind":"derived","basis":"same Pokemon, comparable value, different illustrator or era","hook":"{mon}. {setA} or {setB}? No wrong answer, but you have one.","why":"A battle only works if it is CLOSE. A $2,000 card against a $12 one is not a debate, it is a price check with a question mark on it. Candidates are matched within 45% on value so nobody can settle it by pointing at a number - which forces an actual opinion, and an opinion is a reply.","bestAt":[2]},{"id":"controversy","name":"What actually happened","kind":"derived","basis":"a sourced fact from data/knowledge.json with a falsifier attached","hook":"Most people have no idea this happened.","why":"Controversy is the one topic where being wrong costs the most, so nothing here is remembered - it is cited or it is not published. Being wrong about a controversy is how you become one.","bestAt":[1,2]},{"id":"pseudo-legendary","name":"The pseudo-legendaries","hook":"Which one did you actually raise?","why":"600 base stat total, three-stage line, always a 1,250,000 EXP grind. Every player has one they put the hours into.","members":["Dragonite","Tyranitar","Salamence","Metagross","Garchomp","Hydreigon","Goodra","Kommo-o","Dragapult","Baxcalibur"],"bestAt":[3,4,6,9],"kind":"named list","verified":"10 of 10 present in the catalogue"},{"id":"mythicals","name":"The mythicals","hook":"How many of these did you actually get legitimately?","why":"Event-only distribution means most people never had them in-game. The cards are how a lot of players first saw them.","members":["Mew","Celebi","Jirachi","Deoxys","Manaphy","Darkrai","Shaymin","Arceus","Victini","Keldeo","Meloetta","Genesect","Diancie","Hoopa","Volcanion","Magearna","Marshadow","Zeraora","Melmetal","Zarude"],"bestAt":[4,6,8,9],"kind":"named list","verified":"20 of 20 present in the catalogue"},{"id":"fossils","name":"Revived from fossils","hook":"Which fossil did you pick, and do you regret it?","why":"A forced choice in every game that has them, and people remember which they took twenty years later.","members":["Omanyte","Omastar","Kabuto","Kabutops","Aerodactyl","Lileep","Cradily","Anorith","Armaldo","Cranidos","Rampardos","Shieldon","Bastiodon","Tirtouga","Carracosta","Archen","Archeops","Tyrunt","Tyrantrum","Amaura","Aurorus"],"bestAt":[4,6,8,9],"kind":"named list","verified":"21 of 21 present in the catalogue"},{"id":"cats","name":"Cat Pokémon","hook":"Which one is going in the binder?","why":"Cat art gets more personality than almost any other category, and everybody has a favourite for reasons they cannot defend.","members":["Meowth","Persian","Espeon","Litten","Torracat","Incineroar","Skitty","Delcatty","Purrloin","Liepard","Litleo","Pyroar","Sprigatito","Floragato","Meowscarada"],"bestAt":[4,6,9],"kind":"named list","verified":"15 of 15 present in the catalogue"},{"id":"dogs","name":"Dog Pokémon","hook":"Cats or dogs. Pick a side.","why":"Pairs directly against the cat page, which is the argument.","members":["Growlithe","Arcanine","Houndour","Houndoom","Poochyena","Mightyena","Electrike","Manectric","Lillipup","Herdier","Stoutland","Rockruff","Lycanroc","Fidough","Dachsbun"],"bestAt":[4,6,9],"kind":"named list","verified":"15 of 15 present in the catalogue"},{"id":"birds","name":"The regional birds","hook":"Every game gives you one. Which was yours?","why":"Every generation has an early-route bird nobody thinks about until they see them lined up.","members":["Pidgey","Pidgeot","Spearow","Fearow","Hoothoot","Noctowl","Taillow","Swellow","Starly","Staraptor","Pidove","Unfezant","Fletchling","Talonflame","Rookidee","Corviknight"],"bestAt":[4,6,8,9],"kind":"named list","verified":"16 of 16 present in the catalogue"},{"id":"ice","name":"Ice types","hook":"Which one belongs on a winter page?","why":"Ice art leans on light and texture more than any other type, and it reads beautifully in a grid.","members":["Articuno","Lapras","Glaceon","Froslass","Weavile","Mamoswine","Cryogonal","Beartic","Vanilluxe","Baxcalibur","Alolan"],"bestAt":[3,4,6,9],"kind":"named list","verified":"11 of 11 present in the catalogue"},{"id":"starters","name":"The starters","hook":"First pick, every time. Which one?","why":"The single most universal Pokémon memory there is. Everybody chose.","members":["Bulbasaur","Charmander","Squirtle","Chikorita","Cyndaquil","Totodile","Treecko","Torchic","Mudkip","Turtwig","Chimchar","Piplup","Snivy","Tepig","Oshawott","Chespin","Fennekin","Froakie","Rowlet","Litten","Popplio","Grookey","Scorbunny","Sobble","Sprigatito","Fuecoco","Quaxly"],"bestAt":[3,6,9],"kind":"named list","verified":"27 of 27 present in the catalogue"},{"id":"dragons","name":"Dragon types","hook":"Which dragon actually looks the part?","why":"The type people chase hardest, and the art usually knows it.","members":["Dratini","Dragonair","Dragonite","Kingdra","Vibrava","Flygon","Altaria","Salamence","Latias","Latios","Rayquaza","Garchomp","Hydreigon","Haxorus","Goodra","Noivern","Dragapult","Duraludon","Regidrago","Baxcalibur"],"bestAt":[4,6,8,9],"kind":"named list","verified":"20 of 20 present in the catalogue"},{"id":"beach","name":"Sun and water","hook":"Which page are you taking to the beach?","why":"A mood rather than a type, and the grid does the work.","members":["Lapras","Vaporeon","Blastoise","Wailord","Sharpedo","Corsola","Krabby","Kingler","Staryu","Starmie","Psyduck","Slowpoke","Squirtle","Wartortle","Dewgong","Seel"],"bestAt":[4,6,9],"kind":"named list","verified":"16 of 16 present in the catalogue"},{"id":"megas","name":"Mega Evolutions","hook":"Which mega deserved to come back?","why":"Gone for years, then back in 2025. Everybody has one they missed.","members":["Mega"],"matchMode":"startsWith","bestAt":[4,6,8,9],"kind":"named list","verified":"1 of 1 present in the catalogue"}];
+const THEMES = [{"id":"food","name":"Pokémon that are food","kind":"named list","hook":"Which one would you actually eat?","why":"Nobody expects a themed page of edible Pokémon and everybody has an opinion about Vanilluxe.","members":["Vanillite","Vanilluxe","Alcremie","Applin","Appletun","Slurpuff","Swirlix","Cherubi","Combee","Tropius","Milcery","Fidough","Dachsbun","Sinistea","Polteageist","Bounsweet","Steenee","Tsareena"],"bestAt":[4,6,9]},{"id":"babies","name":"The baby Pokémon","kind":"named list","hook":"Which page is going in the front of the binder?","why":"A real category with a real boundary — these are the pre-evolutions introduced from Gen II onward, not a mood.","members":["Pichu","Cleffa","Igglybuff","Togepi","Tyrogue","Smoochum","Elekid","Magby","Azurill","Wynaut","Budew","Chingling","Bonsly","Happiny","Munchlax","Riolu","Mantyke"],"bestAt":[6,9]},{"id":"ghosts","name":"Ghost-type nightmares","kind":"named list","hook":"Which one actually scared you as a kid?","why":"Ghost art is where artists are given the most room, and it shows.","members":["Gengar","Mimikyu","Dusknoir","Chandelure","Drifloon","Banette","Spiritomb","Froslass","Gholdengo"],"bestAt":[3,6,9]},{"id":"sleeping","name":"Pokémon caught napping","kind":"named list","hook":"Late night check-in. Who's still awake?","why":"Proved: the cropped Charmander post using this register did 791 views against a data post's 154, same account, same week.","members":["Snorlax","Komala","Jigglypuff","Wigglytuff","Igglybuff","Drowzee","Hypno","Musharna","Munna","Slowpoke","Slowbro","Slowking","Slakoth","Vigoroth","Slaking","Psyduck","Swablu","Litwick","Espurr","Rowlet"],"bestAt":[1,3,4],"note":"Widened 2026-08-23. Seven strictly-sleeping Pokemon produced three art-safe credited cards, which is a coincidence rather than a theme. Tired is a MOOD - Slowpoke and Slakoth are not asleep, they just look the way 2am feels, and that is the post."},{"id":"artist-career","name":"One artist, across the years","kind":"derived","basis":"artist field + earliest and latest hero card","hook":"{years} years apart. Same artist.","why":"The shape that landed first — Base Set Charizard beside the 151 Blastoise ex.","bestAt":[2,4]},{"id":"many-hands","name":"One Pokémon, many artists","kind":"derived","basis":"name + distinct artist values","hook":"{n} artists. One {mon}. Which is the definitive one?","why":"The differences argue for themselves and the post needs no words.","bestAt":[4,8]},{"id":"generations","name":"The same trio, across eras","kind":"derived","basis":"a named trio + releaseDate + rarity, three complete sets","hook":"Which row wins?","why":"Three eras stacked as rows. It asks rather than tells, which is what gets a reply instead of a scroll.","bestAt":[9]},{"id":"historic","name":"Cards with a story","kind":"derived","basis":"a sourced fact from data/knowledge.json plus the card it names","hook":"Most people have no idea this happened.","why":"Kadabra vanished from the card game for twenty-one years because a man who bends spoons sued. Every claim carries a source and a falsifier.","bestAt":[1,2]},{"id":"set-showcase","name":"The best of one set","kind":"derived","basis":"setId + rarity","hook":"Six from {set}. Which page are you filling first?","why":"Works for anybody currently opening that set, which is most people most of the time.","bestAt":[4,6,9]},{"id":"first-and-last","name":"An artist's debut","kind":"derived","basis":"earliest releaseDate for that artist","hook":"Everybody starts somewhere.","why":"A debut is a date in the data, not a judgment — and the contrast with their best-known work does the rest.","bestAt":[2]},{"id":"battle","name":"Card battle","kind":"derived","basis":"same Pokemon, comparable value, different artist or era","hook":"{mon}. {setA} or {setB}? No wrong answer, but you have one.","why":"A battle only works if it is CLOSE. A $2,000 card against a $12 one is not a debate, it is a price check with a question mark on it. Candidates are matched within 45% on value so nobody can settle it by pointing at a number - which forces an actual opinion, and an opinion is a reply.","bestAt":[2]},{"id":"controversy","name":"What actually happened","kind":"derived","basis":"a sourced fact from data/knowledge.json with a falsifier attached","hook":"Most people have no idea this happened.","why":"Controversy is the one topic where being wrong costs the most, so nothing here is remembered - it is cited or it is not published. Being wrong about a controversy is how you become one.","bestAt":[1,2]},{"id":"pseudo-legendary","name":"The pseudo-legendaries","hook":"Which one did you actually raise?","why":"600 base stat total, three-stage line, always a 1,250,000 EXP grind. Every player has one they put the hours into.","members":["Dragonite","Tyranitar","Salamence","Metagross","Garchomp","Hydreigon","Goodra","Kommo-o","Dragapult","Baxcalibur"],"bestAt":[3,4,6,9],"kind":"named list","verified":"10 of 10 present in the catalogue"},{"id":"mythicals","name":"The mythicals","hook":"How many of these did you actually get legitimately?","why":"Event-only distribution means most people never had them in-game. The cards are how a lot of players first saw them.","members":["Mew","Celebi","Jirachi","Deoxys","Manaphy","Darkrai","Shaymin","Arceus","Victini","Keldeo","Meloetta","Genesect","Diancie","Hoopa","Volcanion","Magearna","Marshadow","Zeraora","Melmetal","Zarude"],"bestAt":[4,6,8,9],"kind":"named list","verified":"20 of 20 present in the catalogue"},{"id":"fossils","name":"Revived from fossils","hook":"Which fossil did you pick, and do you regret it?","why":"A forced choice in every game that has them, and people remember which they took twenty years later.","members":["Omanyte","Omastar","Kabuto","Kabutops","Aerodactyl","Lileep","Cradily","Anorith","Armaldo","Cranidos","Rampardos","Shieldon","Bastiodon","Tirtouga","Carracosta","Archen","Archeops","Tyrunt","Tyrantrum","Amaura","Aurorus"],"bestAt":[4,6,8,9],"kind":"named list","verified":"21 of 21 present in the catalogue"},{"id":"cats","name":"Cat Pokémon","hook":"Which one is going in the binder?","why":"Cat art gets more personality than almost any other category, and everybody has a favourite for reasons they cannot defend.","members":["Meowth","Persian","Espeon","Litten","Torracat","Incineroar","Skitty","Delcatty","Purrloin","Liepard","Litleo","Pyroar","Sprigatito","Floragato","Meowscarada"],"bestAt":[4,6,9],"kind":"named list","verified":"15 of 15 present in the catalogue"},{"id":"dogs","name":"Dog Pokémon","hook":"Cats or dogs. Pick a side.","why":"Pairs directly against the cat page, which is the argument.","members":["Growlithe","Arcanine","Houndour","Houndoom","Poochyena","Mightyena","Electrike","Manectric","Lillipup","Herdier","Stoutland","Rockruff","Lycanroc","Fidough","Dachsbun"],"bestAt":[4,6,9],"kind":"named list","verified":"15 of 15 present in the catalogue"},{"id":"birds","name":"The regional birds","hook":"Every game gives you one. Which was yours?","why":"Every generation has an early-route bird nobody thinks about until they see them lined up.","members":["Pidgey","Pidgeot","Spearow","Fearow","Hoothoot","Noctowl","Taillow","Swellow","Starly","Staraptor","Pidove","Unfezant","Fletchling","Talonflame","Rookidee","Corviknight"],"bestAt":[4,6,8,9],"kind":"named list","verified":"16 of 16 present in the catalogue"},{"id":"ice","name":"Ice types","hook":"Which one belongs on a winter page?","why":"Ice art leans on light and texture more than any other type, and it reads beautifully in a grid.","members":["Articuno","Lapras","Glaceon","Froslass","Weavile","Mamoswine","Cryogonal","Beartic","Vanilluxe","Baxcalibur","Alolan"],"bestAt":[3,4,6,9],"kind":"named list","verified":"11 of 11 present in the catalogue"},{"id":"starters","name":"The starters","hook":"First pick, every time. Which one?","why":"The single most universal Pokémon memory there is. Everybody chose.","members":["Bulbasaur","Charmander","Squirtle","Chikorita","Cyndaquil","Totodile","Treecko","Torchic","Mudkip","Turtwig","Chimchar","Piplup","Snivy","Tepig","Oshawott","Chespin","Fennekin","Froakie","Rowlet","Litten","Popplio","Grookey","Scorbunny","Sobble","Sprigatito","Fuecoco","Quaxly"],"bestAt":[3,6,9],"kind":"named list","verified":"27 of 27 present in the catalogue"},{"id":"dragons","name":"Dragon types","hook":"Which dragon actually looks the part?","why":"The type people chase hardest, and the art usually knows it.","members":["Dratini","Dragonair","Dragonite","Kingdra","Vibrava","Flygon","Altaria","Salamence","Latias","Latios","Rayquaza","Garchomp","Hydreigon","Haxorus","Goodra","Noivern","Dragapult","Duraludon","Regidrago","Baxcalibur"],"bestAt":[4,6,8,9],"kind":"named list","verified":"20 of 20 present in the catalogue"},{"id":"beach","name":"Sun and water","hook":"Which page are you taking to the beach?","why":"A mood rather than a type, and the grid does the work.","members":["Lapras","Vaporeon","Blastoise","Wailord","Sharpedo","Corsola","Krabby","Kingler","Staryu","Starmie","Psyduck","Slowpoke","Squirtle","Wartortle","Dewgong","Seel"],"bestAt":[4,6,9],"kind":"named list","verified":"16 of 16 present in the catalogue"},{"id":"megas","name":"Mega Evolutions","hook":"Which mega deserved to come back?","why":"Gone for years, then back in 2025. Everybody has one they missed.","members":["Mega"],"matchMode":"startsWith","bestAt":[4,6,8,9],"kind":"named list","verified":"1 of 1 present in the catalogue"},{"id":"late-night","name":"Cards that want you to go to bed","kind":"card text","hook":"Which of these is the most 2am?","why":"Tyler posted Slakoth at 2am after seventeen hours of coding and its attack is called Take It Easy. Neither of us knew — the card wrote the joke. This finds that joke by READING the cards instead of by me listing Pokemon I think look tired, which is the difference between a grouping derived from the data and one asserted from a mood.","match":{"field":"attackNames","any":["take it easy","sleep","nap","rest","yawn","dream","slack","snooze","lazy","doze","sluggish","drowsy"]},"members":[],"bestAt":"late evening"}];
 const SETS = ["151","Aquapolis","Ascended Heroes","Astral Radiance","Astral Radiance Trainer Gallery","BREAKpoint","BREAKthrough","BW Black Star Promos","Base","Base Set 2","Battle Styles","Best of Game","Black Bolt","Boundaries Crossed","Brilliant Stars","Brilliant Stars Trainer Gallery","Burning Shadows","Call of Legends","Celebrations","Celestial Storm","Chaos Rising","Chilling Reign","Cosmic Eclipse","Crimson Invasion","Crown Zenith","Crown Zenith Galarian Gallery","DP Black Star Promos","Dark Explorers","Darkness Ablaze","Delta Species","Deoxys","Destined Rivals","Diamond & Pearl","Dragon Majesty","Dragon Vault","Dragons Exalted","EX Trainer Kit Latias","EX Trainer Kit Latios","Evolutions","Evolving Skies","Expedition Base Set","FireRed & LeafGreen","Flashfire","Forbidden Light","Fossil","Generations","Great Encounters","Guardians Rising","Gym Challenge","Gym Heroes","HS—Undaunted","HS—Unleashed","HeartGold & SoulSilver","Hidden Fates","Hidden Fates Shiny Vault","Holon Phantoms","Journey Together","Jungle","Legends Awakened","Lost Origin","Lost Origin Trainer Gallery","Lost Thunder","McDonald's Collection 2012","McDonald's Collection 2014","McDonald's Collection 2015","McDonald's Collection 2016","McDonald's Collection 2018","McDonald's Collection 2019","McDonald's Collection 2021","Mega Evolution","Neo Destiny","Neo Genesis","Neo Revelation","Next Destinies","Noble Victories","Obsidian Flames","POP Series 1","POP Series 3","POP Series 4","POP Series 5","POP Series 6","POP Series 7","POP Series 8","POP Series 9","Paldea Evolved","Paldean Fates","Paradox Rift","Perfect Order","Phantasmal Flames","Phantom Forces","Plasma Blast","Plasma Storm","Pokémon Futsal Collection","Pokémon GO","Power Keepers","Primal Clash","Prismatic Evolutions","Rebel Clash","Rising Rivals","Ruby & Sapphire","SM Black Star Promos","SWSH Black Star Promos","Sandstorm","Scarlet & Violet","Scarlet & Violet Energies","Secret Wonders","Shining Fates Shiny Vault","Shining Legends","Shrouded Fable","Silver Tempest","Silver Tempest Trainer Gallery","Steam Siege","Stellar Crown","Stormfront","Sun & Moon","Supreme Victors","Surging Sparks","Sword & Shield","Team Rocket","Team Up","Temporal Forces","Twilight Masquerade","Ultra Prism","Unbroken Bonds","Unified Minds","Unseen Forces","Vivid Voltage","White Flare","Wizards Black Star Promos","XY"];
 const LAYOUTS = {"1":{"cols":1,"cardW":520,"name":"the single"},"2":{"cols":2,"cardW":430,"name":"the pairing"},"3":{"cols":3,"cardW":330,"name":"the trio"},"4":{"cols":4,"cardW":300,"name":"the row"},"6":{"cols":3,"cardW":300,"name":"the half page"},"8":{"cols":4,"cardW":250,"name":"the spread"},"9":{"cols":3,"cardW":270,"name":"the binder page"}};
 const SUPPORTED = Object.keys(LAYOUTS).map(Number);
 let INDEX = [], tray = [], blob = null;
 
+// CONSTRUCTED URLS 404 TO A CARD BACK. Newer sets serve from a different host
+// entirely, and a 404 here returns a valid 200 PNG of the wrong side of a card.
+// card-composite was fixed for this yesterday; the editor still had the old
+// code. The index carries no URL, so: try one host, fall back to the other on
+// error, and show a visible failure rather than a plausible wrong image.
 const imgUrl = (id) => "https://images.pokemontcg.io/" + id.slice(0, id.lastIndexOf("-")) + "/" + id.slice(id.lastIndexOf("-") + 1) + "_hires.png";
+const imgAlt = (id) => "https://images.scrydex.com/pokemon/" + id + "/large";
+function imgTag(c, cls){
+  const alt = imgAlt(c.i).replace(/'/g, "");
+  return "<img src='" + imgUrl(c.i) + "' alt='" + String(c.n).replace(/'/g, "") +
+    "' onerror='this.onerror=null;this.src=&quot;" + alt + "&quot;'>";
+}
 
-fetch("card-index.json", { signal: AbortSignal.timeout(20000) }).then(r => r.json()).then(d => { INDEX = d; search(); })
+fetch("card-index.json", { signal: AbortSignal.timeout(20000) }).then(r => r.json()).then(d => { INDEX = d; renderThemes(); search(); })
   .catch(() => { document.getElementById("res").innerHTML = "<div class='empty'>could not load the card index</div>"; });
 
 const el = id => document.getElementById(id);
+// PAGING STATE. Page size is deliberately modest: 36 images is a fast paint on
+// a phone, and the point of paging is that the page never gets slower no matter
+// how big the catalogue grows.
+const PAGE_SIZE = 36;
+let page = 0;
+
+function renderPager(total, pages){
+  const box = el("pager");
+  if (!box) return;
+  if (total <= PAGE_SIZE) { box.innerHTML = total ? total + " cards" : ""; return; }
+  const from = page * PAGE_SIZE + 1, to = Math.min((page + 1) * PAGE_SIZE, total);
+  box.innerHTML =
+    "<button onclick='goPage(0)' " + (page === 0 ? "disabled" : "") + ">First</button>" +
+    "<button onclick='goPage(" + (page - 1) + ")' " + (page === 0 ? "disabled" : "") + ">Prev</button>" +
+    "<span>" + from.toLocaleString() + "–" + to.toLocaleString() + " of " + total.toLocaleString() + "</span>" +
+    "<input id='pgo' type='number' min='1' max='" + pages + "' value='" + (page + 1) + "'>" +
+    "<span>of " + pages.toLocaleString() + "</span>" +
+    "<button onclick='goPage(" + (page + 1) + ")' " + (page + 1 >= pages ? "disabled" : "") + ">Next</button>" +
+    "<button onclick='goPage(" + (pages - 1) + ")' " + (page + 1 >= pages ? "disabled" : "") + ">Last</button>";
+  const jump = el("pgo");
+  if (jump) jump.onchange = () => goPage(Math.max(0, Math.min(pages - 1, Number(jump.value) - 1)));
+}
+
+window.goPage = goPage;
+window.add = add;
+window.remove = remove;
+window.toggleOwn = toggleOwn;
+window.loadIdea = loadIdea;
+window.nextStreakDay = nextStreakDay;
+window.endStreak = endStreak;
+window.beginStreak = beginStreak;
+function goPage(n){ page = Math.max(0, n); search(); el("res").scrollTop = 0; }
+
+// Any change to the filters resets to page one — staying on page 400 of a new
+// search is a way of showing somebody nothing and calling it a result.
+function resetPage(){ page = 0; }
+
 function search(){
   const q = el("q").value.trim().toLowerCase(), rar = el("rar").value, yr = el("yr").value.trim();
-  if (!q && !rar && !yr) { el("res").innerHTML = "<div class='empty'>start typing to search</div>"; return; }
-  const hits = INDEX.filter(c =>
+  // SHOW SOMETHING IMMEDIATELY. This used to read "start typing to search" over
+  // an empty panel, which is indistinguishable from broken. With no query we
+  // show the best-looking cards we have, so the tool proves itself on load
+  // rather than asking the user to prove it first.
+  if (!q && !rar && !yr) {
+    // The full catalogue, best first, paged. Not a curated 24 — Tyler asked for
+    // everything to be available, and a showcase that stops at two dozen is the
+    // same hard slice wearing a nicer name.
+    const ranked = INDEX.slice().sort((a, b) => (b.p || 0) - (a.p || 0));
+    const pages = Math.max(1, Math.ceil(ranked.length / PAGE_SIZE));
+    if (page >= pages) page = 0;
+    const showcase = ranked.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+    renderPager(ranked.length, pages);
+    el("res").innerHTML = showcase.map(c =>
+      `<div class="hit" onclick="add('${c.i}')"><img src="${imgUrl(c.i)}" alt="">
+        <b>${c.n}</b><i>${c.s} · ${c.y}</i><i>${c.a}</i></div>`).join("");
+    return;
+  }
+  // PAGING. The whole index stays in memory — 1.7MB is nothing — and only the
+  // current PAGE renders. Holding data is cheap; painting sixteen thousand
+  // images is not, and that distinction is the entire performance story.
+  const all = INDEX.filter(c =>
     (!q || (c.n + " " + (c.a || "") + " " + c.s).toLowerCase().includes(q)) &&
-    (!rar || c.r === rar) && (!yr || c.y === yr)).slice(0, 60);
+    (!rar || c.r === rar) && (!yr || c.y === yr));
+  const pages = Math.max(1, Math.ceil(all.length / PAGE_SIZE));
+  if (page >= pages) page = 0;
+  const hits = all.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+  renderPager(all.length, pages);
   el("res").innerHTML = hits.length ? hits.map(c =>
-    `<div class="hit" onclick="add('${c.i}')"><img loading="lazy" src="${imgUrl(c.i)}" alt="">
+    `<div class="hit" onclick="add('${c.i}')"><img src="${imgUrl(c.i)}" alt="">
       <b>${c.n}</b><i>${c.s} · ${c.y}</i><i class="${c.a ? "" : "nocred"}">${c.a || "no credit recorded"}</i></div>`).join("")
     : "<div class='empty'>nothing matched</div>";
 }
-["q","rar","yr"].forEach(id => el(id).addEventListener("input", search));
+["q","rar","yr"].forEach(id => el(id).addEventListener("input", () => { resetPage(); search(); }));
 
 function add(id){
   if (tray.length >= 9) { setStatus("Nine is the most a frame holds.", true); return; }
@@ -252,7 +359,17 @@ el("fintent").querySelectorAll(".chip").forEach(b => b.onclick = () => {
 // card. The refusal is the feature.
 function checkIntent(){
   const box = el("refuse");
-  const singles = tray.filter(c => !/booster|elite trainer|bundle|collection|tin|box/i.test(c.n));
+  // EVERY CARD IN THE TRAY IS A SINGLE. card-index.json is generated from
+  // card-catalogue.json, which is the singles catalogue — 16,468 singles and
+  // not one sealed product. So classifying by NAME was both unnecessary and
+  // wrong, and wrong in the way substring matching always is: /tin/ matched
+  // inside Dra-tin-i, Figh-tin-g Energy, Man-tin-e and Vic-tin-i. 174 real
+  // singles read as sealed, and a tray of three of them defeated the refusal
+  // completely — sell intent, no warning, a finished sell image of stock art.
+  //
+  // If sealed products ever enter the tray they must arrive with an explicit
+  // kind. Absence of a flag means single, which fails toward refusing.
+  const singles = tray.filter(c => c.kind !== "sealed");
   if (fIntent === "sell" && singles.length) {
     box.hidden = false;
     box.innerHTML = "<b>We will not make a sell image for singles.</b><br>" +
@@ -263,6 +380,208 @@ function checkIntent(){
   }
   box.hidden = true;
   return true;
+}
+
+// THE STREAK. A creator picks a filter once; the tool serves cards that fit it
+// and have not been used. The filter is what keeps two creators from posting
+// the same series out of the same pool.
+let streak = null;
+try { streak = JSON.parse(localStorage.getItem("catchem-streak") || "null"); } catch {}
+
+function saveStreak(){ try { localStorage.setItem("catchem-streak", JSON.stringify(streak)); } catch {} }
+
+const STREAK_FILTERS = {
+  "ir-any":    { label: "Illustration Rares", test: c => /Illustration Rare/i.test(c.r || "") },
+  "ir-cheap":  { label: "IRs under $10",      test: c => /Illustration Rare/i.test(c.r || "") && c.p != null && c.p < 10 },
+  "ir-mid":    { label: "IRs under $25",      test: c => /Illustration Rare/i.test(c.r || "") && c.p != null && c.p < 25 },
+  "sir-only":  { label: "Special Illustration Rares", test: c => /Special Illustration Rare/i.test(c.r || "") },
+  "ir-modern": { label: "IRs from 2024 on",   test: c => /Illustration Rare/i.test(c.r || "") && c.y >= "2024" },
+  // PRICE BANDS. Restricted to Illustration Rares these pools are 18 and 32
+  // cards — nine and sixteen days, which is not a streak, it is a fortnight.
+  // Open to every hero rarity they run 141 and 119 days, and nothing is lost:
+  // a Rare Holo at $2.50 is exactly as postable as an IR at $2.50, and the
+  // PRICE BAND is the theme. Restricting rarity too was my assumption, not the ask.
+  "two-dollar":  { label: "The $2–3 shelf", test: c => HERO_RX.test(c.r || "") && c.p != null && c.p >= 2 && c.p <= 3 },
+  "five-dollar": { label: "The $5 pickup",  test: c => HERO_RX.test(c.r || "") && c.p != null && c.p >= 4.50 && c.p <= 5.95 },
+  // THE SCOUT'S ANGLES — found by searching the data rather than my memory,
+  // which was thinking in categories while the data thinks in structure.
+  // Chronological is the strongest: a streak with a DIRECTION beats one with a
+  // filter, because "Day 40, we've reached Neo Destiny" is a story and "Day 40,
+  // another card" is a counter.
+  "chronological": { label: "The whole history, in order", ordered: "date",
+    test: c => HERO_RX.test(c.r || "") && c.a && c.y },
+  "one-artist":    { label: "One artist at a time", ordered: "artist",
+    test: c => HERO_RX.test(c.r || "") && c.a },
+  "cheapest-up":   { label: "Cheapest first, working up", ordered: "price",
+    test: c => HERO_RX.test(c.r || "") && c.p != null },
+  // WHAT THE CARD SAYS. Tyler posted Slakoth at 2am after seventeen hours of
+  // coding and its attack is called Take It Easy — neither of us knew, because
+  // nothing we held could search it. attackNames now rides in the index, so a
+  // filter can find the joke by READING the cards rather than by anybody
+  // listing Pokemon they think look tired. The word list is here in the open
+  // where it can be argued with, which is the same standard a named list is
+  // held to; the difference is that membership is derived, not asserted.
+  "says-rest": { label: "Cards that tell you to rest",
+    words: ["take it easy","sleep","nap","rest","yawn","dream","slack","snooze","doze","drowsy","lazy"],
+    test: c => Array.isArray(c.k) && c.k.some(a => ["take it easy","sleep","nap","rest","yawn","dream","slack","snooze","doze","drowsy","lazy"].some(w => String(a).toLowerCase().includes(w))) },
+  "says-hit": { label: "Cards that just hit things",
+    words: ["punch","kick","slam","smash","tackle","headbutt","bite","slash","crush","pound"],
+    test: c => Array.isArray(c.k) && c.k.some(a => ["punch","kick","slam","smash","tackle","headbutt","bite","slash","crush","pound"].some(w => String(a).toLowerCase().includes(w))) },
+};
+
+function startStreak(filterId, perDay){
+  // A SALT PER STREAK, not just the start date. The seed used to be
+  // started + day, and the comment beside it claimed two creators on the same
+  // filter would 'diverge immediately'. They did not diverge at all: same
+  // filter and same start date meant the same seed, and two creators got
+  // byte-identical series. Verified by running two fresh streaks on the same
+  // day — five days, same three cards each day, both times.
+  //
+  // The salt is drawn once and stored, so the series stays stable across
+  // reloads for its owner while differing from everybody else's.
+  const salt = Math.floor(Math.random() * 1e9).toString(36);
+  streak = { filter: filterId, perDay: perDay, day: 0, used: [], salt: salt, started: new Date().toISOString().slice(0,10) };
+  saveStreak(); nextStreakDay();
+}
+
+// NO REPEATS, EVER. A streak that serves the same card twice is a streak
+// somebody stops trusting on the day they notice.
+function nextStreakDay(){
+  if (!streak) return;
+  const f = STREAK_FILTERS[streak.filter];
+  const used = new Set(streak.used);
+  const pool = INDEX.filter(c => f.test(c) && !used.has(c.i) && c.a);
+  if (pool.length < streak.perDay) { renderStreak(0); return; }
+  // Deterministic per day so reloading does not reshuffle the pick, and seeded
+  // by the start date so two creators on the same filter diverge immediately.
+  // An ORDERED streak walks the pool in sequence — that is the whole point of
+  // it. A seeded shuffle would turn a journey back into a lottery.
+  if (f.ordered) {
+    const key = f.ordered === "date" ? (c => (c.y || "") + c.s + c.n)
+              : f.ordered === "artist" ? (c => (c.a || "") + (c.y || ""))
+              : (c => String(Math.round((c.p || 0) * 100)).padStart(9, "0"));
+    pool.sort((a, b) => key(a) < key(b) ? -1 : 1);
+    const picked = pool.slice(0, streak.perDay);
+    streak.day += 1;
+    streak.used.push(...picked.map(c => c.i));
+    saveStreak();
+    tray = picked; blob = null;
+    el("label").value = "Day " + streak.day + " — " + f.label;
+    render();
+    return;
+  }
+  const seed = (streak.started + (streak.salt || "") + streak.day).split("").reduce((a,ch)=>((a<<5)-a+ch.charCodeAt(0))|0, 0);
+  const picked = [];
+  for (let k = 0; k < streak.perDay; k++) {
+    const i = Math.abs(seed + k * 7919) % pool.length;
+    const c = pool.splice(i, 1)[0];
+    if (c) picked.push(c);
+  }
+  streak.day += 1;
+  streak.used.push(...picked.map(c => c.i));
+  saveStreak();
+  tray = picked; blob = null;
+  el("label").value = "Day " + streak.day + " — " + f.label;
+  render();
+}
+
+function renderStreak(remaining){
+  const box = el("streakbar");
+  if (!streak) { box.hidden = true; return; }
+  const f = STREAK_FILTERS[streak.filter];
+  const used = new Set(streak.used);
+  const left = remaining != null ? remaining : INDEX.filter(c => f.test(c) && !used.has(c.i) && c.a).length;
+  const days = Math.floor(left / streak.perDay);
+  box.hidden = false;
+  box.innerHTML =
+    "<span class='day'>Day " + streak.day + "</span>" +
+    "<span class='desc'><b>" + f.label + "</b>, " + streak.perDay + " a day. " +
+    (days > 0 ? left + " left — enough for " + days + " more days." : "Pool exhausted. Pick a wider filter.") + "</span>" +
+    "<span class='left'>SINCE " + streak.started.toUpperCase() + "</span>" +
+    (days > 0 ? "<button class='go' onclick='nextStreakDay()'>Next day</button>" : "") +
+    "<button onclick='endStreak()'>End</button>";
+}
+
+function endStreak(){ streak = null; try { localStorage.removeItem("catchem-streak"); } catch {} el("streakbar").hidden = true; }
+
+// Populate the filter list from the same object the picker uses, so a filter
+// added in one place cannot go missing in the other.
+{
+  const sel = el("sfilter");
+  if (sel) sel.innerHTML = Object.entries(STREAK_FILTERS)
+    .map(([k, v]) => "<option value=" + JSON.stringify(k) + ">" + v.label + "</option>").join("");
+}
+function beginStreak(){
+  startStreak(el("sfilter").value, Number(el("sper").value));
+  el("streakstart").hidden = true;
+}
+if (streak) { const st = el("streakstart"); if (st) st.hidden = true; renderStreak(); }
+
+// roundRect is Chrome 99+, Safari 16+, Firefox 112+. A card-show phone on
+// anything older throws mid-draw and the compose dies with no useful message,
+// which is the worst possible place to find out. Plain rect is an acceptable
+// slab; a broken image is not.
+function roundRectSafe(g, x, y, w, h, r){
+  if (typeof g.roundRect === "function") { g.beginPath(); g.roundRect(x, y, w, h, r); return; }
+  g.beginPath(); g.rect(x, y, w, h);
+}
+// SLAB COLOURS. Ours, not a replica of anybody's. The label carries the card,
+// the set, the year and the illustrator - which is more information than a real
+// slab label and is the thing we actually care about.
+const SLABS = {
+  green: { case: "#0d1512", edge: "#1c3a2c", label: "#132a20", ink: "#e9ecf3", accent: "#36d399", name: "Green" },
+  gold:  { case: "#161206", edge: "#3d3112", label: "#221b09", ink: "#f4efe2", accent: "#d9a441", name: "Gold" },
+  black: { case: "#0a0a0c", edge: "#232329", label: "#131316", ink: "#e9ecf3", accent: "#8a93a8", name: "Black" },
+  ice:   { case: "#0a1016", edge: "#1d3242", label: "#0f1d28", ink: "#e6f0f7", accent: "#6fb8e0", name: "Ice" },
+};
+let fSlab = "";
+el("fslab").querySelectorAll(".chip").forEach(b => b.onclick = () => {
+  fSlab = b.dataset.s;
+  el("fslab").querySelectorAll(".chip").forEach(x => x.classList.toggle("on", x.dataset.s === fSlab));
+  blob = null; render();
+});
+
+// Draw a card inside a slab. Proportions are a real slab roughly: the case is
+// about 1.3x the card width and 1.5x its height, with the label across the top.
+function drawSlab(g, img, x, y, cw, ch, card){
+  const sk = SLABS[fSlab]; if (!sk) { g.drawImage(img, x, y, cw, ch); return; }
+  const pad = cw * 0.09, labelH = ch * 0.17;
+  const SW = cw + pad * 2, SH = ch + labelH + pad * 2;
+  const sx = x - pad, sy = y - labelH - pad;
+  // case
+  g.fillStyle = sk.case; g.strokeStyle = sk.edge; g.lineWidth = Math.max(2, cw * 0.008);
+  roundRectSafe(g, sx, sy, SW, SH, cw * 0.035); g.fill(); g.stroke();
+  // label band
+  g.fillStyle = sk.label;
+  roundRectSafe(g, sx + pad * 0.5, sy + pad * 0.5, SW - pad, labelH, cw * 0.02); g.fill();
+  // label text - more useful than a real slab label, which is the point
+  const lx = sx + pad * 1.1, ly = sy + pad * 0.5;
+  g.textAlign = "left";
+  g.fillStyle = sk.accent; g.font = "600 " + Math.round(labelH * 0.19) + "px ui-monospace,monospace";
+  g.fillText("CATCH'EM", lx, ly + labelH * 0.27);
+  g.fillStyle = sk.ink; g.font = "700 " + Math.round(labelH * 0.30) + "px system-ui,sans-serif";
+  g.fillText(String(card.n).slice(0, 26), lx, ly + labelH * 0.60);
+  // GRADE BADGE. The shelf feeling — "that is what mine would look like" —
+  // without borrowing anybody's trade dress. It reads GEM 10, not PSA 10:
+  // nobody mistakes it for a grading company's opinion and it still reads
+  // instantly as the good one.
+  {
+    const bw = labelH * 0.62, bx = sx + SW - pad * 1.1 - bw, by = ly + labelH * 0.19;
+    g.fillStyle = sk.accent; g.globalAlpha = 0.14;
+    roundRectSafe(g, bx, by, bw, bw, bw * 0.18); g.fill(); g.globalAlpha = 1;
+    g.strokeStyle = sk.accent; g.lineWidth = Math.max(1.5, bw * 0.035);
+    roundRectSafe(g, bx, by, bw, bw, bw * 0.18); g.stroke();
+    g.fillStyle = sk.accent; g.textAlign = "center";
+    g.font = "700 " + Math.round(bw * 0.20) + "px ui-monospace,monospace";
+    g.fillText("GEM", bx + bw / 2, by + bw * 0.36);
+    g.font = "800 " + Math.round(bw * 0.46) + "px system-ui,sans-serif";
+    g.fillText("10", bx + bw / 2, by + bw * 0.82);
+    g.textAlign = "left";
+  }
+  g.fillStyle = sk.accent; g.font = Math.round(labelH * 0.17) + "px ui-monospace,monospace";
+  g.fillText(String(card.s).slice(0, 22).toUpperCase() + "  ·  " + card.y + (card.a ? "  ·  " + String(card.a).slice(0, 18) : ""), lx, ly + labelH * 0.85);
+  g.drawImage(img, x, y, cw, ch);
+  g.textAlign = "center";
 }
 
 function render(){
@@ -279,6 +598,7 @@ function render(){
   for (let i = tray.length; i < slots; i++) html += '<div class="pocket"></div>';
   box.innerHTML = html || '<div class="pocket"></div><div class="pocket"></div><div class="pocket"></div>';
   const allowed = checkIntent();
+  renderStreak();
   renderTally();
   el("plabel").textContent = L ? ("YOUR PAGE — " + L.name.toUpperCase()) : "YOUR PAGE";
 
@@ -288,7 +608,7 @@ function render(){
   if (!tray.length) { setStatus("Pick an idea above, or search for a card."); return; }
   if (L) {
     const missing = tray.filter(c => !c.a).length;
-    setStatus(`${tray.length} cards · ${L.cols} across` + (missing ? ` · ${missing} without a recorded illustrator` : ""), false);
+    setStatus(`${tray.length} cards · ${L.cols} across` + (missing ? ` · ${missing} without a recorded artist` : ""), false);
   } else {
     const below = SUPPORTED.filter(n => n < tray.length).pop(), above = SUPPORTED.find(n => n > tray.length);
     setStatus(`${tray.length} cards has no frame. ${below ? "Remove " + (tray.length - below) : ""}${below && above ? " or add " + (above - tray.length) : ""}.`, true);
@@ -302,7 +622,32 @@ let fSet = "", fCount = 0, fTheme = null;
 
 function renderThemes(){
   const box = el("ftheme");
-  const fits = THEMES.filter(t => !fCount || (t.bestAt || []).includes(fCount));
+  // FLOW LIKE WATER. A theme only appears if it can actually FILL the chosen
+  // count from the chosen set. Pick 151 and ten of fifteen themes produce
+  // nothing — offering one of those is worse than offering fewer, because the
+  // creator picks it, gets nothing, and learns the tool does not know its own
+  // catalogue.
+  const pool = INDEX.filter(c => (!fSet || c.s === fSet) && /Illustration Rare|Rare Holo|Rare Secret|Rare Ultra/i.test(c.r || ""));
+  const canFill = (t) => {
+    const need = fCount || 1;
+    if (t.kind === "named list") {
+      const distinct = new Set(pool.filter(c => (t.members || []).some(m => c.n.startsWith(m)))
+        .map(c => (t.members || []).find(m => c.n.startsWith(m))));
+      return distinct.size >= need;
+    }
+    if (t.id === "many-hands" || t.id === "battle") {
+      const byMon = {};
+      for (const c of pool) if (c.a) (byMon[c.n.split(" ")[0]] ||= new Set()).add(c.a);
+      return Object.values(byMon).some(set => set.size >= need);
+    }
+    if (t.id === "artist-career" || t.id === "first-and-last") {
+      const byArtist = {};
+      for (const c of pool) if (c.a) (byArtist[c.a] ||= []).push(c);
+      return Object.values(byArtist).some(l => l.length >= need);
+    }
+    return pool.length >= need;
+  };
+  const fits = THEMES.filter(t => (!fCount || (t.bestAt || []).includes(fCount)) && canFill(t));
   box.innerHTML = fits.map(t => `<button class="chip${fTheme===t.id?" on":""}" data-t="${t.id}">${t.name}</button>`).join("")
     || "<span class='empty'>no theme suits that count — try another</span>";
   box.querySelectorAll(".chip").forEach(b => b.onclick = () => { fTheme = b.dataset.t; renderThemes(); buildIdeas(); });
@@ -313,7 +658,7 @@ el("fcount").querySelectorAll(".chip").forEach(b => b.onclick = () => {
   if (fTheme && !THEMES.find(t => t.id === fTheme && (t.bestAt||[]).includes(fCount))) fTheme = null;
   renderThemes(); buildIdeas();
 });
-el("fset").onchange = () => { fSet = el("fset").value; buildIdeas(); };
+el("fset").onchange = () => { fSet = el("fset").value; renderThemes(); buildIdeas(); };
 
 const HERO_RX = /(Special Illustration|Illustration Rare|Rare Holo|Rare Secret|Rare Ultra|Rare Rainbow|Ultra Rare)/i;
 
@@ -332,13 +677,29 @@ function buildIdeas(){
     const picked = Object.values(byMon).slice(0, fCount);
     if (picked.length === fCount) ideas.push({ title: t.name, sub: picked.map(c=>c.n).join(" · "), hook: t.hook, cards: picked });
   }
+  // A theme whose membership is READ rather than declared. The word list is
+  // stored openly in themes.json so it can be argued with, exactly like a
+  // named list — the difference is that the match happens against a real
+  // field on the card instead of against a list of Pokemon somebody thought
+  // looked tired. Slakoth is in this because its attack is Take It Easy.
+  if (t.kind === "card text" && t.match) {
+    const words = (t.match.any || []).map(w => w.toLowerCase());
+    const hits = pool.filter(c => (c[t.match.field === "attackNames" ? "k" : t.match.field] || [])
+      .some(v => words.some(w => String(v).toLowerCase().includes(w))));
+    const seen = new Map();
+    for (const c of hits) if (!seen.has(c.n)) seen.set(c.n, c);
+    const picked = [...seen.values()].slice(0, fCount);
+    if (picked.length === fCount)
+      ideas.push({ title: t.name, sub: picked.map(c => c.n).join(" · "), hook: t.hook, cards: picked });
+  }
+
   if (t.id === "many-hands") {
     const byName = {};
     for (const c of pool) (byName[c.n.split(" ")[0]] ||= []).push(c);
     for (const [mon, list] of Object.entries(byName)) {
       const seen = new Map();
       for (const c of list) if (c.a && !seen.has(c.a)) seen.set(c.a, c);
-      if (seen.size >= fCount) ideas.push({ title: mon + " by " + fCount + " illustrators",
+      if (seen.size >= fCount) ideas.push({ title: mon + " by " + fCount + " artists",
         sub: [...seen.keys()].slice(0, fCount).join(" · "), hook: fCount + " artists. One " + mon + ". Which is definitive?",
         cards: [...seen.values()].slice(0, fCount) });
       if (ideas.length >= 6) break;
@@ -356,7 +717,7 @@ function buildIdeas(){
         : sorted.filter((_,i,arr) => i % Math.max(1, Math.floor(arr.length/fCount)) === 0).slice(0, fCount);
       if (picked.length !== fCount) continue;
       ideas.push({ title: artist, sub: picked.map(c => c.n + " " + c.y).join("  →  "),
-        hook: span + " years apart. Same illustrator.", cards: picked });
+        hook: span + " years apart. Same artist.", cards: picked });
       if (ideas.length >= 6) break;
     }
   }
@@ -383,6 +744,12 @@ renderThemes();
 
 el("make").onclick = async () => {
   const L = LAYOUTS[tray.length]; if (!L) return;
+  // ENFORCE AT THE POINT OF ACTION, not only in the UI. The refusal used to
+  // live entirely in el("make").disabled, and a disabled attribute is an
+  // affordance rather than a guard — re-enabling it in the console, or calling
+  // this handler directly, produced the sell image the refusal exists to
+  // prevent. Re-checking here means the rule holds wherever the call comes from.
+  if (!checkIntent()) { setStatus("that combination is refused — see the note above", true); return; }
   setStatus("composing…");
   const CW = 745, CH = 1040, GAP = 60, PAD = 90, CAP = tray.length <= 4 ? 70 : 0;
   const LABEL = el("label").value.trim();
@@ -395,7 +762,8 @@ el("make").onclick = async () => {
   const LABH = LABEL ? 110 + (LABLINES - 1) * 62 : 0;
   const ROWS = Math.ceil(tray.length / L.cols);
   const W = PAD*2 + CW*L.cols + GAP*(L.cols-1);
-  const H = PAD + (CH+CAP)*ROWS + GAP*(ROWS-1) + LABH + (fIntent === "post" ? 110 : 190);
+  const SLAB_EXTRA = fSlab ? CH * 0.17 + CW * 0.18 : 0;
+  const H = PAD + (CH+CAP+SLAB_EXTRA)*ROWS + GAP*(ROWS-1) + LABH + (fIntent === "post" ? 110 : 190);
   const cv = el("cv"); cv.width = W; cv.height = H;
   const g = cv.getContext("2d");
   g.fillStyle = "#070910"; g.fillRect(0,0,W,H);
@@ -410,7 +778,7 @@ el("make").onclick = async () => {
       }
       if (!img) throw new Error("could not load " + tray[i].n);
       const x = PAD + (i % L.cols)*(CW+GAP), y = PAD + Math.floor(i/L.cols)*(CH+CAP+GAP);
-      g.drawImage(img, x, y, CW, CH);
+      drawSlab(g, img, x, y, CW, CH, tray[i]);
       if (CAP){ g.fillStyle="#8a93a8"; g.font="28px system-ui,sans-serif"; g.textAlign="center";
         g.fillText(tray[i].n + " · " + tray[i].y, x+CW/2, y+CH+46); }
     }
@@ -435,8 +803,15 @@ el("make").onclick = async () => {
       // Three lines is already a paragraph on a card; past that the label is
       // doing the job the post's own text should do.
       if (lines.length > 3){ lines = lines.slice(0,3); lines[2] = lines[2].replace(/\s+\S*$/, "") + "…"; }
+        const bandH = fIntent === "post" ? 110 : 190;
       for (var li = 0; li < lines.length; li++)
-        g.fillText(lines[li], W/2, H - 150 - (lines.length - 1 - li) * 62);
+        // CLEAR THE FOOTER BAND, WHICH IS NOT ALWAYS THE SAME HEIGHT. A post
+        // reserves 110px at the bottom; want, trade and sell reserve 190 for the
+        // intent label and the total. The caption was drawn at H-150 regardless,
+        // so on a want list it landed INSIDE that band and a two-line label printed
+        // straight through 'Looking for'. Found by attacking it: nine cards, three
+        // unpriced, and a 178-character label.
+        g.fillText(lines[li], W/2, H - bandH - 40 - (lines.length - 1 - li) * 62);
     }
     // WANT LIST FRAME. A post wants a clean image; a want list is a WORKING
     // document. It gets held up at a table or pasted into a trade thread, so
@@ -445,12 +820,18 @@ el("make").onclick = async () => {
     if (fIntent === "want" || fIntent === "trade" || fIntent === "sell") {
       const priced = tray.filter(c => c.p != null);
       const total = priced.reduce((a, c) => a + c.p, 0);
-      g.fillStyle = "#8a93a8"; g.font = "26px system-ui,sans-serif"; g.textAlign = "center";
+      // THUMBNAIL LEGIBILITY. A want list is seen first as a 400px preview and
+      // decided on there. Text sized for the full canvas vanishes: 26px on a
+      // 2535px canvas is 4.1px in that preview. Scale to the canvas so the
+      // price survives the shrink, because the price IS the message.
+      const thumbScale = 400 / W;
+      const priceSize = Math.max(26, Math.round(11 / thumbScale));
+      g.fillStyle = "#8a93a8"; g.font = priceSize + "px system-ui,sans-serif"; g.textAlign = "center";
       tray.forEach((c, i) => {
         if (c.p == null) return;
         const x = PAD + (i % L.cols) * (CW + GAP), y = PAD + Math.floor(i / L.cols) * (CH + CAP + GAP);
         g.fillStyle = owned[c.i] ? "#36d399" : "#8a93a8";
-        g.fillText((owned[c.i] ? "HAVE  " : "") + "$" + Math.round(c.p).toLocaleString(), x + CW / 2, y + CH + (CAP ? 82 : 40));
+        g.fillText((owned[c.i] ? "HAVE  " : "") + "$" + Math.round(c.p).toLocaleString(), x + CW / 2, y + CH + (CAP ? 62 + priceSize : 14 + priceSize));
       });
       const label = fIntent === "want" ? "Looking for" : fIntent === "trade" ? "Trade list" : "For sale";
       g.fillStyle = "#f4f5f8"; g.font = "800 44px system-ui,sans-serif"; g.textAlign = "left";
@@ -470,7 +851,7 @@ el("make").onclick = async () => {
     g.fillText("Catch'em", PAD, H-40);
     const artists = [...new Set(tray.map(c=>c.a).filter(Boolean))].slice(0,3).join(" · ");
     g.fillStyle="#5c637a"; g.font="26px ui-monospace,monospace"; g.textAlign="right";
-    g.fillText(artists || "illustrator not recorded", W-PAD, H-40);
+    g.fillText(artists || "artist not recorded", W-PAD, H-40);
 
     blob = await new Promise(r => cv.toBlob(r,"image/png"));
     cv.style.display="block";

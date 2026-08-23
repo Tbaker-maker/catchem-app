@@ -5,3 +5,10 @@ dist
 .env.local
 .vite
 *.log
+
+# Build artifacts assembled by scripts/build-public-site.mjs and uploaded by
+# Wrangler from the working directory — git never needs them. The composites are
+# ~12.6MB and the card index 1.7MB PER REBUILD, and git keeps every version
+# forever; tracking them would add several GB a year to a 30MB repo.
+site-public/img/
+site-public/card-index.json

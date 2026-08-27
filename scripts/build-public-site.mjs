@@ -77,23 +77,17 @@ for (const f of await readdir(join(ROOT, "public/sets")).catch(() => [])) {
   hubs++;
 }
 
-// 5 · creators + the editor
-// THE INDEX IS FETCHED RELATIVE TO THE PAGE. build.html does a bare
-// `fetch("card-index.json")`, and Workers assets serve extensionless — so the
-// editor lives at /build with no trailing slash, which makes the relative base
-// "/" and resolves the index to /card-index.json. Both therefore sit at the
-// served ROOT. Putting them in a /build/ subdirectory instead would only work
-// if every visitor arrived at the trailing-slash form, which nothing guarantees.
-const editor = await fetchOr(`${RAW}/build.html`);
-const index = await fetchOr(`${RAW}/card-index.json`);
+// 5 · /build is not the editor. A 68KB snapshot used to ship here and
+// people opened it thinking it was Catch'em Creators. The editor is
+// Catchem-data on GitHub Pages. This path is a pointer.
+const EDITOR = "https://tbaker-maker.github.io/Catchem-data/research/assets/build.html";
+await writeFile(join(OUT, "build.html"),
+  "<!doctype html><meta charset=\"utf-8\">" +
+  "<meta http-equiv=\"refresh\" content=\"0;url=" + EDITOR + "\">" +
+  "<link rel=\"canonical\" href=\"" + EDITOR + "\">" +
+  "<title>Catch'em Creators</title>" +
+  "<p><a href=\"" + EDITOR + "\">Open the editor</a></p>\n");
 let creators = await fetchOr(`${RAW}/creators.html`);
-if (editor && index) {
-  await writeFile(join(OUT, "build.html"), publicize(editor));
-  await writeFile(join(OUT, "card-index.json"), index);
-} else if (editor && !index) {
-  // An editor with no index is a search box that finds nothing. Ship neither.
-  throw new Error("build.html present but card-index.json missing — refusing to ship an editor that cannot load its catalogue");
-}
 if (creators) await writeFile(join(OUT, "creators.html"), publicize(creators));
 // The FAQ was orphaned — real reader-facing content (the index, berries,
 // provably-fair draws) written by no generator and reachable from nowhere. It

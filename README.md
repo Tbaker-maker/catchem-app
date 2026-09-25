@@ -35,6 +35,15 @@ npm run deploy        # app.catchemtcg.com
 npm run deploy:site   # catchemtcg.com (static)
 ```
 
+catchemtcg.com also deploys itself: Tbaker-maker/catchem-site is connected to
+Workers Builds for the `catchem-site` Worker. A push to that repo's main runs
+its `scripts/build.mjs`, which clones this repo and runs
+`scripts/build-public-site.mjs` with catchem-site's `index.html` as the root.
+The waitlist landing's source of truth is `index.html` in catchem-site
+(`site-landing.html` was an older snapshot and is gone). After changing anything under
+`site-public` inputs here, push to catchem-site (or run `npm run deploy:site`)
+to publish.
+
 ## Data
 
 Sealed prices from [Catchem-data](https://github.com/Tbaker-maker/Catchem-data). No API keys in client code.

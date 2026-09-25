@@ -8,9 +8,7 @@
 //                         /p/{id}  /sets/{id}  sitemap.xml  robots.txt
 // (Workers assets serve extensionless — /methodology → methodology.html.)
 //
-// index.html = site-landing.html, a committed snapshot of the live landing
-// (the deployed page was fully self-contained; no source repo existed for
-// the catchem-site Worker before this).
+// index.html = index.html from Tbaker-maker/catchem-site (the waitlist).
 //
 // Deploy: node scripts/build-public-site.mjs && npx wrangler deploy -c wrangler.site.jsonc
 import { readFile, writeFile, mkdir, readdir, cp } from "node:fs/promises";
@@ -42,13 +40,33 @@ await mkdir(join(OUT, "p"), { recursive: true });
 await mkdir(join(OUT, "sets"), { recursive: true });
 
 // 1 · landing
-// THE ROOT IS THE CLOSED-BETA LANDING. research/assets/index-landing.html is
-// the generated one and wins; site-landing.html stays as the fallback so a
-// RAW outage cannot leave the root blank. Refusing to ship SOMETHING at the
-// root would be worse than shipping the older page.
-const landing = await fetchOr(`${RAW}/index-landing.html`, join(ROOT, "site-landing.html"));
+// THE ROOT IS THE WAITLIST (2026-09-25). Source of truth: index.html in
+// Tbaker-maker/catchem-site. Order: LANDING_FILE (a local path — the
+// catchem-site Workers Build passes its own checkout) → catchem-site main on
+// raw.githubusercontent. No local fallback: the old site-landing.html snapshot
+// and the generated research/assets/index-landing.html are both older pages,
+// and shipping one of them silently is worse than failing the deploy. If the
+// fetch fails, the build throws and nothing is uploaded.
+const SITE_RAW = "https://raw.githubusercontent.com/Tbaker-maker/catchem-site/main";
+const isWaitlist = (h) => !!h && h.includes('id="wl"');
+let landing = process.env.LANDING_FILE
+  ? await readFile(process.env.LANDING_FILE, "utf-8")
+  : await fetchOr(`${SITE_RAW}/index.html`);
 if (!landing) throw new Error("no landing available — refusing to ship an empty root");
+if (!isWaitlist(landing)) throw new Error("landing has no waitlist form — refusing to ship it");
 await writeFile(join(OUT, "index.html"), publicize(landing));
+
+// 1b · og image + favicon, kept beside the landing in catchem-site. og.png is
+// stored as base64 text there because the repo is edited through tooling that
+// only writes text files.
+const ogB64 = process.env.LANDING_FILE
+  ? await readFile(join(dirname(process.env.LANDING_FILE), "og.png.b64"), "utf-8").catch(() => null)
+  : await fetchOr(`${SITE_RAW}/og.png.b64`);
+if (ogB64) await writeFile(join(OUT, "og.png"), Buffer.from(ogB64.replace(/\s+/g, ""), "base64"));
+const favicon = process.env.LANDING_FILE
+  ? await readFile(join(dirname(process.env.LANDING_FILE), "favicon.svg"), "utf-8").catch(() => null)
+  : await fetchOr(`${SITE_RAW}/favicon.svg`);
+if (favicon) await writeFile(join(OUT, "favicon.svg"), favicon);
 
 // 2 · methodology + corrections (freshest from the data repo; local mirror as fallback)
 const meth = await fetchOr(`${RAW}/methodology.html`, join(ROOT, "public/methodology.html"));
@@ -95,6 +113,10 @@ if (creators) await writeFile(join(OUT, "creators.html"), publicize(creators));
 const faq = await fetchOr(`${RAW}/faq.html`);
 if (faq) await writeFile(join(OUT, "faq.html"), publicize(faq));
 
+// 5b · card index — served live since August by an earlier build; keep it.
+const cardIndex = await fetchOr(`${RAW}/card-index.json`);
+if (cardIndex) await writeFile(join(OUT, "card-index.json"), cardIndex);
+
 // 6 · composites, served from our own domain so downloads need no CORS
 let imgs = 0;
 try {
@@ -119,5 +141,5 @@ try {
   await writeFile(join(OUT, "sitemap.xml"), sm.replaceAll("app.catchemtcg.com", "catchemtcg.com"));
 } catch {}
 
-console.log(`✓ site-public assembled: landing + methodology + corrections${pulse ? " + pulse" : ""}${board ? " + board" : ""} + ${landers} landers + ${hubs} set hubs${editor ? " + /build editor" : ""}${creators ? " + /creators" : ""}${imgs ? ` + ${imgs} composite(s)` : ""}`);
+console.log(`✓ site-public assembled: landing + methodology + corrections${pulse ? " + pulse" : ""}${board ? " + board" : ""} + ${landers} landers + ${hubs} set hubs${ogB64 ? " + og.png" : ""} + /build pointer${creators ? " + /creators" : ""}${imgs ? ` + ${imgs} composite(s)` : ""}`);
 console.log("  deploy: npx wrangler deploy -c wrangler.site.jsonc");

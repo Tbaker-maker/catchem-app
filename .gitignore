@@ -12,3 +12,5 @@ dist
 # forever; tracking them would add several GB a year to a 30MB repo.
 site-public/img/
 site-public/card-index.json
+site-public/og.png
+site-public/favicon.svg

@@ -14,6 +14,7 @@
 import { readFile, writeFile, mkdir, readdir, cp } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { writePublicRoutes } from "./public-routes.mjs";
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const OUT = join(ROOT, "site-public");
 const RAW = "https://raw.githubusercontent.com/Tbaker-maker/Catchem-data/main/research/assets";
@@ -141,5 +142,7 @@ try {
   await writeFile(join(OUT, "sitemap.xml"), sm.replaceAll("app.catchemtcg.com", "catchemtcg.com"));
 } catch {}
 
-console.log(`✓ site-public assembled: landing + methodology + corrections${pulse ? " + pulse" : ""}${board ? " + board" : ""} + ${landers} landers + ${hubs} set hubs${ogB64 ? " + og.png" : ""} + /build pointer${creators ? " + /creators" : ""}${imgs ? ` + ${imgs} composite(s)` : ""}`);
+await writePublicRoutes(OUT);
+
+console.log(`✓ site-public assembled: landing + methodology + corrections${pulse ? " + pulse" : ""}${board ? " + board" : ""} + ${landers} landers + ${hubs} set hubs${ogB64 ? " + og.png" : ""} + /build pointer${creators ? " + /creators" : ""}${imgs ? ` + ${imgs} composite(s)` : ""} + /feed /try /app`);
 console.log("  deploy: npx wrangler deploy -c wrangler.site.jsonc");

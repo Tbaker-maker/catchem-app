@@ -707,8 +707,8 @@ export default function Ticker() {
     .sort((a, b) => b.delta.pct - a.delta.pct);
   // Direction is split first so both sides always show, then each side is
   // ordered by the mode's lens. Splitting first is what keeps the SET identical.
-  const moversUp = movers.filter(x => x.delta.pct > 0).sort((a, b) => moverSort.by(b) - moverSort.by(a));
-  const moversDown = movers.filter(x => x.delta.pct < 0).sort((a, b) => moverSort.by(b) - moverSort.by(a));
+    const moversUp = movers.filter(x => x.delta.pct > 0).sort((a, b) => MOVER_SORT.balanced.by(b) - MOVER_SORT.balanced.by(a)).slice(0, 3).sort((a, b) => moverSort.by(b) - moverSort.by(a));
+  const moversDown = movers.filter(x => x.delta.pct < 0).sort((a, b) => MOVER_SORT.balanced.by(b) - MOVER_SORT.balanced.by(a)).slice(0, 3).sort((a, b) => moverSort.by(b) - moverSort.by(a));
 
   const Star = ({ id }) => (
     <button className={`star ${watch.includes(id) ? "on" : ""}`} onClick={() => toggleWatch(id)}

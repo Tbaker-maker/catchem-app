@@ -1,9 +1,11 @@
 // Search stays off unless VITE_SEARCH_ENABLED=true. It is not in the nav.
+// The manifest loads first. Shards load as the query changes and stay cached.
 import React, { useEffect, useMemo, useState } from "react";
 import { searchItems } from "./searchRank.js";
+import { loadShard, resetShardCache, rowsForQuery, shardIdsForQuery } from "./searchShards.js";
 
-const INDEX_URL =
-  "https://raw.githubusercontent.com/Tbaker-maker/Catchem-data/main/data/search/search-index.json";
+const BASE =
+  "https://raw.githubusercontent.com/Tbaker-maker/Catchem-data/main/data/search/";
 
 const KINDS = [
   ["all", "All"],
@@ -13,20 +15,22 @@ const KINDS = [
 ];
 
 export default function Search() {
-  const [items, setItems] = useState(null);
+  const [manifest, setManifest] = useState(null);
+  const [shardRows, setShardRows] = useState({});
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
   const [kind, setKind] = useState("all");
 
   useEffect(() => {
     let cancel = false;
-    fetch(INDEX_URL)
+    resetShardCache();
+    fetch(`${BASE}manifest.json`)
       .then((res) => {
         if (!res.ok) throw new Error("missing");
         return res.json();
       })
       .then((doc) => {
-        if (!cancel) setItems(doc.items || []);
+        if (!cancel) setManifest(doc);
       })
       .catch(() => {
         if (!cancel) setError("Search index is not published yet.");
@@ -36,8 +40,34 @@ export default function Search() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!manifest) return undefined;
+    const ids = shardIdsForQuery(query, kind).filter((id) => manifest.shards?.[id]);
+    if (!ids.length) {
+      setShardRows({});
+      return undefined;
+    }
+    let cancel = false;
+    Promise.all(ids.map((id) => loadShard(id, `${BASE}${manifest.shards[id].file}`)))
+      .then((lists) => {
+        if (cancel) return;
+        const next = {};
+        ids.forEach((id, index) => {
+          next[id] = lists[index];
+        });
+        setShardRows(next);
+      })
+      .catch(() => {
+        if (!cancel) setError("Search index is not published yet.");
+      });
+    return () => {
+      cancel = true;
+    };
+  }, [manifest, query, kind]);
+
+  const items = useMemo(() => rowsForQuery(shardRows, query, kind), [shardRows, query, kind]);
   const hits = useMemo(
-    () => (items ? searchItems(items, query, { kind, limit: 12 }) : []),
+    () => searchItems(items, query, { kind, limit: 12 }),
     [items, query, kind],
   );
 
@@ -72,7 +102,7 @@ export default function Search() {
         ))}
       </div>
       {error && <p className="ce-meta">{error}</p>}
-      {query.trim().length >= 2 && items && hits.length === 0 && (
+      {query.trim().length >= 2 && manifest && hits.length === 0 && (
         <p className="ce-meta">No match. Try a set name or a nickname like moonbreon.</p>
       )}
       {hits.map((hit) => (

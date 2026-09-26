@@ -49,6 +49,10 @@ export function loadShard(id, url, fetchImpl = fetch) {
     cache.set(id, fetchImpl(url).then((res) => {
       if (!res.ok) throw new Error("missing");
       return res.json();
+    }).catch((err) => {
+      // Do not keep a failed shard; the next keystroke can try again.
+      cache.delete(id);
+      throw err;
     }));
   }
   return cache.get(id);

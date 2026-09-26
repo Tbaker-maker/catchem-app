@@ -908,7 +908,7 @@ export default function Ticker() {
       </div>
       <div className="note" style={{ margin: "0 0 12px" }}>A mode reorders and tints — it never hides or changes a number.<I t="The Mode Honesty Law: same truth, different first screen. Anything a mode de-emphasises stays one tap away, never removed — and a machine test fails the build if any mode drops a figure." a="house-reads" /></div>
       <EmailCapture />
-      <div className="note" style={{ textAlign: "center", margin: "16px 0" }}>{feed.disclosure}<I t="Buy Pressure is estimated from listing-count changes — inventory draining or building. It is not reported sales; nobody outside the marketplaces has real sales data." a="buy-pressure" /></div>
+      <div className="note" style={{ textAlign: "center", margin: "16px 0" }}>{feed.disclosure}<I t="Demand is estimated from listing-count changes — inventory draining or building. It is not reported sales; nobody outside the marketplaces has real sales data." a="buy-pressure" /></div>
     </>);
   };
 

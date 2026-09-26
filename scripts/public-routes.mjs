@@ -8,8 +8,8 @@ export function neutralizeCopy(html) {
     .replaceAll("Buy Pressure", "Demand")
     .replaceAll("buy pressure", "demand")
     .replaceAll("BULLISH", "HEAT")
-    .replaceAll("Bullish", "Heat")
-    .replaceAll("bullish", "heat");
+    .replaceAll("Bullish", "HEAT")
+    .replaceAll("bullish", "HEAT");
 }
 
 const ROUTE_FILES = [

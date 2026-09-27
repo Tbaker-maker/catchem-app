@@ -10,6 +10,7 @@ import { mkdir, writeFile, readdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { setLineBlock } from "./set-lines-view.mjs";
+import { money, pretty, esc as escName, headerHtml, footerHtml, chromeCss, FONTS, stampLabel, sparkPrices } from "./lib/public-chrome.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const OUT = join(ROOT, "public");
@@ -23,14 +24,12 @@ const SITE = "https://catchemtcg.com";
 const TAPE_URL =
   "https://raw.githubusercontent.com/Tbaker-maker/Catchem-data/main/data/sealed-prices.json";
 
-const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
-  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-const usd = (n) => n == null ? "—" :
-  "$" + Number(n).toLocaleString("en-US", { maximumFractionDigits: 2 });
+const esc = (s) => escName(pretty(s));
+const usd = (n) => money(n) || "\u2014";
 
 const SUBTYPE_LABEL = {
   "booster-box": "Booster Box", "etb": "Elite Trainer Box",
-  "pc-etb": "Pokemon Center Elite Trainer Box", "booster-bundle": "Booster Bundle",
+  "pc-etb": "Pokémon Center Elite Trainer Box", "booster-bundle": "Booster Bundle",
   "premium-collection": "Premium Collection", "upc": "Ultra-Premium Collection",
   "tin": "Tin", "collection-box": "Collection Box",
   "build-and-battle": "Build & Battle Box", "booster-pack": "Booster Pack",
@@ -57,7 +56,13 @@ try {
 }
 
 const products = tape.products;
-const day = (tape.updatedAt || "").slice(0, 10);
+let finishedAt = tape.updatedAt || "";
+try {
+  const rr = await fetch("https://raw.githubusercontent.com/Tbaker-maker/Catchem-data/main/data/ppt/run-report.json");
+  if (rr.ok) finishedAt = (await rr.json())?.finishedAt || finishedAt;
+} catch { /* keep the tape clock */ }
+const when = stampLabel(finishedAt);
+const day = (finishedAt || "").slice(0, 10);
 
 // Feed (canonical CI-committed path): lifecycle + premium columns for the
 // set hubs. Hub generation degrades gracefully if this fetch fails.
@@ -78,17 +83,23 @@ const dealZone = feed?.dealZone?.byId ?? {};
 // The Deal Zone band, server-rendered per lander. One glance: lowest ask
 // → midpoint → highest recent sale with the ask marked; a plain-English line per
 // side; depth behind the methodology anchor. Every figure labeled est.
-function dealZoneBlock(id) {
-  const z = dealZone[id];
-  if (!z) return "";
-  const span = z.buyerCeiling - z.sellerFloor;
-  const askPct = Math.min(97, Math.max(3, ((z.ask - z.sellerFloor) / span) * 100)).toFixed(1);
+function dealZoneBlock(p, q) {
+  if (!Number.isFinite(q.lowest) || !Number.isFinite(q.high) || q.high <= q.lowest || !money(q.lowest) || !money(q.high)) return "";
+  const mark = Number.isFinite(q.median)
+    ? Math.min(97, Math.max(3, ((q.median - q.lowest) / (q.high - q.lowest)) * 100))
+    : 50;
+  const z = dealZone[p.id];
+  const kept = z ? money(z.sellerFloor) : null;
+  const cost = z ? money(z.buyerCeiling) : null;
+  const fee = kept && cost
+    ? `<p class="read">Estimate only, not the prices above: after fees a seller keeps about <b>${kept}</b>. With tax a buyer pays about <b>${cost}</b>. <a href="/methodology#deal-zone">How this works</a></p>`
+    : "";
   return `
-<div class="dz">
-<i>Deal Zone (est.) · the table referee</i>
-<div class="dzband"><span class="dzask" style="left:${askPct}%"></span></div>
-<div class="dzrow"><span>lowest ask<b>${usd(z.sellerFloor)}</b></span><span>midpoint<b>${usd(z.midpoint)}</b></span><span>highest recent sale<b>${usd(z.buyerCeiling)}</b></span></div>
-<p class="read">The high end is about <b>${usd(z.buyerCeiling)}</b> online after shipping and tax (est.). A seller keeps about <b>${usd(z.sellerFloor)}</b> online after fees (est.). Any cash price between them beats eBay for both sides — the zone is ${usd(z.zoneWidth)} wide (${z.zonePct}% of the ask). <a href="/methodology#deal-zone">How this works →</a></p>
+<div class="dz" data-low="${q.lowest}" data-high="${q.high}" data-median="${Number.isFinite(q.median) ? q.median : ""}">
+<i>Price range</i>
+<div class="dzband"><span class="dzask" style="left:${mark.toFixed(1)}%"></span></div>
+<div class="dzrow"><span>lowest ask<b>${usd(q.lowest)}</b></span><span>median<b>${usd(q.median)}</b></span><span>today's high<b>${usd(q.high)}</b></span></div>
+${fee}
 </div>`;
 }
 
@@ -133,14 +144,25 @@ for (const p of products)
     looseBySet.set(p.setId, p.priceMedian);
 
 const spark = (hist) => {
-  const pts = (hist || []).map((h) => h.price).filter((v) => v != null).slice(-30);
+  const pts = sparkPrices((hist || []).map((h) => h.price)).slice(-30);
   if (pts.length < 2) return "";
   const w = 260, h = 56, min = Math.min(...pts), max = Math.max(...pts), span = max - min || 1;
   const step = (w - 8) / (pts.length - 1);
   const d = pts.map((v, i) => `${i ? "L" : "M"}${(4 + i * step).toFixed(1)},${(h - 6 - ((v - min) / span) * (h - 12)).toFixed(1)}`).join(" ");
   const up = pts[pts.length - 1] >= pts[0];
-  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="price history, ${pts.length} days"><path d="${d}" fill="none" stroke="${up ? "#36d399" : "#ef5a5a"}" stroke-width="2"/></svg>`;
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="price history, ${pts.length} days"><path d="${d}" fill="none" stroke="${up ? "#7fc79a" : "#e0675b"}" stroke-width="2"/></svg>`;
 };
+
+function quoteOf(p) {
+  const nPacks = packsFor(p);
+  const median = p.dataStatus === "live" ? Number(p.priceMedian) : NaN;
+  const lowest = Number(p.priceFloorClean);
+  const high = Number(p.priceHigh);
+  const perPack = Number.isFinite(median) && median > 0 && nPacks > 1 ? median / nPacks : null;
+  const loose = perPack != null ? looseBySet.get(p.setId) : null;
+  const premiumPct = perPack != null && loose ? Math.round(100 * (perPack - loose) / loose) : null;
+  return { nPacks, median, lowest, high, perPack, loose, premiumPct };
+}
 
 function page(p) {
   const live = p.dataStatus === "live";
@@ -148,102 +170,87 @@ function page(p) {
   const label = SUBTYPE_LABEL[p.subtype] || p.subtype;
   const img = p.representativeImage || p.image || null;
   const url = `${SITE}/p/${p.id}.html`;
-
-  const nPacks = packsFor(p);
-  const perPack = live && nPacks > 1 && p.priceMedian != null
-    ? p.priceMedian / nPacks : null;
-  const loose = perPack != null ? looseBySet.get(p.setId) : null;
-  const premiumPct = perPack != null && loose ? Math.round(100 * (perPack - loose) / loose) : null;
-
+  const q = quoteOf(p);
   const title = live
-    ? `${p.name} Price — live eBay ask, lowest ask${premiumPct != null ? ", premium" : ""}`
-    : `${p.name} Price — tracked market, no live ask today`;
+    ? `${pretty(p.name)} price`
+    : `${pretty(p.name)} — no listings right now`;
   const desc = live
-    ? `Today's eBay ask median for ${p.name}: ${usd(p.priceMedian)} delivered (fixed-price listings). Cheapest clean listing ${usd(p.priceFloorClean)}, ${p.listingCount} active listings. Updated ${day}.`
-    : nam
-      ? `${p.name} shows no active eBay listings today — this market trades via auctions and sold comps. We show gaps, not guesses. Updated ${day}.`
-      : `${p.name} is tracked by Catch'em but carries no publishable price today. Updated ${day}.`;
-
-  const jsonld = live && p.priceFloorClean != null && p.priceHigh != null ? `
+    ? `${pretty(p.name)} median ${usd(q.median)}, lowest ask ${usd(q.lowest)}, ${p.listingCount} listings.`
+    : `${pretty(p.name)} has no price to publish.`;
+  const jsonld = live && money(q.lowest) && money(q.high) ? `
 <script type="application/ld+json">${JSON.stringify({
     "@context": "https://schema.org", "@type": "Product",
-    name: p.name, ...(img ? { image: img } : {}),
-    description: `Sealed Pokemon TCG product, ${p.set} ${label}. Live eBay market stats aggregated by Catch'em.`,
+    name: pretty(p.name), ...(img ? { image: img } : {}),
+    description: `Sealed Pokémon TCG product, ${pretty(p.set)} ${label}.`,
     offers: {
       "@type": "AggregateOffer", priceCurrency: "USD",
-      lowPrice: p.priceFloorClean, highPrice: p.priceHigh,
+      lowPrice: q.lowest, highPrice: q.high,
       offerCount: p.listingCount, availability: "https://schema.org/InStock",
     },
   })}</script>` : "";
-
-  const fr = p.filterReport;
-  const receipts = live
-    ? `Source: eBay active listings, Browse API — fixed-price listings only, delivered price (item + shipping), trimmed median, title-filtered${fr ? ` (${fr.kept} of ${fr.fetched} listings kept)` : ""}. English product only. Updated ${day}.`
-    : `Source: eBay active listings, Browse API — the daily sweep found no publishable market. English product only. Updated ${day}.`;
-
   const siblings = products
     .filter((s) => s.setId === p.setId && s.id !== p.id).slice(0, 6)
     .map((s) => `<a href="/p/${s.id}.html">${esc(s.name)}</a>`).join(" · ");
-
   const stats = live ? `
-<div class="hero">${usd(p.priceMedian)}<span class="sub">today's eBay ask median · delivered, fixed-price listings</span></div>
+<p class="byline">${when}</p>
+<div class="hero" data-median="${Number.isFinite(q.median) ? q.median : ""}">${usd(q.median)}<span class="sub">median ask, delivered, fixed-price listings</span></div>
 ${spark(p.priceHistory)}
 <div class="grid">
-<div class="st"><i>Lowest ask</i><b>${usd(p.priceFloorClean)}</b><span>cheapest clean listing</span></div>
-<div class="st"><i>Today's high</i><b>${usd(p.priceHigh)}</b><span>top filtered ask</span></div>
-<div class="st"><i>Active listings</i><b>${p.listingCount}</b><span>after title + price filters</span></div>
-${perPack != null ? `<div class="st"><i>Per pack</i><b>${usd(perPack)}</b><span>median ÷ ${nPacks} packs</span></div>` : ""}
-${premiumPct != null ? `<div class="st"><i>Sealed premium</i><b>${premiumPct > 0 ? "+" : ""}${premiumPct}%</b><span>vs the loose-pack lane (${usd(loose)}/pack)</span></div>` : ""}
+<div class="st" data-k="lowestAsk"><i>Lowest ask</i><b>${usd(q.lowest)}</b><span>cheapest clean listing</span></div>
+<div class="st" data-k="high"><i>Today's high</i><b>${usd(q.high)}</b><span>highest ask we kept</span></div>
+<div class="st"><i>Listings</i><b>${p.listingCount ?? "—"}</b><span>after title and price filters</span></div>
+${q.perPack != null ? `<div class="st"><i>Per pack</i><b>${usd(q.perPack)}</b><span>median ÷ ${q.nPacks} packs</span></div>` : ""}
+${q.premiumPct != null ? `<div class="st" data-k="premium"><i>Sealed premium</i><b>${q.premiumPct > 0 ? "+" : ""}${q.premiumPct}%</b><span>versus a loose pack (${usd(q.loose)})</span></div>` : ""}
 </div>
-<p class="read">Asks cluster between the lowest ask and the median — offers under the lowest ask are reaching; asks past the median need a reason.</p>
-${dealZoneBlock(p.id)}`
-    : `<div class="nam"><b>No active listings today.</b> ${nam
-        ? "This market trades via auctions and sold comps, so there is no honest fair-range to print. We show gaps, not guesses."
-        : "No publishable price cleared our filters today."}</div>`;
-
+<p class="read">Asks cluster between the lowest ask and the median. Offers under the lowest ask are reaching. Asks past the median need a reason.</p>
+${dealZoneBlock(p, q)}`
+    : `<p class="byline">${when}</p><div class="nam"><b>No listings to price.</b> ${nam
+        ? "This one trades in auctions and sold comps, so there is no ask to print."
+        : "Nothing cleared the filters."}</div>`;
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(desc)}">
 <link rel="canonical" href="${url}">
 <meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}">
-<meta property="og:type" content="website"><meta property="og:url" content="${url}">${img ? `\n<meta property="og:image" content="${esc(img)}">` : ""}
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23141824'/%3E%3Ctext x='16' y='23' font-size='19' text-anchor='middle'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Sora:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">${jsonld}
-<style>:root{--bg:#0b0d14;--panel:#141824;--line:rgba(255,255,255,.07);--txt:#f4f5f8;--dim:#8a93a8;--gold:#ffb84d;--green:#36d399}
-*{box-sizing:border-box;margin:0}body{background:var(--bg);color:var(--txt);font:15px/1.55 'Sora',system-ui,sans-serif;max-width:640px;margin:0 auto;padding:28px 18px 48px}
-a{color:var(--green)}.wm{font:800 20px 'Syne',sans-serif;color:var(--txt);text-decoration:none}.wm b{color:var(--green)}
-.crumb{font:11px 'JetBrains Mono',monospace;color:var(--dim);margin:14px 0 4px}.crumb a{color:var(--dim)}
-h1{font-size:26px;letter-spacing:-.3px;margin:2px 0 14px}
-img.ph{max-width:220px;width:100%;border-radius:10px;background:#070910;display:block;margin:0 0 16px}
-.hero{font:700 40px 'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;color:var(--green)}
-.hero .sub{display:block;font:400 12px 'Sora',sans-serif;color:var(--dim);margin:4px 0 12px}
+<meta property="og:type" content="website"><meta property="og:url" content="${url}">${img ? `\n<meta property="og:image" content="${escName(img)}">` : ""}
+<link rel="icon" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="${FONTS}" rel="stylesheet">${jsonld}
+<style>
+:root{--bg:#12100e;--panel:#1a1815;--line:#2f2b26;--txt:#efe9de;--dim:#b3aa9c;--faint:#9a9184;--gold:#d9b779;--green:#7fc79a;--serif:'Fraunces',Georgia,serif;--sans:'IBM Plex Sans',system-ui,sans-serif}
+*{box-sizing:border-box;margin:0}html,body{overflow-x:hidden}body{background:var(--bg);color:var(--txt);font:16px/1.55 var(--sans)}
+${chromeCss}
+main.col{max-width:680px;margin:0 auto;padding:22px 18px 36px}
+.byline{color:var(--dim);font-size:14px;margin:0 0 12px}
+.crumb{font-size:13px;color:var(--dim);margin:0 0 8px}.crumb a{color:var(--dim)}
+h1{font:500 30px/1.15 var(--serif);letter-spacing:-.02em;margin:0 0 14px}
+img.ph{max-width:220px;width:100%;border-radius:12px;background:var(--panel);display:block;margin:0 0 16px}
+.hero{font:600 40px/1 var(--serif);font-variant-numeric:tabular-nums;color:var(--gold)}
+.hero .sub{display:block;font:400 13px/1.4 var(--sans);color:var(--dim);margin:6px 0 12px}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:16px 0}
-.st{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:11px 13px}
-.st i{font:11px 'JetBrains Mono',monospace;font-style:normal;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);display:block}
-.st b{font:700 19px 'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}.st span{display:block;font-size:10.5px;color:var(--dim)}
-.read{color:var(--dim);font-size:13px;margin:10px 0}
-.nam{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;color:var(--dim);font-size:13.5px;margin:14px 0}.nam b{color:var(--txt)}
-.receipts{font:11.5px/1.6 'JetBrains Mono',monospace;color:var(--dim);border-left:2px solid var(--gold);padding-left:12px;margin:20px 0}
-.dz{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:13px;margin:16px 0}
-.dz i{font:11px 'JetBrains Mono',monospace;font-style:normal;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:10px}
-.dzband{position:relative;height:8px;border-radius:99px;background:rgba(54,211,153,.35)}
+.st{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.st i{font:600 11px/1 var(--sans);font-style:normal;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);display:block}
+.st b{font:600 20px/1.2 var(--serif);font-variant-numeric:tabular-nums}.st span{display:block;font-size:12px;color:var(--dim)}
+.read{color:var(--dim);font-size:14px;margin:10px 0}
+.nam{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;color:var(--dim);margin:14px 0}.nam b{color:var(--txt)}
+.dz{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin:16px 0}
+.dz i{font:600 11px/1 var(--sans);font-style:normal;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:10px}
+.dzband{position:relative;height:8px;border-radius:99px;background:rgba(217,183,121,.35)}
 .dzask{position:absolute;top:-3px;width:3px;height:14px;background:var(--txt);border-radius:2px;transform:translateX(-50%)}
-.dzrow{display:flex;justify-content:space-between;margin-top:8px;font-size:10.5px;color:var(--dim)}
-.dzrow b{display:block;font:700 15px 'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;color:var(--txt)}
-.cta{display:inline-block;background:var(--green);color:#0b0d14;font-weight:700;border-radius:9px;padding:11px 18px;text-decoration:none;margin:8px 0 4px}
-.sib{font-size:12px;color:var(--dim);margin-top:22px;line-height:2}
-footer{margin-top:28px;font:11px 'JetBrains Mono',monospace;color:var(--dim)}</style></head><body>
-<a class="wm" href="/">⚡CATCH<b>'EM</b></a>
-<div class="crumb"><a href="/p/">all tracked products</a> · <a href="/sets/${esc(p.setId)}.html">${esc(p.set)}</a> · ${esc(label)}</div>
+.dzrow{display:flex;justify-content:space-between;gap:8px;margin-top:8px;font-size:12px;color:var(--dim)}
+.dzrow b{display:block;font:600 16px/1.2 var(--serif);font-variant-numeric:tabular-nums;color:var(--txt)}
+.sib{font-size:14px;color:var(--dim);margin-top:18px;line-height:1.7}
+a{color:var(--gold)}
+</style></head><body>
+${headerHtml("")}
+<main class="col">
+<div class="crumb"><a href="/p/">All tracked products</a> · <a href="/sets/${p.setId}.html">${esc(p.set)}</a> · ${esc(label)}</div>
 <h1>${esc(p.name)}</h1>
-${img ? `<img class="ph" src="${esc(img)}" alt="${esc(p.name)}" loading="lazy">` : ""}
+${img ? `<img class="ph" src="${escName(img)}" alt="${esc(p.name)}" loading="lazy">` : `<span class="ph" style="display:block;height:120px"></span>`}
 ${stats}
-<div class="receipts">${esc(receipts)}</div>
-<a class="cta" href="/product/${p.id}">See the live read →</a>
-<p class="read">The live page adds the price chart, range bar, movers Δ and a shareable stat card — every number carries its receipts. Or open <a href="/">the full ticker</a>.</p>
 ${siblings ? `<div class="sib">More from ${esc(p.set)}: ${siblings}</div>` : ""}
-<div class="sib">All of ${esc(p.set)} at a glance: <a href="/sets/${esc(p.setId)}.html">the set page</a> · how we measure: <a href="/methodology.html">methodology</a></div>
-<footer>Catch'em · catchemtcg.com — observational data, not financial advice. Prices are asks, not sales.</footer>
+<div class="sib"><a href="/sets/${p.setId}.html">The set page</a> · <a href="/board">The Board</a> · <a href="/methodology">How the numbers are made</a></div>
+</main>
+${footerHtml()}
 </body></html>`;
 }
 
@@ -262,43 +269,55 @@ for (const [setId, ps] of bySetId) {
   const logo = ps[0].image || null; // pokemontcg.io set logo from the catalog
   const liveCt = ps.filter(x => x.dataStatus === "live").length;
   const rows = ps.map(p => {
-    const f = feedById.get(p.id) || {};
-    const liveRow = p.dataStatus === "live";
-    return `<tr><td><a href="/p/${p.id}.html">${esc(p.name)}</a></td><td>${esc(SUBTYPE_LABEL[p.subtype] || p.subtype)}</td>` +
+    const q = quoteOf(p);
+    const liveRow = p.dataStatus === "live" && money(q.median);
+    return `<tr data-id="${p.id}" data-low="${Number.isFinite(q.lowest) ? q.lowest : ""}" data-median="${Number.isFinite(q.median) ? q.median : ""}" data-premium="${q.premiumPct ?? ""}"><td><a href="/p/${p.id}.html">${esc(p.name)}</a></td><td>${esc(SUBTYPE_LABEL[p.subtype] || p.subtype)}</td>` +
       (liveRow
-        ? `<td class="m">${usd(p.priceMedian)}</td><td class="m">${usd(p.priceFloorClean)}</td><td class="m">${p.listingCount ?? "—"}</td><td class="m">${f.perPack != null ? usd(f.perPack) : "—"}</td><td class="m">${f.vsLoosePct != null ? (f.vsLoosePct > 0 ? "+" : "") + f.vsLoosePct + "%" : "—"}</td>`
-        : `<td class="m dim" colspan="5">no active listings — auctions & sold comps venue; we show gaps, not guesses</td>`) +
+        ? `<td class="m">${usd(q.median)}</td><td class="m">${usd(q.lowest)}</td><td class="m">${p.listingCount ?? "—"}</td><td class="m">${q.perPack != null ? usd(q.perPack) : "—"}</td><td class="m">${q.premiumPct != null ? (q.premiumPct > 0 ? "+" : "") + q.premiumPct + "%" : "—"}</td>`
+        : `<td class="m dim" colspan="5">no listings to price</td>`) +
       `</tr>`;
   }).join("\n");
-  const title = `${setName} sealed prices — every tracked product, live eBay stats`;
-  const desc = `${ps.length} tracked ${setName} sealed products: eBay ask medians, lowest asks, listing depth${life ? `, ${life.legalTag}` : ""}. Updated ${day}.`;
+  const title = `${pretty(setName)} sealed prices`;
+  const desc = `${ps.length} tracked ${pretty(setName)} sealed products: median asks, lowest asks, and how many listings we kept.`;
   const hubHtml = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(desc)}">
 <link rel="canonical" href="${SITE}/sets/${setId}.html">
 <meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}">
 <meta property="og:type" content="website"><meta property="og:url" content="${SITE}/sets/${setId}.html">${logo ? `\n<meta property="og:image" content="${esc(logo)}">` : ""}
-<style>:root{--bg:#0b0d14;--panel:#141824;--line:rgba(255,255,255,.07);--txt:#f4f5f8;--dim:#98a1b5;--gold:#ffb84d;--green:#36d399}
-*{box-sizing:border-box;margin:0}body{background:var(--bg);color:var(--txt);font:14px/1.55 'Sora',system-ui,sans-serif;max-width:760px;margin:0 auto;padding:28px 18px 48px}
-a{color:var(--green)}.crumb{font:11px 'JetBrains Mono',monospace;color:var(--dim);margin:14px 0 4px}.crumb a{color:var(--dim)}
-h1{font-size:24px;margin:2px 0 10px}img.logo{max-width:200px;background:#070910;border-radius:10px;padding:8px;display:block;margin:6px 0 12px}
-.life{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:12.5px;color:var(--dim);margin:0 0 16px}.life b{color:var(--txt)}
-.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;background:var(--panel);border-radius:10px;overflow:hidden;font-size:12.5px}
-th{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);text-align:left;padding:9px 10px;border-bottom:1px solid var(--line)}
-td{padding:9px 10px;border-bottom:1px solid var(--line)}.m{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;white-space:nowrap}.dim{color:var(--dim)}
-.mesh{font-size:12px;color:var(--dim);margin-top:20px;line-height:2}footer{margin-top:24px;font:11px 'JetBrains Mono',monospace;color:var(--dim)}</style></head><body>
-<a href="/" style="font:800 20px 'Syne',sans-serif;color:var(--txt);text-decoration:none">⚡CATCH<span style="color:var(--green)">'EM</span></a>
-<div class="crumb"><a href="/p/">all tracked products</a> · ${esc(setName)}</div>
-<h1>${esc(setName)} — sealed, on the tape</h1>
-${logo ? `<img class="logo" src="${esc(logo)}" alt="${esc(setName)} logo" loading="lazy">` : ""}
-<div class="life">${liveCt} of ${ps.length} tracked products live today${life ? ` · <b>${life.ageMonths}mo old</b> · ${esc(life.phase)} · ⚖ ${esc(life.legalTag)}` : ""} · updated ${day}</div>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="${FONTS}" rel="stylesheet">
+<style>
+:root{--bg:#12100e;--panel:#1a1815;--line:#2f2b26;--txt:#efe9de;--dim:#b3aa9c;--gold:#d9b779;--serif:'Fraunces',Georgia,serif;--sans:'IBM Plex Sans',system-ui,sans-serif}
+*{box-sizing:border-box;margin:0}html,body{overflow-x:hidden}body{background:#12100e;color:#efe9de;font:15px/1.55 'IBM Plex Sans',system-ui,sans-serif}
+a{color:#d9b779}.crumb{font-size:13px;color:#b3aa9c;margin:0 0 8px}.crumb a{color:#b3aa9c}
+h1{font:500 30px/1.15 'Fraunces',Georgia,serif;margin:0 0 10px}img.logo{max-width:200px;background:#1a1815;border-radius:12px;padding:8px;display:block;margin:6px 0 12px}
+.life{background:#1a1815;border:1px solid #2f2b26;border-radius:12px;padding:12px 14px;font-size:14px;color:#b3aa9c;margin:0 0 16px}.life b{color:#efe9de}
+.tw{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch}table{min-width:640px;width:100%;border-collapse:collapse;background:#1a1815;border-radius:12px;font-size:14px}
+th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#b3aa9c;text-align:left;padding:9px 10px;border-bottom:1px solid #2f2b26}
+td{padding:9px 10px;border-bottom:1px solid #2f2b26}.m{font-variant-numeric:tabular-nums;white-space:nowrap}.dim{color:#b3aa9c}
+.mesh{font-size:14px;color:#b3aa9c;margin-top:20px;line-height:1.7}
+.site-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 20px;padding:14px 22px;border-bottom:1px solid #2f2b26}
+.site-bar .logo{font:600 28px/1 'Fraunces',Georgia,serif;color:#efe9de;text-decoration:none}.site-bar .logo span{color:#d9b779}
+.site-bar nav{display:flex;flex-wrap:wrap;gap:8px 16px}.site-bar nav a{color:#b3aa9c;text-decoration:none;font:500 14.5px/1 'IBM Plex Sans',system-ui,sans-serif}
+.site-bar nav a[aria-current="page"]{color:#d9b779}
+main.col{max-width:860px;margin:0 auto;padding:22px 18px 28px}
+.site-foot{max-width:860px;margin:0 auto;padding:8px 18px 48px;color:#9a9184;font-size:14px}
+</style></head><body>
+${headerHtml("")}
+<main class="col">
+<div class="crumb"><a href="/p/">All tracked products</a> · ${esc(setName)}</div>
+<h1>${esc(setName)} sealed prices</h1>
+${logo ? `<img class="logo" src="${escName(logo)}" alt="" loading="lazy">` : ""}
+<p class="byline" style="color:#b3aa9c">${when}</p>
+<div class="life">${liveCt} of ${ps.length} tracked products have a price${life ? ` · <b>${life.ageMonths} months old</b> · ${esc(life.phase)} · ${esc(life.legalTag)}` : ""}</div>
 ${setLineBlock(lineBySet.get(setId))}
 <div class="tw"><table>
 <tr><th>Product</th><th>Type</th><th>Median ask</th><th>Lowest ask</th><th>Listings</th><th>Per pack</th><th>Vs loose</th></tr>
 ${rows}
 </table></div>
-<div class="mesh">Numbers: eBay active asks, fixed-price listings, delivered — <a href="/methodology.html">how we measure</a> · live app: <a href="/">the ticker</a> · today's stories: <a href="/studio">Studio</a></div>
-<footer>Catch'em · catchemtcg.com — observational data, not financial advice. Prices are asks, not sales.</footer>
+<div class="mesh"><a href="/methodology">How the numbers are made</a> · <a href="/board">The Board</a> · <a href="/feed">The Feed</a></div>
+</main>
+${footerHtml()}
 </body></html>`;
   await writeFile(join(OUT, "sets", `${setId}.html`), hubHtml);
 }
@@ -307,16 +326,26 @@ ${rows}
 const bySet = new Map();
 for (const p of products) { if (!bySet.has(p.set)) bySet.set(p.set, []); bySet.get(p.set).push(p); }
 const hub = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Every tracked Pokemon TCG sealed product — live eBay prices | Catch'em</title>
-<meta name="description" content="Live eBay ask medians, lowest asks and listing depth for ${products.length} tracked sealed Pokemon TCG products. Updated ${day}.">
+<title>Every tracked Pokémon TCG sealed product | Catch'em</title>
+<meta name="description" content="Medians and lowest asks for ${products.length} tracked sealed Pokémon TCG products. ${when}.">
 <link rel="canonical" href="${SITE}/p/">
-<style>:root{--bg:#0b0d14;--txt:#f4f5f8;--dim:#8a93a8;--green:#36d399}*{box-sizing:border-box;margin:0}
-body{background:var(--bg);color:var(--txt);font:14px/1.7 'Sora',system-ui,sans-serif;max-width:640px;margin:0 auto;padding:28px 18px 48px}
-a{color:var(--green)}h1{font-size:22px;margin:12px 0}h2{font-size:13px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin:20px 0 4px}</style></head><body>
-<a href="/" style="font-weight:800;font-size:18px;color:var(--txt);text-decoration:none">⚡CATCH<span style="color:var(--green)">'EM</span></a>
-<h1>Every tracked sealed product (${products.length}) — updated ${day}</h1>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="${FONTS}" rel="stylesheet">
+<style>
+:root{--bg:#12100e;--panel:#1a1815;--line:#2f2b26;--txt:#efe9de;--dim:#b3aa9c;--faint:#9a9184;--gold:#d9b779;--serif:'Fraunces',Georgia,serif;--sans:'IBM Plex Sans',system-ui,sans-serif}
+*{box-sizing:border-box;margin:0}html,body{overflow-x:hidden}body{background:var(--bg);color:var(--txt);font:15px/1.7 var(--sans)}
+${chromeCss}
+main.col{max-width:680px;margin:0 auto;padding:22px 18px 36px}
+a{color:var(--gold)}h1{font:500 28px/1.2 var(--serif);margin:8px 0}h2{font:600 13px/1 var(--sans);color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin:20px 0 4px}
+.byline{color:var(--dim)}
+</style></head><body>
+${headerHtml("")}
+<main class="col">
+<p class="byline">${when}</p>
+<h1>Every tracked sealed product (${products.length})</h1>
 ${[...bySet.entries()].map(([set, ps]) =>
-  `<h2><a href="/sets/${esc(ps[0].setId)}.html">${esc(set)}</a></h2>${ps.map((p) => `<a href="/p/${p.id}.html">${esc(p.name)}</a>${p.dataStatus === "live" && p.priceMedian != null ? ` — ${usd(p.priceMedian)}` : ""}`).join("<br>")}`).join("")}
+  `<h2><a href="/sets/${ps[0].setId}.html">${esc(set)}</a></h2>${ps.map((p) => `<a href="/p/${p.id}.html">${esc(p.name)}</a>${p.dataStatus === "live" && money(p.priceMedian) ? ` — ${usd(p.priceMedian)}` : ""}`).join("<br>")}`).join("")}
+</main>
+${footerHtml()}
 </body></html>`;
 await writeFile(join(OUT, "p", "index.html"), hub);
 

@@ -79,7 +79,8 @@ if (!corr) throw new Error("corrections.html unavailable — methodology links t
 await writeFile(join(OUT, "corrections.html"), publicize(corr));
 
 // 3 · pulse + board. The stamp uses the pipeline clock, not the moment this
-// build happened. A missing clock, or one older than 36 hours, says Data delayed.
+// build happened. A missing clock says Data delayed. Older than 48 hours
+// keeps the date and adds STALE.
 const RAW_DATA = "https://raw.githubusercontent.com/Tbaker-maker/Catchem-data/main/data/ppt/run-report.json";
 let runClock = null;
 try {

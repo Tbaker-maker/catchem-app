@@ -261,11 +261,11 @@ function buildIndex(feed) {
   // detail pages and search the whole tracked tape, not just today's signals.
   for (const p of feed.products || [])
     put(p.id, { name: p.name, set: p.set, setId: p.setId, subtype: p.subtype, status: p.status,
-      vintage: !!p.vintage, price: p.median, floor: p.floor, high: p.high, listings: p.listings,
+      vintage: !!p.vintage, price: p.median, lowestAsk: p.lowestAsk ?? p.floor, high: p.high, listings: p.listings,
       // basis names the market the displayed price came from. Packs are priced
       // from TCGplayer (RT-4b) and the eBay ask travels alongside rather than
       // being replaced — the methodology promises it is never hidden.
-      basis: p.basis, ebayAskMedian: p.ebayAskMedian, ebayFloor: p.ebayFloor, ebayHigh: p.ebayHigh,
+      basis: p.basis, ebayAskMedian: p.ebayAskMedian, ebayLowestAsk: p.ebayLowestAsk ?? p.ebayFloor, ebayHigh: p.ebayHigh,
       imageUrl: p.img, perPack: p.perPack, loosePack: p.loosePack, vsLoosePct: p.vsLoosePct, packs: p.packs });
   for (const s of feed.signals || [])
     put(s.id, { name: s.name, price: s.ebay?.ask, listings: s.ebay?.listings, spreadPct: s.spreadPct,
@@ -344,7 +344,7 @@ const Chip = ({ cls, onTap }) => {
 
 /* Branded share card (canvas PNG). One renderer powers Deal Check (§13) and
    the product detail page; Studio (§14) rides it later. x needs {name, median,
-   floorClean, listings, vintage, img}. */
+   lowestAsk, listings, vintage, img}. */
 function renderShareCard(x, dateStr, setShareImg) {
   const cv = document.createElement("canvas");
   cv.width = 500; cv.height = 620;
@@ -368,7 +368,7 @@ function renderShareCard(x, dateStr, setShareImg) {
     g.fillStyle = "var(--text-sub)"; g.font = "700 11px 'JetBrains Mono', monospace";
     g.fillText("TODAY'S EBAY MEDIAN (DELIVERED, BIN-ONLY)", 40, y0 + 64);
     g.fillStyle = "var(--text)"; g.font = "700 20px 'JetBrains Mono', monospace";
-    g.fillText(fmt(x.floorClean), 40, y0 + 104);
+    g.fillText(fmt(x.lowestAsk), 40, y0 + 104);
     g.fillStyle = "var(--text-sub)"; g.font = "700 11px 'JetBrains Mono', monospace";
     g.fillText("CHEAPEST CLEAN LISTING", 40, y0 + 122);
     g.fillText(String(x.listings ?? "—") + " ACTIVE LISTINGS" + (x.vintage ? "  ·  EBAY-NATIVE VENUE" : ""), 40, y0 + 148);
@@ -695,7 +695,7 @@ export default function Ticker() {
     // a flipper has to actually transact. Movement on something with four
     // listings is not an opportunity, it is a rumour.
     flipper:   { by: (x) => Math.abs(x.delta.pct) * Math.log10(1 + (x.listings ?? 0)), label: "by movement you could actually trade" },
-    // grading economics only make sense above a price floor — the fee is fixed,
+    // grading economics only make sense above a minimum ask — the fee is fixed,
     // so the premium has to clear it. We hold no graded feed, so this orders by
     // where slabbing could plausibly pay rather than pretending to know it does.
     grader:    { by: (x) => (x.ebay ?? 0) >= 60 ? Math.abs(x.delta.pct) * 2 : Math.abs(x.delta.pct), label: "weighted to where grading fees could clear" },
@@ -972,7 +972,7 @@ export default function Ticker() {
             date: full.updatedAt,
             products: full.products.map(x => ({
               id: x.id, name: x.name, set: x.set, subtype: x.subtype, vintage: !!x.vintage,
-              median: x.priceMedian, floorClean: x.priceFloorClean, high: x.priceHigh,
+              median: x.priceMedian, lowestAsk: x.priceFloorClean, high: x.priceHigh,
               listings: x.listingCount, dataStatus: x.dataStatus, img: x.tcgPlayerId ? `https://tcgplayer-cdn.tcgplayer.com/product/${x.tcgPlayerId}_in_1000x1000.jpg` : x.representativeImage,
               hist: (x.priceHistory || []).slice(-30).map(h => h.price),
             })),
@@ -994,8 +994,8 @@ export default function Ticker() {
       const d = x.hist && x.hist.length >= 2
         ? { pct: ((x.hist[x.hist.length - 1] - x.hist[x.hist.length - 2]) / x.hist[x.hist.length - 2]) * 100 } : null;
       const nam = x.dataStatus === "no-active-market";
-      const pctIn = x.median != null && x.high > (x.floorClean ?? 0)
-        ? Math.min(96, Math.max(4, 100 * ((x.median - x.floorClean) / (x.high - x.floorClean)))) : 50;
+      const pctIn = x.median != null && x.high > (x.lowestAsk ?? 0)
+        ? Math.min(96, Math.max(4, 100 * ((x.median - x.lowestAsk) / (x.high - x.lowestAsk)))) : 50;
       return (
         <div className="c3" style={{ flexDirection: "column" }}>
           <div style={{ display: "flex", gap: 12 }}>
@@ -1012,7 +1012,7 @@ export default function Ticker() {
             </div>
           ) : (<>
             <div className="strip" style={{ marginTop: 10 }}>
-              <span className="st">Lowest ask<b>{fmt(x.floorClean)}</b></span>
+              <span className="st">Lowest ask<b>{fmt(x.lowestAsk)}</b></span>
               <span className="st">Median<b>{fmt(x.median)}</b></span>
               <span className="st">Listings<b>{x.listings ?? "—"}</b></span>
               {!x.vintage && ix.get(x.id)?.spreadPct != null && <span className="st">Spread<b>{pctFmt(ix.get(x.id).spreadPct)}</b><SpreadNote /></span>}
@@ -1212,7 +1212,7 @@ export default function Ticker() {
       midpoint: r2((buyerCeiling + sellerFloor) / 2), custom: true };
   };
 
-  /* The band — one glance: floor → midpoint → ceiling, ask marked. */
+  /* The band — one glance: lowest ask → midpoint → high, ask marked. */
   const DealZoneBand = ({ z, big }) => {
     if (!z) return null;
     const askPct = Math.min(97, Math.max(3, ((z.ask - z.sellerFloor) / (z.buyerCeiling - z.sellerFloor)) * 100));
@@ -1289,7 +1289,7 @@ export default function Ticker() {
         {z.custom && <div className="esub" style={{ marginTop: 6, color: "var(--gold)" }}>your rates: {curTax}% tax · {curTier?.label}</div>}
         <div className="grid6" style={{ marginTop: 14 }}>
           <span className="st">Median<b>{fmt(x.price)}</b><span style={{ display: "block", fontSize: 9.5 }}>delivered · est.</span></span>
-          <span className="st">Lowest ask<b>{fmt(x.floor)}</b></span>
+          <span className="st">Lowest ask<b>{fmt(x.lowestAsk)}</b></span>
           <span className="st">Listings<b>{x.listings ?? "—"}</b></span>
         </div>
         <button className="fchip on" style={{ marginTop: 14, padding: "12px 18px", fontSize: 15 }}
@@ -1332,8 +1332,8 @@ export default function Ticker() {
     const hist = feed.history?.[id] || [];
     const d = deltaFor(feed, id);
     const nam = x.status === "no-active-market" || x.price == null;
-    const pctIn = !nam && x.floor != null && x.high > x.floor
-      ? Math.min(96, Math.max(4, 100 * ((x.price - x.floor) / (x.high - x.floor)))) : null;
+    const pctIn = !nam && x.lowestAsk != null && x.high > x.lowestAsk
+      ? Math.min(96, Math.max(4, 100 * ((x.price - x.lowestAsk) / (x.high - x.lowestAsk)))) : null;
     const Chart = () => {
       if (hist.length < 2)
         return <div className="note" style={{ margin: "14px 0" }}>Day {hist.length || 0} of the clean tape.<I t="Price history accrues from the clean tape, born 2026-08-18 — the line grows one point every morning, the same for every visitor." a="history" /></div>;
@@ -1379,18 +1379,18 @@ export default function Ticker() {
               <div style={{ position: "absolute", left: 0, width: `${pctIn}%`, top: 0, bottom: 0, background: "var(--green)", borderRadius: 99 }} />
             </div>
             <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }} className="esub">
-              <span>lowest ask {fmt(x.floor)}</span><span>median {fmt(x.price)}</span><span>high {fmt(x.high)}</span>
+              <span>lowest ask {fmt(x.lowestAsk)}</span><span>median {fmt(x.price)}</span><span>high {fmt(x.high)}</span>
             </div>
           </div>)}
         {x.basis === "tcgplayer" && (
           <div className="esub" style={{ marginTop: 8 }}>
             Priced from TCGplayer market — a pack is a commodity, so the photo premium eBay earns on boxes doesn't apply here.
-            {x.ebayAskMedian != null ? <> eBay asks {fmt(x.ebayAskMedian)} for the same pack{x.ebayFloor != null ? <> (lowest ask {fmt(x.ebayFloor)})</> : null}.</> : null}
+            {x.ebayAskMedian != null ? <> eBay asks {fmt(x.ebayAskMedian)} for the same pack{x.ebayLowestAsk != null ? <> (lowest ask {fmt(x.ebayLowestAsk)})</> : null}.</> : null}
             {" "}TCGplayer prices exclude shipping; ours from eBay include it.
           </div>)}
         <div className="grid6" style={{ marginTop: 14 }}>
           <span className="st">Listings<b>{x.listings ?? "—"}</b><span style={{ display: "block", fontSize: 9.5 }}>filtered</span></span>
-          <span className="st">Lowest ask<b>{fmt(x.floor)}</b></span>
+          <span className="st">Lowest ask<b>{fmt(x.lowestAsk)}</b></span>
           <span className="st">Per pack<b>{x.perPack != null ? fmt(x.perPack) : "—"}</b><span style={{ display: "block", fontSize: 9.5 }}>{x.packs ? `÷ ${x.packs} packs` : "varies"}</span></span>
           <span className="st">Vs loose pack<b>{x.vsLoosePct != null ? (x.vsLoosePct > 0 ? "+" : "") + x.vsLoosePct + "%" : "—"}</b><span style={{ display: "block", fontSize: 9.5 }}>{x.loosePack ? `loose ${fmt(x.loosePack)}` : "no loose lane"}</span></span>
           <span className="st">Age · phase<b>{life?.ageMonths != null ? life.ageMonths + "mo" : "—"}</b><span style={{ display: "block", fontSize: 9.5 }}>{life?.phase ?? "—"}</span></span>
@@ -1404,7 +1404,7 @@ export default function Ticker() {
           </div>) : null; })()}
         <Chart />
         <button className="fchip on" style={{ marginTop: 12 }}
-          onClick={() => renderShareCard({ name: x.name, median: x.price, floorClean: x.floor, listings: x.listings, vintage: x.vintage, img: x.imageUrl }, today, setShareImg)}>
+          onClick={() => renderShareCard({ name: x.name, median: x.price, lowestAsk: x.lowestAsk, listings: x.listings, vintage: x.vintage, img: x.imageUrl }, today, setShareImg)}>
           Share card 📸</button>
         {shareImg && (<>
           <img src={shareImg} alt="share card" style={{ width: "100%", borderRadius: 12, marginTop: 10 }} />
@@ -1462,7 +1462,7 @@ export default function Ticker() {
             <div className="esub" style={{ margin: "8px 0" }}>{k.receipts}</div>
             <div style={{ display: "flex", gap: 8 }}>
               <button className="fchip" onClick={() => copyText(`${k.headline}\n\n${k.body}\n\n${k.receipts}`, k.id)}>{copied === k.id ? "✓ copied" : "Copy text"}</button>
-              {ix.get(k.productId) && <button className="fchip on" onClick={() => { const p = ix.get(k.productId); renderShareCard({ name: p.name, median: p.price, floorClean: p.floor, listings: p.listings, vintage: p.vintage, img: p.imageUrl }, today, setShareImg); }}>Card 📸</button>}
+              {ix.get(k.productId) && <button className="fchip on" onClick={() => { const p = ix.get(k.productId); renderShareCard({ name: p.name, median: p.price, lowestAsk: p.lowestAsk, listings: p.listings, vintage: p.vintage, img: p.imageUrl }, today, setShareImg); }}>Card 📸</button>}
             </div>
           </div>))}
         <div className="mrow"><span>🖼 Today's minted cards (PNG, watermarked)</span>
@@ -1478,7 +1478,7 @@ export default function Ticker() {
           <button key={p.id} className="mrow" style={{ width: "100%", cursor: "pointer", textAlign: "left" }} onClick={() => setPick(p.id)}>
             <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</span><b>{fmt(p.price)}</b></button>))}
         {px && (<div style={{ display: "flex", gap: 8, margin: "10px 0", flexWrap: "wrap" }}>
-          <button className="fchip on" onClick={() => renderShareCard({ name: px.name, median: px.price, floorClean: px.floor, listings: px.listings, vintage: px.vintage, img: px.imageUrl }, today, setShareImg)}>Price card 📸</button>
+          <button className="fchip on" onClick={() => renderShareCard({ name: px.name, median: px.price, lowestAsk: px.lowestAsk, listings: px.listings, vintage: px.vintage, img: px.imageUrl }, today, setShareImg)}>Price card 📸</button>
           {zoneFor(px.id) && <button className="fchip on" onClick={() => renderDealZoneCard({ name: px.name, img: px.imageUrl }, zoneFor(px.id), today, setShareImg)}>Deal Zone card 📸</button>}
         </div>)}
         <div className="mrow"><span>🗂 Binder pages — data-driven themes, minted daily</span>

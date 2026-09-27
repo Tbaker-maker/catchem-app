@@ -1,7 +1,7 @@
 // scripts/generate-landers.mjs — SEO landers v1 (the #1 evidenced channel).
 // One static page per tracked product at /p/{id}.html, regenerated from the
 // live feed at every build, plus /p/index.html, sitemap.xml and robots.txt.
-// Truth rules: eBay-native numbers only (median ask, clean floor, listings,
+// Truth rules: eBay-native numbers only (median ask, lowest ask, listings,
 // per-pack, sealed-vs-loose premium). NO PPT/TCG-side numbers — publication
 // of PPT-derived data is licensing-gated (research/ppt-licensing-note.md).
 // JSON-LD Product ships offers only where the market is live; no-active-market
@@ -85,10 +85,10 @@ function dealZoneBlock(id) {
   const askPct = Math.min(97, Math.max(3, ((z.ask - z.sellerFloor) / span) * 100)).toFixed(1);
   return `
 <div class="dz">
-<i>Deal Zone (est.) · the show-floor referee</i>
+<i>Deal Zone (est.) · the table referee</i>
 <div class="dzband"><span class="dzask" style="left:${askPct}%"></span></div>
 <div class="dzrow"><span>lowest ask<b>${usd(z.sellerFloor)}</b></span><span>midpoint<b>${usd(z.midpoint)}</b></span><span>highest recent sale<b>${usd(z.buyerCeiling)}</b></span></div>
-<p class="read">A buyer pays about <b>${usd(z.buyerCeiling)}</b> online after shipping and tax (est.). A seller keeps about <b>${usd(z.sellerFloor)}</b> online after fees (est.). Any cash price between them beats eBay for both sides — the zone is ${usd(z.zoneWidth)} wide (${z.zonePct}% of the ask). <a href="/methodology#deal-zone">How this works →</a></p>
+<p class="read">The high end is about <b>${usd(z.buyerCeiling)}</b> online after shipping and tax (est.). A seller keeps about <b>${usd(z.sellerFloor)}</b> online after fees (est.). Any cash price between them beats eBay for both sides — the zone is ${usd(z.zoneWidth)} wide (${z.zonePct}% of the ask). <a href="/methodology#deal-zone">How this works →</a></p>
 </div>`;
 }
 
@@ -156,10 +156,10 @@ function page(p) {
   const premiumPct = perPack != null && loose ? Math.round(100 * (perPack - loose) / loose) : null;
 
   const title = live
-    ? `${p.name} Price — live eBay ask, clean floor${premiumPct != null ? ", premium" : ""}`
+    ? `${p.name} Price — live eBay ask, lowest ask${premiumPct != null ? ", premium" : ""}`
     : `${p.name} Price — tracked market, no live ask today`;
   const desc = live
-    ? `Today's eBay ask median for ${p.name}: ${usd(p.priceMedian)} delivered (BIN-only). Cheapest clean listing ${usd(p.priceFloorClean)}, ${p.listingCount} active listings. Updated ${day}.`
+    ? `Today's eBay ask median for ${p.name}: ${usd(p.priceMedian)} delivered (fixed-price listings). Cheapest clean listing ${usd(p.priceFloorClean)}, ${p.listingCount} active listings. Updated ${day}.`
     : nam
       ? `${p.name} shows no active eBay listings today — this market trades via auctions and sold comps. We show gaps, not guesses. Updated ${day}.`
       : `${p.name} is tracked by Catch'em but carries no publishable price today. Updated ${day}.`;
@@ -186,16 +186,16 @@ function page(p) {
     .map((s) => `<a href="/p/${s.id}.html">${esc(s.name)}</a>`).join(" · ");
 
   const stats = live ? `
-<div class="hero">${usd(p.priceMedian)}<span class="sub">today's eBay ask median · delivered, BIN-only</span></div>
+<div class="hero">${usd(p.priceMedian)}<span class="sub">today's eBay ask median · delivered, fixed-price listings</span></div>
 ${spark(p.priceHistory)}
 <div class="grid">
-<div class="st"><i>Clean floor</i><b>${usd(p.priceFloorClean)}</b><span>cheapest clean listing</span></div>
+<div class="st"><i>Lowest ask</i><b>${usd(p.priceFloorClean)}</b><span>cheapest clean listing</span></div>
 <div class="st"><i>Today's high</i><b>${usd(p.priceHigh)}</b><span>top filtered ask</span></div>
 <div class="st"><i>Active listings</i><b>${p.listingCount}</b><span>after title + price filters</span></div>
 ${perPack != null ? `<div class="st"><i>Per pack</i><b>${usd(perPack)}</b><span>median ÷ ${nPacks} packs</span></div>` : ""}
 ${premiumPct != null ? `<div class="st"><i>Sealed premium</i><b>${premiumPct > 0 ? "+" : ""}${premiumPct}%</b><span>vs the loose-pack lane (${usd(loose)}/pack)</span></div>` : ""}
 </div>
-<p class="read">Asks cluster between the clean floor and the median — offers under the floor are reaching; asks past the median need a reason.</p>
+<p class="read">Asks cluster between the lowest ask and the median — offers under the lowest ask are reaching; asks past the median need a reason.</p>
 ${dealZoneBlock(p.id)}`
     : `<div class="nam"><b>No active listings today.</b> ${nam
         ? "This market trades via auctions and sold comps, so there is no honest fair-range to print. We show gaps, not guesses."
@@ -271,7 +271,7 @@ for (const [setId, ps] of bySetId) {
       `</tr>`;
   }).join("\n");
   const title = `${setName} sealed prices — every tracked product, live eBay stats`;
-  const desc = `${ps.length} tracked ${setName} sealed products: eBay ask medians, clean floors, listing depth${life ? `, ${life.legalTag}` : ""}. Updated ${day}.`;
+  const desc = `${ps.length} tracked ${setName} sealed products: eBay ask medians, lowest asks, listing depth${life ? `, ${life.legalTag}` : ""}. Updated ${day}.`;
   const hubHtml = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(desc)}">
@@ -294,10 +294,10 @@ ${logo ? `<img class="logo" src="${esc(logo)}" alt="${esc(setName)} logo" loadin
 <div class="life">${liveCt} of ${ps.length} tracked products live today${life ? ` · <b>${life.ageMonths}mo old</b> · ${esc(life.phase)} · ⚖ ${esc(life.legalTag)}` : ""} · updated ${day}</div>
 ${setLineBlock(lineBySet.get(setId))}
 <div class="tw"><table>
-<tr><th>Product</th><th>Type</th><th>Median ask</th><th>Clean floor</th><th>Listings</th><th>Per pack</th><th>Vs loose</th></tr>
+<tr><th>Product</th><th>Type</th><th>Median ask</th><th>Lowest ask</th><th>Listings</th><th>Per pack</th><th>Vs loose</th></tr>
 ${rows}
 </table></div>
-<div class="mesh">Numbers: eBay active asks, BIN-only, delivered — <a href="/methodology.html">how we measure</a> · live app: <a href="/">the ticker</a> · today's stories: <a href="/studio">Studio</a></div>
+<div class="mesh">Numbers: eBay active asks, fixed-price listings, delivered — <a href="/methodology.html">how we measure</a> · live app: <a href="/">the ticker</a> · today's stories: <a href="/studio">Studio</a></div>
 <footer>Catch'em · catchemtcg.com — observational data, not financial advice. Prices are asks, not sales.</footer>
 </body></html>`;
   await writeFile(join(OUT, "sets", `${setId}.html`), hubHtml);
@@ -308,7 +308,7 @@ const bySet = new Map();
 for (const p of products) { if (!bySet.has(p.set)) bySet.set(p.set, []); bySet.get(p.set).push(p); }
 const hub = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Every tracked Pokemon TCG sealed product — live eBay prices | Catch'em</title>
-<meta name="description" content="Live eBay ask medians, clean floors and listing depth for ${products.length} tracked sealed Pokemon TCG products. Updated ${day}.">
+<meta name="description" content="Live eBay ask medians, lowest asks and listing depth for ${products.length} tracked sealed Pokemon TCG products. Updated ${day}.">
 <link rel="canonical" href="${SITE}/p/">
 <style>:root{--bg:#0b0d14;--txt:#f4f5f8;--dim:#8a93a8;--green:#36d399}*{box-sizing:border-box;margin:0}
 body{background:var(--bg);color:var(--txt);font:14px/1.7 'Sora',system-ui,sans-serif;max-width:640px;margin:0 auto;padding:28px 18px 48px}

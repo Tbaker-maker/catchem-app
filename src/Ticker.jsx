@@ -1222,9 +1222,9 @@ export default function Ticker() {
         <span style={{ position: "absolute", left: `${askPct}%`, top: big ? -5 : -3, width: 3, height: big ? 22 : 14, background: "var(--txt)", borderRadius: 8, transform: "translateX(-50%)" }} />
       </div>
       <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6 }} className="esub">
-        <span>seller floor<b style={num}>{fmt(z.sellerFloor)}</b></span>
+        <span>lowest ask<b style={num}>{fmt(z.sellerFloor)}</b></span>
         <span style={{ textAlign: "center" }}>midpoint<b style={{ ...num, color: "var(--green)" }}>{fmt(z.midpoint)}</b></span>
-        <span style={{ textAlign: "right" }}>buyer ceiling<b style={num}>{fmt(z.buyerCeiling)}</b></span>
+        <span style={{ textAlign: "right" }}>highest recent sale<b style={num}>{fmt(z.buyerCeiling)}</b></span>
       </div>
     </div>);
   };
@@ -1372,7 +1372,7 @@ export default function Ticker() {
           return nE ? (<div className="esub" style={{ marginTop: 4 }}>
             nets ≈ <b className="mono">{fmt(nE)}</b> eBay{nT ? <> · <b className="mono">{fmt(nT)}</b> TCG</> : null} after fees (est.)<I t="In-pocket if sold today: sale price minus marketplace final-value fees plus $0.30 — the seller's real number, not the sticker." a="fair-range" />
           </div>) : null; })()}
-        <div className="lbl" style={{ marginTop: 2 }}>ask median · delivered<I t="Today's eBay asking median: Buy-It-Now listings only, delivered price (item + shipping), scam-vocabulary filtered. Asks, not sales." a="prices" /></div>
+        <div className="lbl" style={{ marginTop: 2 }}>ask median · delivered<I t="Today's eBay asking median: fixed-price listings only, delivered price (item + shipping), scam-vocabulary filtered. Asks, not sales." a="prices" /></div>
         {pctIn != null && (
           <div style={{ margin: "16px 0 2px" }}>
             <div style={{ position: "relative", height: 6, background: "var(--raised)", borderRadius: 99 }}>

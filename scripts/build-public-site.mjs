@@ -15,6 +15,7 @@ import { readFile, writeFile, mkdir, readdir, cp } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { writePublicRoutes } from "./public-routes.mjs";
+import { stampHtml } from "../src/freshness.js";
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const OUT = join(ROOT, "site-public");
 const RAW = "https://raw.githubusercontent.com/Tbaker-maker/Catchem-data/main/research/assets";
@@ -77,11 +78,18 @@ const corr = await fetchOr(`${RAW}/corrections.html`);
 if (!corr) throw new Error("corrections.html unavailable — methodology links to it; refusing to ship a 404");
 await writeFile(join(OUT, "corrections.html"), publicize(corr));
 
-// 3 · pulse + board
+// 3 · pulse + board. The stamp uses the pipeline clock, not the moment this
+// build happened. A missing clock, or one older than 36 hours, says Data delayed.
+const RAW_DATA = "https://raw.githubusercontent.com/Tbaker-maker/Catchem-data/main/data/ppt/run-report.json";
+let runClock = null;
+try {
+  const report = JSON.parse(await fetchOr(RAW_DATA) || "null");
+  runClock = report?.finishedAt || report?.startedAt || null;
+} catch { runClock = null; }
 const pulse = await fetchOr(`${RAW}/the-pulse.html`);
-if (pulse) await writeFile(join(OUT, "pulse.html"), publicize(pulse));
+if (pulse) await writeFile(join(OUT, "pulse.html"), stampHtml(publicize(pulse), runClock));
 const board = await fetchOr(`${RAW}/the-board.html`, join(ROOT, "public/the-board.html"));
-if (board) await writeFile(join(OUT, "board.html"), publicize(board));
+if (board) await writeFile(join(OUT, "board.html"), stampHtml(publicize(board), runClock));
 
 // 4 · landers + set hubs (committed fallback copies in public/)
 let landers = 0, hubs = 0;

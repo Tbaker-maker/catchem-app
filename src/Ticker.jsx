@@ -8,6 +8,7 @@
 //  - dailyThree.graded ships gated:true → renders locked, no numbers.
 //  - Every number keeps its provenance chip → receipts drawer.
 import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import { freshnessFrom } from "./freshness.js";
 
 // Canonical feed path: research/pulse/ is in the daily run's commit list, so
 // this URL updates every CI run (the old research/assets/ copy only moved
@@ -19,7 +20,6 @@ const FEED_URL =
 // to localStorage so checks work in convention halls with dead signal.
 const TAPE_URL =
   "https://raw.githubusercontent.com/Tbaker-maker/Catchem-data/main/data/sealed-prices.json";
-const STALE_HOURS = 36;
 const DISCORD_ALERTS_URL = ""; // TODO(Tyler): discord.gg invite or #alerts channel link — 🔔 hidden while empty
 // Email capture: iOS PWA push is unreliable — email is the retention hedge.
 // Posts to the LIVE Formspree waitlist today (the same list newsletter 001
@@ -537,7 +537,7 @@ function EmailCapture() {
     return <div className="cap"><b style={{ color: "var(--green)" }}>✓ You're on the list.</b></div>;
   return (
     <form className="cap" onSubmit={submit}>
-      <b>Get the Morning Pulse in your inbox</b>
+      <b>Get The Feed in your inbox</b>
       <div className="note" style={{ margin: "4px 0 10px" }}>Daily. No spam.</div>
       <div style={{ display: "flex", gap: 8 }}>
         <input className="search" style={{ margin: 0, flex: 1 }} type="email" required placeholder="you@example.com"
@@ -672,7 +672,7 @@ export default function Ticker() {
 
   const p = feed.panel || {};
   const today = feed.date;
-  const stale = (Date.now() - new Date(feed.generatedAt)) / 36e5 > STALE_HOURS;
+  const stamp = freshnessFrom(feed.freshness?.at || feed.generatedAt);
   const products = [...ix.values()].sort((a, b) => (a.name || "").localeCompare(b.name || ""));
   const subtypes = [...new Set(products.map(x => x.subtype).filter(Boolean))].slice(0, 6);
   // ── MOVERS, ORDERED BY MODE ───────────────────────────────────────────
@@ -1494,7 +1494,7 @@ export default function Ticker() {
       </>)}
 
       {ptab === "synd" && (<>
-        <div className="note" style={{ margin: "4px 0 8px" }}>A branded Morning Pulse in YOUR server every day. Your webhook never leaves this browser — we test it from here, then Tyler adds it to the send list (the URL lives in a secret store, never a repo).</div>
+        <div className="note" style={{ margin: "4px 0 8px" }}>A branded Feed in YOUR server every day. Your webhook never leaves this browser — we test it from here, then Tyler adds it to the send list (the URL lives in a secret store, never a repo).</div>
         <input value={hook} onChange={(e) => setHook(e.target.value)} placeholder="https://discord.com/api/webhooks/…" aria-label="discord webhook url"
           style={{ width: "100%", background: "var(--panel)", border: "1px solid var(--line)", color: "var(--txt)", borderRadius: 10, padding: "12px", font: "600 13px var(--mono)" }} />
         <div style={{ display: "flex", gap: 8, margin: "8px 0" }}>
@@ -1502,7 +1502,7 @@ export default function Ticker() {
             setHookMsg("sending…");
             try {
               const r = await fetch(hook, { method: "POST", headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username: "Catch'em Morning Pulse", embeds: [{ title: "⚡ Test — your server is wired", description: "This is what the daily Pulse embed looks like. Numbers arrive with the 04:00 UTC run.", color: 0x36d399, footer: { text: "catchemtcg.com · VERIFIED = measured, READ = our take" } }] }) });
+                body: JSON.stringify({ username: "Catch'em Feed", embeds: [{ title: "⚡ Test — your server is wired", description: "This is what the daily Feed embed looks like. Numbers arrive with the 04:00 UTC run.", color: 0x36d399, footer: { text: "catchemtcg.com · VERIFIED = measured, READ = our take" } }] }) });
               setHookMsg(r.ok ? "✓ test embed sent — screenshot it + DM @Tyler to join the daily send" : "✗ Discord said " + r.status);
             } catch { setHookMsg("✗ could not reach that webhook"); }
           }}>Send test embed</button>
@@ -1694,11 +1694,10 @@ export default function Ticker() {
           <div className="tk-hright">
             {streak > 1 && <span className="tk-streak">🔥 Day {streak}</span>}
             {DISCORD_ALERTS_URL && <a className="tk-bell" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", textDecoration: "none" }} href={DISCORD_ALERTS_URL} target="_blank" rel="noreferrer" aria-label="Discord alerts">🔔</a>}
-            <span className="tk-date">{today}</span>
+            <span className="tk-date">{stamp.label}</span>
             <button className="tk-refresh" onClick={load}>{loading ? "…" : "↻"}</button>
           </div>
         </div>
-        {stale && <div className="tk-banner">Showing yesterday's tape — bots catching up.</div>}
         {route?.name === "product" ? <ProductDetail id={route.id} /> : route?.name === "studio" ? <Studio /> : route?.name === "studio-posts" ? <PostStudio mine={route.mine} /> : route?.name === "studio-archive" ? <StudioArchive /> :
          route?.name === "tool" ? (
           route.tool === "check" ? <DealCheck /> :

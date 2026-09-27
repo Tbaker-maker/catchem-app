@@ -373,7 +373,7 @@ function renderShareCard(x, dateStr, setShareImg) {
     g.fillText("CHEAPEST CLEAN LISTING", 40, y0 + 122);
     g.fillText(String(x.listings ?? "—") + " ACTIVE LISTINGS" + (x.vintage ? "  ·  EBAY-NATIVE VENUE" : ""), 40, y0 + 148);
     g.fillStyle = "var(--gold)"; g.font = "600 12px Sora, sans-serif";
-    g.fillText("asks cluster between clean floor and median", 40, y0 + 176);
+    g.fillText("asks cluster between the lowest ask and the median", 40, y0 + 176);
     g.fillStyle = "var(--text-muted)"; g.font = "600 11px Sora, sans-serif";
     g.fillText("catchemtcg.com — every number carries its receipts", 40, 578);
     try { setShareImg(cv.toDataURL("image/png")); }
@@ -397,7 +397,7 @@ function renderDealZoneCard(x, z, dateStr, setShareImg) {
   const g = cv.getContext("2d");
   // money on this card always shows cents — "$2,836.3" reads like a typo
   // across a table (the shared fmt drops trailing zeros)
-  // null-safe: pack rows priced from TCGplayer carry no clean floor (that band
+  // null-safe: pack rows priced from TCGplayer carry no lowest ask (that band
   // is an eBay-lane measurement and no longer travels with a TCG median), so
   // an unguarded Number(null) printed "$NaN" onto the share card.
   const fmt = (n) => n == null ? "—" : "$" + Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -427,9 +427,9 @@ function renderDealZoneCard(x, z, dateStr, setShareImg) {
       g.fillStyle = "var(--text-sub)"; g.font = "700 12px 'JetBrains Mono', monospace";
       g.fillText(label, 40, y + 20);
     };
-    row("SELLER FLOOR — KEEPS THIS ONLINE, AFTER FEES (EST.)", z.sellerFloor, y0 + 106, "var(--text)");
+    row("LOWEST ASK (EST.)", z.sellerFloor, y0 + 106, "var(--text)");
     row("MIDPOINT — THE FAIR HANDSHAKE", z.midpoint, y0 + 176, "var(--green)");
-    row("BUYER CEILING — PAYS THIS ONLINE, W/ TAX (EST.)", z.buyerCeiling, y0 + 246, "var(--text)");
+    row("HIGHEST RECENT SALE (EST.)", z.buyerCeiling, y0 + 246, "var(--text)");
     g.fillStyle = "var(--gold)"; g.font = "600 13px Sora, sans-serif";
     g.fillText("Any cash price in the band beats eBay — for both sides.", 40, y0 + 286);
     g.fillStyle = "var(--text-muted)"; g.font = "600 11px Sora, sans-serif";
@@ -1012,18 +1012,18 @@ export default function Ticker() {
             </div>
           ) : (<>
             <div className="strip" style={{ marginTop: 10 }}>
-              <span className="st">Clean floor<b>{fmt(x.floorClean)}</b></span>
+              <span className="st">Lowest ask<b>{fmt(x.floorClean)}</b></span>
               <span className="st">Median<b>{fmt(x.median)}</b></span>
               <span className="st">Listings<b>{x.listings ?? "—"}</b></span>
               {!x.vintage && ix.get(x.id)?.spreadPct != null && <span className="st">Spread<b>{pctFmt(ix.get(x.id).spreadPct)}</b><SpreadNote /></span>}
             </div>
             {feed.netProceeds?.byId?.[x.id] != null && (
-              <div className="esub" style={{ marginTop: 8 }}>Seller nets ≈ <b className="mono">{fmt(feed.netProceeds.byId[x.id])}</b> after eBay fees (est.)<I t="Sale price minus eBay final-value fees and typical costs — the number that settles a show-floor negotiation." a="fair-range" /></div>
+              <div className="esub" style={{ marginTop: 8 }}>Seller nets ≈ <b className="mono">{fmt(feed.netProceeds.byId[x.id])}</b> after eBay fees (est.)<I t="Sale price minus eBay final-value fees and typical costs — the number that settles a table negotiation." a="fair-range" /></div>
             )}
             <div style={{ position: "relative", height: 6, background: "var(--raised)", borderRadius: 99, margin: "14px 0 4px" }}>
               <div style={{ position: "absolute", left: 0, width: `${pctIn}%`, top: 0, bottom: 0, background: "var(--green)", borderRadius: 99 }} />
             </div>
-            <div className="why">Fair zone: floor → median.<I t="Asks cluster between the clean floor and the median — offers under the floor are reaching; asks past the median need a reason." a="fair-range" /></div>
+            <div className="why">Fair zone: lowest ask → median.<I t="Asks cluster between the lowest ask and the median — offers under the lowest ask are reaching; asks past the median need a reason." a="fair-range" /></div>
             <button className="fchip on" style={{ marginTop: 10 }} onClick={() => renderShare(x)}>Share card 📸</button>
             {shareImg && (<>
               <img src={shareImg} alt="Deal check share card" style={{ width: "100%", borderRadius: 12, marginTop: 10 }} />
@@ -1070,7 +1070,7 @@ export default function Ticker() {
     const pw0 = (feed.printWatch || [])[0];
     const lastCmp = lsGet("cmp:last", null);
     const rows = [
-      ["check", "✓", "Is this ask fair?", `${feed.products?.length ?? "—"} products · show-floor speed`],
+      ["check", "✓", "Is this ask fair?", `${feed.products?.length ?? "—"} products · table speed`],
       ["compare", "⇄", "Which of these two?", lastCmp ? `${lastCmp[0]} vs ${lastCmp[1]}` : "9 instruments side-by-side"],
       ["net", "💵", "What lands in my pocket?", evsNet ? `EvSkies box: ${fmt(evsNet)} after fees` : "both venues' nets"],
       ["packmath", "🎴", "Rip it, or buy singles?", pm.best ? `best ${fmt(pm.best.perPack)}/pack · worst ${fmt(pm.worst?.perPack)}` : "every box's math"],
@@ -1280,16 +1280,16 @@ export default function Ticker() {
         <div className="lbl" style={{ marginTop: 16 }}>{x.name}</div>
         {side === "buying" ? (<>
           <div style={bigNum}>{fmt(z.buyerCeiling)}</div>
-          <div className="esub" style={{ marginBottom: 12 }}>your walk-away ceiling (est.) — above this, buy it online instead. A buyer pays about {fmt(z.buyerCeiling)} online after shipping and tax.</div>
+          <div className="esub" style={{ marginBottom: 12 }}>highest recent sale (est.). The high end is about {fmt(z.buyerCeiling)} online after shipping and tax.</div>
         </>) : (<>
           <div style={bigNum}>{fmt(z.sellerFloor)}</div>
-          <div className="esub" style={{ marginBottom: 12 }}>your booth floor (est.) — cash above this beats listing it. A seller keeps about {fmt(z.sellerFloor)} online after fees.</div>
+          <div className="esub" style={{ marginBottom: 12 }}>lowest ask (est.). A seller keeps about {fmt(z.sellerFloor)} online after fees.</div>
         </>)}
         <DealZoneBand z={z} big />
         {z.custom && <div className="esub" style={{ marginTop: 6, color: "var(--gold)" }}>your rates: {curTax}% tax · {curTier?.label}</div>}
         <div className="grid6" style={{ marginTop: 14 }}>
           <span className="st">Median<b>{fmt(x.price)}</b><span style={{ display: "block", fontSize: 9.5 }}>delivered · est.</span></span>
-          <span className="st">Clean floor<b>{fmt(x.floor)}</b></span>
+          <span className="st">Lowest ask<b>{fmt(x.floor)}</b></span>
           <span className="st">Listings<b>{x.listings ?? "—"}</b></span>
         </div>
         <button className="fchip on" style={{ marginTop: 14, padding: "12px 18px", fontSize: 15 }}
@@ -1379,18 +1379,18 @@ export default function Ticker() {
               <div style={{ position: "absolute", left: 0, width: `${pctIn}%`, top: 0, bottom: 0, background: "var(--green)", borderRadius: 99 }} />
             </div>
             <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }} className="esub">
-              <span>clean floor {fmt(x.floor)}</span><span>median {fmt(x.price)}</span><span>high {fmt(x.high)}</span>
+              <span>lowest ask {fmt(x.floor)}</span><span>median {fmt(x.price)}</span><span>high {fmt(x.high)}</span>
             </div>
           </div>)}
         {x.basis === "tcgplayer" && (
           <div className="esub" style={{ marginTop: 8 }}>
             Priced from TCGplayer market — a pack is a commodity, so the photo premium eBay earns on boxes doesn't apply here.
-            {x.ebayAskMedian != null ? <> eBay asks {fmt(x.ebayAskMedian)} for the same pack{x.ebayFloor != null ? <> (floor {fmt(x.ebayFloor)})</> : null}.</> : null}
+            {x.ebayAskMedian != null ? <> eBay asks {fmt(x.ebayAskMedian)} for the same pack{x.ebayFloor != null ? <> (lowest ask {fmt(x.ebayFloor)})</> : null}.</> : null}
             {" "}TCGplayer prices exclude shipping; ours from eBay include it.
           </div>)}
         <div className="grid6" style={{ marginTop: 14 }}>
           <span className="st">Listings<b>{x.listings ?? "—"}</b><span style={{ display: "block", fontSize: 9.5 }}>filtered</span></span>
-          <span className="st">Clean floor<b>{fmt(x.floor)}</b></span>
+          <span className="st">Lowest ask<b>{fmt(x.floor)}</b></span>
           <span className="st">Per pack<b>{x.perPack != null ? fmt(x.perPack) : "—"}</b><span style={{ display: "block", fontSize: 9.5 }}>{x.packs ? `÷ ${x.packs} packs` : "varies"}</span></span>
           <span className="st">Vs loose pack<b>{x.vsLoosePct != null ? (x.vsLoosePct > 0 ? "+" : "") + x.vsLoosePct + "%" : "—"}</b><span style={{ display: "block", fontSize: 9.5 }}>{x.loosePack ? `loose ${fmt(x.loosePack)}` : "no loose lane"}</span></span>
           <span className="st">Age · phase<b>{life?.ageMonths != null ? life.ageMonths + "mo" : "—"}</b><span style={{ display: "block", fontSize: 9.5 }}>{life?.phase ?? "—"}</span></span>
@@ -1400,7 +1400,7 @@ export default function Ticker() {
           <div className="c3" style={{ flexDirection: "column", marginTop: 12 }}>
             <div className="lbl">Deal Zone (est.)<I t="A buyer's true online cost is the delivered total plus sales tax; a seller's true online outcome is the ask minus fees. Any cash price between them beats eBay for both sides." a="deal-zone" /></div>
             <DealZoneBand z={z} />
-            <div className="esub" style={{ marginTop: 8 }}>A buyer pays about <b className="mono">{fmt(z.buyerCeiling)}</b> online after shipping and tax (est.) · a seller keeps about <b className="mono">{fmt(z.sellerFloor)}</b> online after fees (est.)</div>
+            <div className="esub" style={{ marginTop: 8 }}>The high end is about <b className="mono">{fmt(z.buyerCeiling)}</b> online after shipping and tax (est.) · a seller keeps about <b className="mono">{fmt(z.sellerFloor)}</b> online after fees (est.)</div>
           </div>) : null; })()}
         <Chart />
         <button className="fchip on" style={{ marginTop: 12 }}

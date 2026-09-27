@@ -9,6 +9,7 @@
 import { mkdir, writeFile, readdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { setLineBlock } from "./set-lines-view.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const OUT = join(ROOT, "public");
@@ -66,6 +67,11 @@ let feed = null;
 try { const r = await fetch(FEED_URL); if (r.ok) feed = await r.json(); }
 catch { console.warn("landers: feed fetch failed — hubs get no lifecycle/premium columns this build"); }
 const feedById = new Map((feed?.products ?? []).map(p => [p.id, p]));
+const LINES_URL = "https://raw.githubusercontent.com/Tbaker-maker/Catchem-data/main/data/derived/set-lines.json";
+let setLines = null;
+try { const r = await fetch(LINES_URL); if (r.ok) setLines = await r.json(); }
+catch { console.warn("landers: set lines unavailable — hubs say building history"); }
+const lineBySet = new Map((setLines?.sets || []).map((s) => [s.setId, s]));
 // §19 Deal Zone — engine-computed referee numbers per product (all est.).
 const dealZone = feed?.dealZone?.byId ?? {};
 
@@ -286,6 +292,7 @@ td{padding:9px 10px;border-bottom:1px solid var(--line)}.m{font-family:'JetBrain
 <h1>${esc(setName)} — sealed, on the tape</h1>
 ${logo ? `<img class="logo" src="${esc(logo)}" alt="${esc(setName)} logo" loading="lazy">` : ""}
 <div class="life">${liveCt} of ${ps.length} tracked products live today${life ? ` · <b>${life.ageMonths}mo old</b> · ${esc(life.phase)} · ⚖ ${esc(life.legalTag)}` : ""} · updated ${day}</div>
+${setLineBlock(lineBySet.get(setId))}
 <div class="tw"><table>
 <tr><th>Product</th><th>Type</th><th>Median ask</th><th>Clean floor</th><th>Listings</th><th>Per pack</th><th>Vs loose</th></tr>
 ${rows}

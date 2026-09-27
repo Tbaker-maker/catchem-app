@@ -4,6 +4,9 @@
 // and the legacy /check /compare /movers routes all resolve to the app.
 // Static files (landers /p/*.html, /sets/*.html, sitemap.xml, methodology)
 // serve directly and win over the fallback.
+// A push here rebuilds production. Methodology is fetched from Catchem-data
+// during that build, so this worker does not pick up a data-repo edit until
+// the next production deploy.
 {
   "name": "catchem-app",
   "compatibility_date": "2026-08-01",

@@ -75,8 +75,8 @@ const lineBySet = new Map((setLines?.sets || []).map((s) => [s.setId, s]));
 // §19 Deal Zone — engine-computed referee numbers per product (all est.).
 const dealZone = feed?.dealZone?.byId ?? {};
 
-// The Deal Zone band, server-rendered per lander. One glance: seller floor
-// → midpoint → buyer ceiling with the ask marked; a plain-English line per
+// The Deal Zone band, server-rendered per lander. One glance: lowest ask
+// → midpoint → highest recent sale with the ask marked; a plain-English line per
 // side; depth behind the methodology anchor. Every figure labeled est.
 function dealZoneBlock(id) {
   const z = dealZone[id];
@@ -87,7 +87,7 @@ function dealZoneBlock(id) {
 <div class="dz">
 <i>Deal Zone (est.) · the show-floor referee</i>
 <div class="dzband"><span class="dzask" style="left:${askPct}%"></span></div>
-<div class="dzrow"><span>seller floor<b>${usd(z.sellerFloor)}</b></span><span>midpoint<b>${usd(z.midpoint)}</b></span><span>buyer ceiling<b>${usd(z.buyerCeiling)}</b></span></div>
+<div class="dzrow"><span>lowest ask<b>${usd(z.sellerFloor)}</b></span><span>midpoint<b>${usd(z.midpoint)}</b></span><span>highest recent sale<b>${usd(z.buyerCeiling)}</b></span></div>
 <p class="read">A buyer pays about <b>${usd(z.buyerCeiling)}</b> online after shipping and tax (est.). A seller keeps about <b>${usd(z.sellerFloor)}</b> online after fees (est.). Any cash price between them beats eBay for both sides — the zone is ${usd(z.zoneWidth)} wide (${z.zonePct}% of the ask). <a href="/methodology#deal-zone">How this works →</a></p>
 </div>`;
 }
@@ -178,7 +178,7 @@ function page(p) {
 
   const fr = p.filterReport;
   const receipts = live
-    ? `Source: eBay active listings, Browse API — Buy-It-Now only, delivered price (item + shipping), trimmed median, title-filtered${fr ? ` (${fr.kept} of ${fr.fetched} listings kept)` : ""}. English product only. Updated ${day}.`
+    ? `Source: eBay active listings, Browse API — fixed-price listings only, delivered price (item + shipping), trimmed median, title-filtered${fr ? ` (${fr.kept} of ${fr.fetched} listings kept)` : ""}. English product only. Updated ${day}.`
     : `Source: eBay active listings, Browse API — the daily sweep found no publishable market. English product only. Updated ${day}.`;
 
   const siblings = products

@@ -2,14 +2,13 @@
 
 Ticker only. Live at **https://app.catchemtcg.com** (Cloudflare Worker).
 
-The creation editor is **not this repo**. It lives in
-[Tbaker-maker/Catchem-data](https://github.com/Tbaker-maker/Catchem-data)
-and runs at
-https://tbaker-maker.github.io/Catchem-data/research/assets/build.html
+The creation editor is on the public site at
+https://catchemtcg.com/post-office
+`/build` points there. It does not leave the site.
 
 `src/CatchEm.jsx` is gone. It was a prototype. Nothing mounts it.
 
-`site-public/build.html` is a pointer to that editor, not a copy of it.
+`site-public/build.html` redirects to that editor. It is not a copy of it.
 The 68KB snapshot that used to sit there was stale. Do not treat it as
 the product.
 

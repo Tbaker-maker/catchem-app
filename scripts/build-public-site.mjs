@@ -105,15 +105,13 @@ for (const f of await readdir(join(ROOT, "public/sets")).catch(() => [])) {
   hubs++;
 }
 
-// 5 · /build is not the editor. A 68KB snapshot used to ship here and
-// people opened it thinking it was Catch'em Creators. The editor is
-// Catchem-data on GitHub Pages. This path is a pointer.
-const EDITOR = "https://tbaker-maker.github.io/Catchem-data/research/assets/build.html";
+// 5 · /build is the Post Office on this domain. It used to 301 to GitHub Pages.
+const EDITOR = "https://catchemtcg.com/post-office";
 await writeFile(join(OUT, "build.html"),
   "<!doctype html><meta charset=\"utf-8\">" +
   "<meta http-equiv=\"refresh\" content=\"0;url=" + EDITOR + "\">" +
   "<link rel=\"canonical\" href=\"" + EDITOR + "\">" +
-  "<title>Catch'em Creators</title>" +
+  "<title>Post Office · Catch'em</title>" +
   "<p><a href=\"" + EDITOR + "\">Open the editor</a></p>\n");
 let creators = await fetchOr(`${RAW}/creators.html`);
 if (creators) await writeFile(join(OUT, "creators.html"), publicize(creators));

@@ -1,0 +1,20 @@
+name: test
+on:
+  push:
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node scripts/public-routes.test.mjs
+      - run: node scripts/search-rank.test.mjs
+      - run: node scripts/numbers-agree.test.mjs
+      - run: node scripts/freshness-stamp.test.mjs
+      - run: node scripts/search-shards.test.mjs
+      - run: node scripts/set-lines-view.test.mjs
+      - run: if [ -f scripts/video-engine.test.mjs ]; then node scripts/video-engine.test.mjs; fi
+      - run: node scripts/check-ppt-safety.mjs

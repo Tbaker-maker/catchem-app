@@ -1,5 +1,6 @@
 import {
   buildPack,
+  cardFrame,
   cardFromRow,
   exportPlan,
   faceLeavesDevice,
@@ -12,17 +13,13 @@ import {
 
 const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
-const enabled = params.get("video") === "1" || sessionStorage.getItem("ce-video") === "1";
 
-if (!enabled) {
-  $("off").hidden = false;
-} else {
-  $("app").hidden = false;
-  boot().catch((err) => {
-    $("facts").textContent = "Could not open the catalog. Nothing was invented to fill the gap.";
-    console.error(err);
-  });
-}
+$("off").hidden = true;
+$("app").hidden = false;
+boot().catch((err) => {
+  $("facts").textContent = "Could not open the catalog. Nothing was invented to fill the gap.";
+  console.error(err);
+});
 
 const state = {
   template: params.get("template") || "top5",
@@ -117,19 +114,50 @@ async function boot() {
 
 async function loadLive() {
   try {
-    const [indexRes, priceRes] = await Promise.all([fetch("/cards/full/index.json"), fetch("/cards/prices.json")]);
-    if (!indexRes.ok || !priceRes.ok) return null;
-    const index = await indexRes.json();
-    const prices = await priceRes.json();
+    const [liteRes, countsRes] = await Promise.all([
+      fetch("/data/search-lite.json"),
+      fetch("/data/counts.json"),
+    ]);
+    if (!liteRes.ok) return null;
+    const lite = await liteRes.json();
+    const counts = countsRes.ok ? await countsRes.json() : {};
+    const date = String(counts.asOf || "").slice(0, 10);
     const rows = [];
-    for (const row of index) {
-      if (!row || row.set == null) continue;
-      const card = cardFromRow(row, prices.usd, prices.asof);
+    for (const row of lite) {
+      if (!row || row[5] !== "single") continue;
+      const card = cardFromRow({
+        id: row[0],
+        name: row[1],
+        set: row[2],
+        number: row[3],
+        artist: row[4] || "",
+        rarity: row[8] || "",
+        usd: typeof row[6] === "number" && row[6] > 0 ? row[6] : undefined,
+        date,
+        image: "/api/card-img?pid=" + String(row[0]).replace(/\D/g, ""),
+      }, null, date);
       if (card) rows.push(card);
     }
-    return { rows, asof: prices.asof || "", source: prices.source || "" };
+    return { rows, asof: date, source: counts.source || "TCGplayer market" };
   } catch {
     return null;
+  }
+}
+
+async function pointsFor(id) {
+  const n = Number(String(id).replace(/\D/g, "")) || 0;
+  const bucket = String(n % 100).padStart(2, "0");
+  try {
+    const res = await fetch("/data/buckets/" + bucket + ".json");
+    if (!res.ok) return [];
+    const rows = await res.json();
+    const row = (rows || []).find((r) => r.id === id);
+    return (row?.hist || [])
+      .filter((p) => Array.isArray(p) && Number(p[1]) > 0)
+      .slice(-3)
+      .map((p) => ({ id, usd: Number(p[1]), date: String(p[0]).slice(0, 10) }));
+  } catch {
+    return [];
   }
 }
 
@@ -148,16 +176,19 @@ function selectedCards() {
   return inSet.slice(0, 4);
 }
 
-function currentPack() {
-  return buildPack(selectedCards(), { asof: state.asof, source: state.source });
+async function currentPack() {
+  const points = state.template === "mover" && selectedCards()[0]
+    ? await pointsFor(selectedCards()[0].id)
+    : [];
+  return buildPack(selectedCards(), { asof: state.asof, source: state.source, points });
 }
 
-function render() {
+async function render() {
   for (const n of $("templates").querySelectorAll("button")) {
     n.classList.toggle("on", n.getAttribute("data-template") === state.template);
     n.classList.toggle("go", n.getAttribute("data-template") === state.template);
   }
-  const pack = currentPack();
+  const pack = await currentPack();
   const script = scriptFor(state.template, pack);
   state.pack = pack;
   state.script = script;
@@ -383,37 +414,47 @@ function drawAt(t) {
   const cardId = (sc.factRefs || []).find((r) => r.startsWith("card:"));
   const id = cardId ? cardId.slice(5) : "";
   const img = id && state.images.get(id);
+  const frame = cardFrame(w, h);
   if (img && state.layout !== "split") {
-    const iw = 250;
-    const ih = 350;
-    ctx.drawImage(img, (w - iw) / 2, 150, iw, ih);
+    ctx.drawImage(img, frame.x, frame.y, frame.iw, frame.ih);
   } else if (img && state.layout === "split") {
-    ctx.drawImage(img, w * 0.46, 180, 250, 350);
+    ctx.drawImage(img, w * 0.46, frame.y, frame.iw * 0.7, frame.ih * 0.7);
   }
   drawFace(ctx, w, h);
-  const lines = String(sc.onScreen || "").split("\n").slice(0, 6);
+  const lines = String(sc.onScreen || "").split("\n").filter(Boolean);
+  const priceLines = lines.filter((line) => line.includes("TCGplayer"));
+  const rest = lines.filter((line) => !line.includes("TCGplayer"));
+  const pillY = h - 64;
   ctx.fillStyle = "#f2f3f5";
-  ctx.font = sc.id === "hook" ? "700 42px sans-serif" : "600 28px sans-serif";
+  ctx.font = sc.id === "hook" ? "700 32px sans-serif" : "600 22px sans-serif";
   ctx.textAlign = "center";
-  let y = sc.id === "hook" ? 430 : 620;
-  for (const line of lines) {
-    ctx.fillText(line.slice(0, 42), w / 2, y, w - 48);
-    y += sc.id === "hook" ? 52 : 36;
+  let y = frame.y + frame.ih + 32;
+  const lh = sc.id === "hook" ? 38 : 28;
+  const textLimit = pillY - 20 - priceLines.length * 24;
+  for (const line of rest) {
+    if (y > textLimit) break;
+    ctx.fillText(line, w / 2, y, w - 48);
+    y += lh;
   }
+  ctx.fillStyle = "#e6d7b8";
+  ctx.font = "600 18px sans-serif";
+  priceLines.forEach((line, i) => {
+    ctx.fillText(line, w / 2, pillY - 18 - (priceLines.length - 1 - i) * 22, w - 48);
+  });
   const local = t - sc.t0;
   const cues = sc.cues || [];
   let shown = cues.filter((c) => c.t - sc.t0 <= local).map((c) => c.w).join(" ");
   const cut = shown.indexOf("TCGplayer");
   if (cut >= 0) shown = shown.slice(0, cut).trim();
   if (shown.includes("$")) shown = shown.split("$")[0].trim();
-  shown = shown.slice(-80);
+  shown = shown.trim();
   if (shown) {
-    roundRect(ctx, 24, h - 250, w - 48, 86, 14);
+    roundRect(ctx, 24, pillY, w - 48, 46, 14);
     ctx.fillStyle = "rgba(20,20,22,0.92)";
     ctx.fill();
     ctx.fillStyle = "#ffffff";
-    ctx.font = "600 22px sans-serif";
-    ctx.fillText(shown.slice(-80), w / 2, h - 198, w - 72);
+    ctx.font = "600 16px sans-serif";
+    ctx.fillText(shown, w / 2, pillY + 29, w - 72);
   }
   const mark = watermarkFor(false);
   ctx.font = "500 14px sans-serif";
@@ -453,8 +494,10 @@ function paintQuota() {
     $("btn-export").disabled = true;
     return;
   }
-  const decision = quotaDecision({ weekUsed: q.weekUsed, dayUsed: q.dayUsed, premium: false });
-  $("quota").textContent = `Free cap: ${q.dayUsed}/${decision.dayCap} today, ${q.weekUsed}/${decision.weekCap} this week. Premium is not signed in.`;
+  const decision = quotaDecision({ weekUsed: q.weekUsed, dayUsed: q.dayUsed, premium: q.premium === true });
+  $("quota").textContent = q.signedIn
+    ? `${q.premium ? "Premium" : "Free"} cap: ${q.dayUsed}/${decision.dayCap} today, ${q.weekUsed}/${decision.weekCap} this week.`
+    : (q.card && q.card.body) || "Sign in to export. A browser cookie is not a pass.";
   $("upgrade").hidden = decision.ok;
   $("btn-export").disabled = faults.length > 0 || !decision.ok;
 }
@@ -506,11 +549,14 @@ async function play(record) {
     gain.connect(dest);
     osc.start();
     dest.stream.getAudioTracks().forEach((t) => stream.addTrack(t));
-    const mime = MediaRecorder.isTypeSupported("video/mp4")
-      ? "video/mp4"
-      : MediaRecorder.isTypeSupported("video/webm;codecs=vp9")
-        ? "video/webm;codecs=vp9"
-        : "video/webm";
+    const h264 = "video/mp4;codecs=avc1.42E01E,mp4a.40.2";
+    const mime = MediaRecorder.isTypeSupported(h264)
+      ? h264
+      : MediaRecorder.isTypeSupported("video/mp4;codecs=avc1.42E01E")
+        ? "video/mp4;codecs=avc1.42E01E"
+        : MediaRecorder.isTypeSupported("video/webm;codecs=vp9,opus")
+          ? "video/webm;codecs=vp9,opus"
+          : "video/webm";
     rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: canvas.width >= 1080 ? 2500000 : 1200000 });
     rec.ondataavailable = (ev) => { if (ev.data.size) chunks.push(ev.data); };
     rec.start();
@@ -540,12 +586,13 @@ async function play(record) {
       rec.stop();
     });
     if (audioCtx) audioCtx.close();
-    const type = rec.mimeType || "video/webm";
+    const type = rec.mimeType || "";
     const blob = new Blob(chunks, { type });
     const head = new Uint8Array(await blob.slice(0, 12).arrayBuffer());
     const isFtyp = head.length > 8 && head[4] === 0x66 && head[5] === 0x74 && head[6] === 0x79 && head[7] === 0x70;
+    const isH264 = isFtyp && /avc1|h264/i.test(type);
     state.lastBlob = blob;
-    state.lastName = isFtyp ? "short.mp4" : "short.webm";
+    state.lastName = isH264 ? "short.mp4" : "short.webm";
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -561,7 +608,7 @@ async function play(record) {
     paintQuota();
     const project = projectJson({ template: state.template, pack, script, brand: brand() });
     $("export-note").textContent =
-      `Saved ${state.lastName} (${Math.round(blob.size / 1000)} KB) at ${canvas.width}×${canvas.height}. ${isFtyp ? "The file has an MP4 header. The codec is whatever this browser recorded, which may not be H.264." : "This browser recorded WebM, not MP4."} Project keeps catalog ${project.catalogAsOf}. Face file was not sent.`;
+      `Saved ${state.lastName} (${Math.round(blob.size / 1000)} KB) at ${canvas.width}×${canvas.height}. ${isH264 ? "H.264/AAC MP4." : "This browser did not record H.264, so the file is WebM and is not named .mp4."} Project keeps catalog ${project.catalogAsOf}. Face file was not sent.`;
   }
   canvas.width = prevSize[0];
   canvas.height = prevSize[1];

@@ -144,7 +144,7 @@ export function top5Script(pack) {
   const words = ["Zero", "One", "Two", "Three", "Four", "Five"];
   const n = cards.length;
   const hook = `${words[n] || String(n)} chase ${n === 1 ? "card" : "cards"} in ${setName}.`;
-  const scenes = [scene("hook", 1.7, hook, hook, cards.map((c) => "card:" + c.id))];
+  const scenes = [scene("hook", 1.7, hook, hook, cards.slice(0, 1).map((c) => "card:" + c.id))];
   const ranked = cards.slice().reverse();
   ranked.forEach((c, i) => {
     const place = ranked.length - i;
@@ -171,7 +171,7 @@ export function moverScript(pack) {
   if (!card) return null;
   const pts = (pack.points || []).filter((p) => p.id === card.id);
   const hook = pts.length >= 2 ? "Two dated market readings." : "One market reading.";
-  const scenes = [scene("hook", 1.6, hook, hook, [])];
+  const scenes = [scene("hook", 1.6, hook, hook, ["card:" + card.id])];
   if (pts.length >= 2) {
     const a = pts[0];
     const b = pts[1];
@@ -195,7 +195,7 @@ export function moverScript(pack) {
 export function binderScript(pack) {
   const cards = pack.cards.slice(0, 8);
   const hook = "Open the binder.";
-  const scenes = [scene("hook", 1.5, hook, hook, [])];
+  const scenes = [scene("hook", 1.5, hook, hook, cards[0] ? ["card:" + cards[0].id] : [])];
   for (const c of cards) {
     const lines = [c.name, [c.number, c.set].filter(Boolean).join(" · "), c.artist || "", c.priceLabel || ""].filter(Boolean);
     const spoken = [c.name, c.set, c.artist ? "art by " + c.artist : "", c.priceLabel || ""].filter(Boolean).join(". ");
@@ -283,11 +283,11 @@ export function validateScript(script, pack) {
   return [...new Set(faults)];
 }
 
-/** Planning estimate, not a measured phone. 1080p over 60s drops to a lighter local frame. */
+/** Planning estimate. Capture is about realtime, so a 30s Short stays 1080×1920. */
 export function estimateRenderMs({ durationSec, width, height, hasFace }) {
   const pixels = width * height;
-  const base = pixels >= 1080 * 1920 ? 2.4 : pixels >= 720 * 1280 ? 1.35 : 0.85;
-  const face = hasFace ? 1.35 : 1;
+  const base = pixels >= 1080 * 1920 ? 1.05 : pixels >= 720 * 1280 ? 1.05 : 0.85;
+  const face = hasFace ? 1.15 : 1;
   return Math.round(durationSec * 1000 * base * face);
 }
 
@@ -328,6 +328,14 @@ export function watermarkFor(premium) {
 /** Face pixels are not given a destination. This stays false so a reviewer can grep the contract. */
 export function faceLeavesDevice() {
   return false;
+}
+
+export function cardFrame(width, height) {
+  const ih = Math.round(height * 0.62);
+  const iw = Math.round(ih * (63 / 88));
+  const x = Math.max(0, Math.round((width - Math.min(iw, width * 0.86)) / 2));
+  const usedW = Math.min(iw, Math.round(width * 0.86));
+  return { iw: usedW, ih, x, y: Math.round(height * 0.05) };
 }
 
 export function projectJson({ template, pack, script, brand }) {

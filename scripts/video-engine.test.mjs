@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import {
   WATERMARK,
   buildPack,
+  cardFrame,
   contrastRatio,
   CAPTION_FG,
   CAPTION_BG,
@@ -54,6 +55,16 @@ assert.equal(quotaDecision({ weekUsed: 1, dayUsed: 0, premium: false }).ok, true
 assert.equal(watermarkFor(false), WATERMARK);
 assert.equal(watermarkFor(true), "");
 assert.equal(faceLeavesDevice(), false);
-assert.equal(exportPlan({ durationSec: 30, hasFace: false }).mode, "local-lite");
+assert.equal(exportPlan({ durationSec: 30, hasFace: false }).mode, "local");
+assert.equal(exportPlan({ durationSec: 30, hasFace: false }).width, 1080);
+assert.equal(exportPlan({ durationSec: 30, hasFace: false }).height, 1920);
+assert.equal(exportPlan({ durationSec: 65, hasFace: false }).mode, "local-lite");
 assert.ok(contrastRatio(CAPTION_FG, CAPTION_BG) >= 7);
+const frame = cardFrame(1080, 1920);
+assert.ok(frame.ih / 1920 >= 0.6, "card is at least 60% of the frame height");
+const studio = readFileSync(new URL("../public/video/studio.js", import.meta.url), "utf8");
+assert.doesNotMatch(studio, /params\.get\("video"\)/);
+assert.match(studio, /avc1\.42E01E,mp4a\.40\.2/);
+assert.match(studio, /search-lite\.json/);
+assert.doesNotMatch(studio, /\/cards\/cache\//);
 console.log("catchem-app video engine ok", n);

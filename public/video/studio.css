@@ -1,0 +1,61 @@
+:root {
+  --paper: #0a0a0b;
+  --sheet: #141416;
+  --ink: #f2f3f5;
+  --mute: #b7b7c2;
+  --line: rgba(242, 243, 245, 0.16);
+  --accent: #7eb6ff;
+  --accent-ink: #0a0a0b;
+  --danger: #ffb4b4;
+  --ok: #b6f2c8;
+  --font: "Segoe UI", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.45 var(--font); }
+body { padding: 16px 16px 48px; max-width: 880px; margin: 0 auto; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; min-height: 44px; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px;
+}
+a { color: var(--accent); }
+h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: -0.03em; }
+h2 { font-size: 15px; margin: 0 0 8px; font-weight: 650; }
+.sub, .note { color: var(--mute); font-size: 14px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+.sheet {
+  background: var(--sheet); border: 1px solid var(--line); border-radius: 14px;
+  padding: 14px; margin: 12px 0;
+}
+button.go, button.ghost {
+  border-radius: 999px; padding: 0 14px; border: 1px solid var(--line); background: transparent;
+}
+button.go { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+button.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+button:disabled { opacity: 0.45; cursor: not-allowed; }
+label { display: block; font-size: 13px; color: var(--mute); margin-top: 8px; }
+input[type="text"], select {
+  width: 100%; min-height: 44px; border-radius: 10px; border: 1px solid var(--line);
+  background: #0e0e10; padding: 0 10px;
+}
+.stage-wrap { display: grid; gap: 12px; }
+@media (min-width: 800px) {
+  .stage-wrap { grid-template-columns: 280px 1fr; align-items: start; }
+}
+canvas#stage {
+  width: min(100%, 280px); height: auto; background: #000; border-radius: 16px; display: block;
+}
+.script { white-space: pre-wrap; font-size: 15px; }
+.fault { color: var(--danger); }
+.ok { color: var(--ok); }
+#upgrade { border-color: var(--accent); }
+#upgrade[hidden], [hidden] { display: none !important; }
+.prompter {
+  min-height: 72px; font-size: 20px; line-height: 1.35; background: #000; border-radius: 12px; padding: 12px;
+}
+.prompter.mirror { transform: scaleX(-1); }
+.cam {
+  width: 120px; height: 160px; object-fit: cover; border-radius: 12px; background: #000;
+}
+.tiny { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mute); }
+#off { max-width: 36em; }

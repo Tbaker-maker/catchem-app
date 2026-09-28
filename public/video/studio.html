@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="robots" content="noindex" />
+  <title>Make a Short · Catch'em Post Office</title>
+  <link rel="stylesheet" href="/video/studio.css" />
+</head>
+<body>
+  <p class="tiny">Catch'em Post Office</p>
+  <h1>Make a Short</h1>
+  <p class="sub">9:16. Catalog facts only. Your camera stays on this device.</p>
+  <p><a href="/">Back to the desk</a></p>
+
+  <section id="off" class="sheet" hidden>
+    <h2>Shorts are off</h2>
+    <p>VIDEO_ENABLED stays off in production until QA passes. Open this from Make a Short on the desk, or add <span class="note">?video=1</span> on a preview.</p>
+  </section>
+
+  <div id="app" hidden>
+    <section class="sheet">
+      <h2>1. Template</h2>
+      <div class="row" id="templates" role="group" aria-label="Template">
+        <button type="button" class="go" data-template="top5">Top 5 chase</button>
+        <button type="button" data-template="mover">Price mover</button>
+        <button type="button" data-template="binder">Binder reveal</button>
+      </div>
+      <p class="note" id="template-note"></p>
+      <label for="set-pick">Set</label>
+      <select id="set-pick"></select>
+      <div class="row" id="card-picks"></div>
+    </section>
+
+    <section class="sheet">
+      <h2>2. Script</h2>
+      <p class="script" id="script"></p>
+      <p id="facts" class="note"></p>
+      <p id="check"></p>
+    </section>
+
+    <section class="sheet">
+      <h2>3. Brand</h2>
+      <label for="handle">Handle</label>
+      <input id="handle" type="text" maxlength="32" placeholder="@you" autocomplete="username" />
+      <label for="accent">Accent</label>
+      <input id="accent" type="text" value="#7eb6ff" maxlength="7" />
+      <p class="note">Free exports keep the line “Made with Catch'em Post Office”. Removing it needs a signed-in Premium seat, which this preview does not have.</p>
+    </section>
+
+    <section class="sheet">
+      <h2>4. Face cam</h2>
+      <p class="note">Recording is optional. Frames are drawn here and are not uploaded. Server render is not connected.</p>
+      <div class="row">
+        <button type="button" id="btn-cam" class="go">Use camera</button>
+        <button type="button" id="btn-cam-off">Camera off</button>
+        <label class="note" for="upload">Upload a clip
+          <input id="upload" type="file" accept="video/*" />
+        </label>
+      </div>
+      <video id="cam" class="cam" playsinline muted hidden></video>
+      <div class="row" id="layouts" role="group" aria-label="Layout">
+        <button type="button" data-layout="bubble" class="on">Bubble</button>
+        <button type="button" data-layout="split">Split</button>
+        <button type="button" data-layout="cutout">Cut-out</button>
+        <button type="button" data-layout="chroma">Green screen</button>
+      </div>
+      <div class="prompter" id="prompter" aria-live="polite"></div>
+      <div class="row">
+        <button type="button" id="btn-line-prev">Previous line</button>
+        <button type="button" id="btn-line-next">Next line</button>
+        <button type="button" id="btn-retake">Retake this line</button>
+        <button type="button" id="btn-mirror">Mirror prompter</button>
+      </div>
+      <p class="note" id="line-note"></p>
+    </section>
+
+    <section class="sheet">
+      <h2>5. Preview and export</h2>
+      <div class="stage-wrap">
+        <canvas id="stage" width="540" height="960" aria-label="Short preview"></canvas>
+        <div>
+          <p id="estimate" class="note"></p>
+          <p id="quota" class="note"></p>
+          <div class="row">
+            <button type="button" class="go" id="btn-play">Play preview</button>
+            <button type="button" class="go" id="btn-export">Export</button>
+            <button type="button" id="btn-share" disabled>Share</button>
+            <button type="button" id="btn-thumb">Thumbnail</button>
+          </div>
+          <p id="export-note" class="note"></p>
+          <div id="upgrade" class="sheet" hidden>
+            <h2>Weekly cap</h2>
+            <p>Free is 2 finished Shorts a week, and 1 a day. A failed export does not count. Premium is a higher cap after sign-in. This preview cannot take payment or raise the cap.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script type="module" src="/video/studio.js"></script>
+</body>
+</html>

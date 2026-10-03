@@ -1,0 +1,1 @@
+Measured sample, not a browser recording. cardFrame(1080,1920) places the card at x=114 y=96 iw=852 ih=1190 (62.0% of 1920). ffprobe: h264 (avc1) 1080x1920 24 fps, aac, duration 6.00s. Hook frame includes the card. Price line sits above the caption pill.

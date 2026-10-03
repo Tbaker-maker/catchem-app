@@ -9,6 +9,7 @@
 //  - Every number keeps its provenance chip → receipts drawer.
 import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { freshnessFrom } from "./freshness.js";
+import { copiesOff, SUPPLY_LABEL, SUPPLY_NOTE } from "./supply-off.js";
 
 // Canonical feed path: research/pulse/ is in the daily run's commit list, so
 // this URL updates every CI run (the old research/assets/ copy only moved
@@ -131,6 +132,9 @@ display:flex;align-items:center;gap:7px;font-size:10.5px}
 .bnum .d{display:block}
 .search{width:100%;background:var(--panel);border:1px solid var(--line);color:var(--txt);
 border-radius:10px;padding:10px 12px;font:400 13px var(--sans);margin-bottom:8px}
+.supply{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 8px;font-size:12px;color:var(--dim)}
+.supply input{width:72px;background:var(--panel);border:1px solid var(--line);color:var(--txt);
+border-radius:10px;padding:8px 10px;font:600 14px var(--mono);margin:0}
 .fchips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
 .fchip{background:var(--panel);border:1px solid var(--line);color:var(--dim);border-radius:99px;
 padding:6px 12px;font-size:11px;cursor:pointer;min-height:32px}
@@ -562,6 +566,7 @@ export default function Ticker() {
   const [watch, setWatch] = useState(() => lsGet("watch:v1", []));
   const [q, setQ] = useState("");
   const [ftype, setFtype] = useState(null);
+  const [supplyPct, setSupplyPct] = useState("15");
   const [cmpA, setCmpA] = useState(""); const [cmpB, setCmpB] = useState("");
   const [streak, setStreak] = useState(0);
   // Routes (deep-linkable; CF Pages serves the SPA via public/_redirects):
@@ -928,6 +933,16 @@ export default function Ticker() {
     </>)}
   </>);
 
+  const supplyPctControl = () => (
+    <label className="supply">
+      {SUPPLY_LABEL}
+      <input type="number" inputMode="numeric" min="1" max="100" step="1"
+        aria-label="Percent of the listing total that must come off"
+        value={supplyPct} onChange={(e) => setSupplyPct(e.target.value)} />
+      %
+      <I t={SUPPLY_NOTE} a="history" />
+    </label>
+  );
   const Board = () => {
     const rows = products.filter(x =>
       (!q || (x.name || "").toLowerCase().includes(q.toLowerCase()) || x.id.includes(q.toLowerCase())) &&
@@ -937,18 +952,22 @@ export default function Ticker() {
       <input className="search" placeholder="Search products…" value={q} onChange={e => setQ(e.target.value)} />
       <div className="fchips">{subtypes.map(t =>
         <button className={`fchip ${ftype === t ? "on" : ""}`} key={t} onClick={() => setFtype(ftype === t ? null : t)}>{t}</button>)}</div>
-      {rows.map(x => (
+      {supplyPctControl()}
+      {rows.map(x => {
+        const copies = copiesOff(feed.history?.[x.id], supplyPct);
+        return (
         <div className="brow" key={x.id}>
           {x.imageUrl ? <img src={x.imageUrl} alt="" loading="lazy" width="42" height="42" /> : null}
           <div className="bmid" onClick={() => openProduct(x.id)} style={{ cursor: "pointer" }}><b>{x.name}</b><span>{/* Spread dropped from the movers row: this list is about price movement,
     and a retired instrument has no business riding along on a summary line
     with no room for the caveat it now requires. It stays on product pages,
     where the label fits. */}
-{x.subtype}{x.listings != null ? ` · ${x.listings} listings` : ""}</span></div>
+{x.subtype}{x.listings != null ? ` · ${x.listings} listings` : ""}{` · Copies ${copies == null ? "—" : copies}`}</span></div>
           <div className="bnum">{fmt(x.price)}<Delta d={deltaFor(feed, x.id)} /></div>
           <Star id={x.id} />
-        </div>))}
-      <div className="note">Tap any row for detail.</div>
+        </div>);
+      })}
+      <div className="note">Tap any row for detail. A blank copy count means the history does not already show that drop lining up with a price move.</div>
     </>);
   };
 
@@ -1331,6 +1350,7 @@ export default function Ticker() {
     const life = feed.lifecycle?.[x.setId];
     const hist = feed.history?.[id] || [];
     const d = deltaFor(feed, id);
+    const copies = copiesOff(hist, supplyPct);
     const nam = x.status === "no-active-market" || x.price == null;
     const pctIn = !nam && x.lowestAsk != null && x.high > x.lowestAsk
       ? Math.min(96, Math.max(4, 100 * ((x.price - x.lowestAsk) / (x.high - x.lowestAsk)))) : null;
@@ -1390,6 +1410,7 @@ export default function Ticker() {
           </div>)}
         <div className="grid6" style={{ marginTop: 14 }}>
           <span className="st">Listings<b>{x.listings ?? "—"}</b><span style={{ display: "block", fontSize: 9.5 }}>filtered</span></span>
+          <span className="st">Copies off<b>{copies == null ? "—" : copies}</b><span style={{ display: "block", fontSize: 9.5 }}>listing total</span></span>
           <span className="st">Lowest ask<b>{fmt(x.lowestAsk)}</b></span>
           <span className="st">Per pack<b>{x.perPack != null ? fmt(x.perPack) : "—"}</b><span style={{ display: "block", fontSize: 9.5 }}>{x.packs ? `÷ ${x.packs} packs` : "varies"}</span></span>
           <span className="st">Vs loose pack<b>{x.vsLoosePct != null ? (x.vsLoosePct > 0 ? "+" : "") + x.vsLoosePct + "%" : "—"}</b><span style={{ display: "block", fontSize: 9.5 }}>{x.loosePack ? `loose ${fmt(x.loosePack)}` : "no loose lane"}</span></span>
@@ -1698,7 +1719,10 @@ export default function Ticker() {
             <button className="tk-refresh" onClick={load}>{loading ? "…" : "↻"}</button>
           </div>
         </div>
-        {route?.name === "product" ? <ProductDetail id={route.id} /> : route?.name === "studio" ? <Studio /> : route?.name === "studio-posts" ? <PostStudio mine={route.mine} /> : route?.name === "studio-archive" ? <StudioArchive /> :
+        {route?.name === "product" ? <>
+          {supplyPctControl()}
+          <ProductDetail id={route.id} />
+        </> : route?.name === "studio" ? <Studio /> : route?.name === "studio-posts" ? <PostStudio mine={route.mine} /> : route?.name === "studio-archive" ? <StudioArchive /> :
          route?.name === "tool" ? (
           route.tool === "check" ? <DealCheck /> :
           route.tool === "compare" ? <Compare /> :
@@ -1711,7 +1735,7 @@ export default function Ticker() {
           {tab === "today" && <Home />}
           {tab === "tools" && <Tools />}
           {tab === "watch" && <WatchTab />}
-          {tab === "board" && <Board />}
+          {tab === "board" && Board()}
         </>)}
         {receipt && (<>
           <div className="drawer-back" onClick={() => setReceipt(null)} />

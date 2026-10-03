@@ -314,6 +314,25 @@ function deltaFor(feed, id) {
   return { pct: ((cur - prev) / prev) * 100, prev };
 }
 
+/* Smallest listing drop on a committed step where price was up by at least
+   pct. history rows are [date, price, listings]. Null when the file never
+   shows that pair. Not a percent of today's listings, and not a sold count. */
+function copiesOffBeforeUp(rows, pct) {
+  if (!rows || rows.length < 2 || !(pct > 0)) return null;
+  let best = null;
+  for (let i = 1; i < rows.length; i++) {
+    const a = rows[i - 1], b = rows[i];
+    const prevP = a[1], curP = b[1], prevL = a[2], curL = b[2];
+    if (typeof prevP !== "number" || typeof curP !== "number" || !(prevP > 0)) continue;
+    if (typeof prevL !== "number" || typeof curL !== "number") continue;
+    const off = prevL - curL;
+    if (!(off > 0)) continue;
+    if (((curP - prevP) / prevP) * 100 < pct) continue;
+    if (best == null || off < best) best = off;
+  }
+  return best;
+}
+
 /* streak: consecutive-day visit counter (cosmetic only) */
 function bumpStreak(today) {
   const s = lsGet("streak:v1", { last: null, days: 0 });
@@ -562,6 +581,7 @@ export default function Ticker() {
   const [watch, setWatch] = useState(() => lsGet("watch:v1", []));
   const [q, setQ] = useState("");
   const [ftype, setFtype] = useState(null);
+  const [liftPct, setLiftPct] = useState("15");
   const [cmpA, setCmpA] = useState(""); const [cmpB, setCmpB] = useState("");
   const [streak, setStreak] = useState(0);
   // Routes (deep-linkable; CF Pages serves the SPA via public/_redirects):
@@ -928,27 +948,46 @@ export default function Ticker() {
     </>)}
   </>);
 
+  const lift = Number(liftPct);
+  const liftOn = liftPct !== "" && Number.isFinite(lift) && lift > 0 && lift <= 100;
+  const copiesFor = (x) => (liftOn && x.listings != null)
+    ? copiesOffBeforeUp(feed.history?.[x.id], lift) : null;
+
   const Board = () => {
     const rows = products.filter(x =>
       (!q || (x.name || "").toLowerCase().includes(q.toLowerCase()) || x.id.includes(q.toLowerCase())) &&
-      (!ftype || x.subtype === ftype));
+      (!ftype || x.subtype === ftype) &&
+      (!liftOn || copiesFor(x) != null));
     return (<>
       <div className="tk-sec">The Board <span className="lbl">{rows.length} of {products.length}</span></div>
       <input className="search" placeholder="Search products…" value={q} onChange={e => setQ(e.target.value)} />
       <div className="fchips">{subtypes.map(t =>
         <button className={`fchip ${ftype === t ? "on" : ""}`} key={t} onClick={() => setFtype(ftype === t ? null : t)}>{t}</button>)}</div>
-      {rows.map(x => (
+      <div className="fchips" style={{ alignItems: "center" }}>
+        <span className="lbl" style={{ margin: 0 }}>Price up</span>
+        {[10, 15, 20, 25].map(n => (
+          <button key={n} type="button" className={"fchip" + (liftOn && lift === n ? " on" : "")}
+            onClick={() => setLiftPct(String(n))}>{n}%</button>))}
+        <input className="search" inputMode="decimal" aria-label="price up percent" value={liftPct}
+          onChange={e => setLiftPct(e.target.value.replace(/[^\d.]/g, "").slice(0, 5))}
+          style={{ width: 72, margin: 0, padding: "6px 8px" }} />
+        <I t="The count is how many listings came off from one committed day to the next, on a step where the price was up by at least this percent. It uses the listing total already on the card. It is not a sold count, and it is not this percent of today's listings. If the tape never shows that step, the count stays blank and the row stays off this list." a="history" />
+      </div>
+      {rows.map(x => {
+        const off = copiesFor(x);
+        return (
         <div className="brow" key={x.id}>
           {x.imageUrl ? <img src={x.imageUrl} alt="" loading="lazy" width="42" height="42" /> : null}
           <div className="bmid" onClick={() => openProduct(x.id)} style={{ cursor: "pointer" }}><b>{x.name}</b><span>{/* Spread dropped from the movers row: this list is about price movement,
     and a retired instrument has no business riding along on a summary line
     with no room for the caveat it now requires. It stays on product pages,
     where the label fits. */}
-{x.subtype}{x.listings != null ? ` · ${x.listings} listings` : ""}</span></div>
+{x.subtype}{x.listings != null ? ` · ${x.listings} listings` : ""}{off != null ? ` · ${off} off` : ""}</span></div>
           <div className="bnum">{fmt(x.price)}<Delta d={deltaFor(feed, x.id)} /></div>
           <Star id={x.id} />
-        </div>))}
-      <div className="note">Tap any row for detail.</div>
+        </div>);
+      })}
+      <div className="note">Tap any row for detail. A blank count is left blank.</div>
     </>);
   };
 
@@ -1390,6 +1429,7 @@ export default function Ticker() {
           </div>)}
         <div className="grid6" style={{ marginTop: 14 }}>
           <span className="st">Listings<b>{x.listings ?? "—"}</b><span style={{ display: "block", fontSize: 9.5 }}>filtered</span></span>
+          <span className="st">Off before up<b>{liftOn ? (copiesFor(x) ?? "—") : "—"}</b><span style={{ display: "block", fontSize: 9.5 }}>{liftOn ? `at ${lift}%` : "no percent"}</span></span>
           <span className="st">Lowest ask<b>{fmt(x.lowestAsk)}</b></span>
           <span className="st">Per pack<b>{x.perPack != null ? fmt(x.perPack) : "—"}</b><span style={{ display: "block", fontSize: 9.5 }}>{x.packs ? `÷ ${x.packs} packs` : "varies"}</span></span>
           <span className="st">Vs loose pack<b>{x.vsLoosePct != null ? (x.vsLoosePct > 0 ? "+" : "") + x.vsLoosePct + "%" : "—"}</b><span style={{ display: "block", fontSize: 9.5 }}>{x.loosePack ? `loose ${fmt(x.loosePack)}` : "no loose lane"}</span></span>

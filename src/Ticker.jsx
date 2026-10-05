@@ -253,6 +253,27 @@ const fmt = (n) => { if (n == null) return "—";
   return "$" + Number(n).toLocaleString("en-US", { maximumFractionDigits: 2 }); };
 const pctFmt = (n) => n == null ? "" : (n >= 0 ? "+" : "") + n.toFixed(1) + "%";
 
+/* Sealed price chips must name the market: eBay Browse asks vs TCGplayer/tcgcsv.
+   Uses only fields the feed already ships (basis, ebayAskMedian, tcg). Never
+   invents a number or fills a null Browse total. Chase/graded singles stay
+   unlabeled here — they are not sealed dual-market chips. */
+const SEALED_SUBTYPES = new Set([
+  "sealed", "booster-pack", "etb", "pc-etb", "booster-box", "booster-bundle",
+  "tin", "upc", "special-collection", "collection-box", "sealed pick",
+]);
+function isSealedPriceChip(x) {
+  if (!x || typeof x !== "object") return false;
+  if (x.subtype === "chase" || x.subtype === "graded pick") return false;
+  if (x.basis === "tcgplayer" || x.basis === "ebay") return true;
+  if (x.tcg != null || x.ebayAskMedian != null) return true;
+  if (!x.subtype || SEALED_SUBTYPES.has(x.subtype)) return true;
+  return false;
+}
+function primarySealedSource(x) {
+  if (!isSealedPriceChip(x)) return null;
+  return x.basis === "tcgplayer" ? "TCGplayer" : "eBay";
+}
+
 /* Build a product index from every feed section that carries ids+prices. */
 function buildIndex(feed) {
   const ix = new Map();
@@ -516,6 +537,7 @@ function Overlay() {
       {wm}
       <span style={{ fontSize: 14, fontWeight: 600, maxWidth: 280, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</span>
       <span style={{ font: "700 22px 'JetBrains Mono',monospace", fontVariantNumeric: "tabular-nums" }}>{fmt(p.median)}</span>
+      <span style={{ fontSize: 11, letterSpacing: ".06em", color: "var(--text-sub)", textTransform: "uppercase", whiteSpace: "nowrap" }}>{p.basis === "tcgplayer" ? "TCGplayer" : "eBay"}</span>
       <Delta d={deltaFor(feed, pid)} />
       <Spark pts={seriesFor(feed, pid)} w={70} h={22} />
     </div>);
@@ -759,6 +781,7 @@ export default function Ticker() {
   const ProductCard = ({ x, why, density = "expanded" }) => {
     const compact = density === "compact";
     const line = why || x.why;
+    const srcLabel = primarySealedSource(x);
     return (
     <div className="c3" key={x.id}>
       {x.imageUrl ? <img src={x.imageUrl} alt="" loading="lazy" onClick={() => setZoom({ src: x.imageUrl, name: x.name })} width={compact ? 64 : 76} height={compact ? 64 : 76} style={compact ? { width: 64, height: 64 } : null} /> : null}
@@ -767,11 +790,14 @@ export default function Ticker() {
           {x.chip ? <Chip cls={x.chip} onTap={() => showReceipts(x.name, x.provenance)} /> : null}{compact && line ? <I t={line} /> : null}<Star id={x.id} /></div>
         <span className="nm" onClick={() => ix.has(x.id) && openProduct(x.id)} style={ix.has(x.id) ? { cursor: "pointer" } : null}>{x.name}</span>
         <div className="hero">{fmt(x.price)} <Delta d={deltaFor(feed, x.id)} /><Spark pts={seriesFor(feed, x.id)} /></div>
+        {srcLabel ? <div className="lbl" style={{ marginTop: 2 }}>{srcLabel}</div> : null}
         <div className="strip">
           {x.listings != null && <span className="st">Listings<b>{x.listings}</b></span>}
           {x.spreadPct != null && <span className="st">Spread<b>{pctFmt(x.spreadPct)}</b><SpreadNote /></span>}
-          {x.tcg != null && <span className="st">TCG<b>{fmt(x.tcg)}</b>
+          {x.tcg != null && <span className="st">TCGplayer<b>{fmt(x.tcg)}</b>
             <I t="TCGplayer market price: their average of recent completed sales on the US marketplace. It is an item price and excludes shipping." a="the TCG figure" /></span>}
+          {x.basis === "tcgplayer" && x.ebayAskMedian != null && <span className="st">eBay<b>{fmt(x.ebayAskMedian)}</b>
+            <I t="eBay asking median: fixed-price listings only, delivered price (item + shipping). Asks, not sales." a="prices" /></span>}
           {x.perPack != null && <span className="st">Per pack<b>{fmt(x.perPack)}</b></span>}
         </div>
         {line && !compact && <div className="why">{line}</div>}
@@ -879,7 +905,8 @@ export default function Ticker() {
         <div className="c3b">
         <div className="c3t"><span className="lbl">shelf pick</span><span className="chip">READ</span></div>
         <b className="nm">{d3.shelf.name}</b>
-        <div className="hero">{money(shelfPrice)}</div>
+        <div className="hero">{fmt(shelfPrice)}</div>
+        <div className="lbl">eBay</div>
         <div className="c3s">
           <span className="stat"><i>Listings</i><b>{d3.shelf.prev} → {d3.shelf.listings}</b></span>
           <span className="stat"><i>Shelf</i><b style={{ color: d3.shelf.dPct > 0 ? "var(--gold)" : "var(--green)" }}>
@@ -983,7 +1010,7 @@ export default function Ticker() {
     with no room for the caveat it now requires. It stays on product pages,
     where the label fits. */}
 {x.subtype}{x.listings != null ? ` · ${x.listings} listings` : ""}{off != null ? ` · ${off} off` : ""}</span></div>
-          <div className="bnum">{fmt(x.price)}<Delta d={deltaFor(feed, x.id)} /></div>
+          <div className="bnum">{fmt(x.price)}<Delta d={deltaFor(feed, x.id)} />{(() => { const s = primarySealedSource(x); return s ? <div className="lbl">{s}</div> : null; })()}</div>
           <Star id={x.id} />
         </div>);
       })}
@@ -1042,7 +1069,7 @@ export default function Ticker() {
             <div className="c3b">
               <div className="c3t"><span className="lbl">{x.subtype}{x.vintage ? " · eBay-native venue" : ""}</span><Star id={x.id} /></div>
               <span className="nm">{x.name}</span>
-              {nam ? null : <div className="hero">{fmt(x.median)} <Delta d={d} /><Spark pts={x.hist} /></div>}
+              {nam ? null : <><div className="hero">{fmt(x.median)} <Delta d={d} /><Spark pts={x.hist} /></div><div className="lbl" style={{ marginTop: 2 }}>eBay</div></>}
             </div>
           </div>
           {nam ? (
@@ -1051,8 +1078,8 @@ export default function Ticker() {
             </div>
           ) : (<>
             <div className="strip" style={{ marginTop: 10 }}>
-              <span className="st">Lowest ask<b>{fmt(x.lowestAsk)}</b></span>
-              <span className="st">Median<b>{fmt(x.median)}</b></span>
+              <span className="st">eBay lowest ask<b>{fmt(x.lowestAsk)}</b></span>
+              <span className="st">eBay median<b>{fmt(x.median)}</b></span>
               <span className="st">Listings<b>{x.listings ?? "—"}</b></span>
               {!x.vintage && ix.get(x.id)?.spreadPct != null && <span className="st">Spread<b>{pctFmt(ix.get(x.id).spreadPct)}</b><SpreadNote /></span>}
             </div>
@@ -1082,7 +1109,7 @@ export default function Ticker() {
             <div className="brow" key={x.id} onClick={() => { setSel(x); setShareImg(null); }} style={{ cursor: "pointer" }}>
               {x.img ? <img src={x.img} alt="" loading="lazy" width="42" height="42" /> : null}
               <div className="bmid"><b>{x.name}</b><span>{x.subtype}{x.vintage ? " · vintage" : ""}</span></div>
-              <div className="bnum">{fmt(x.median)}</div>
+              <div className="bnum">{fmt(x.median)}<div className="lbl">eBay</div></div>
             </div>))}
           {!sel && tq.length >= 2 && results.length === 0 && tape && <div className="note">No match in {tape.products.length} tracked.</div>}
           {!sel && tq.length < 2 && <div className="note">Type two letters. Offline-ready.</div>}
@@ -1328,7 +1355,7 @@ export default function Ticker() {
         {z.custom && <div className="esub" style={{ marginTop: 6, color: "var(--gold)" }}>your rates: {curTax}% tax · {curTier?.label}</div>}
         <div className="grid6" style={{ marginTop: 14 }}>
           <span className="st">Median<b>{fmt(x.price)}</b><span style={{ display: "block", fontSize: 9.5 }}>delivered · est.</span></span>
-          <span className="st">Lowest ask<b>{fmt(x.lowestAsk)}</b></span>
+          <span className="st">{x.basis === "tcgplayer" ? "Lowest ask" : "eBay lowest ask"}<b>{fmt(x.lowestAsk)}</b></span>
           <span className="st">Listings<b>{x.listings ?? "—"}</b></span>
         </div>
         <button className="fchip on" style={{ marginTop: 14, padding: "12px 18px", fontSize: 15 }}
@@ -1409,16 +1436,18 @@ export default function Ticker() {
         <div className="hero" style={{ fontSize: 30, marginTop: 14 }}>{fmt(x.price)} <Delta d={d} /></div>
         {(() => { const nE = feed.netProceeds?.byId?.[id], nT = feed.netProceeds?.tcgById?.[id];
           return nE ? (<div className="esub" style={{ marginTop: 4 }}>
-            nets ≈ <b className="mono">{fmt(nE)}</b> eBay{nT ? <> · <b className="mono">{fmt(nT)}</b> TCG</> : null} after fees (est.)<I t="In-pocket if sold today: sale price minus marketplace final-value fees plus $0.30 — the seller's real number, not the sticker." a="fair-range" />
+            nets ≈ <b className="mono">{fmt(nE)}</b> eBay{nT ? <> · <b className="mono">{fmt(nT)}</b> TCGplayer</> : null} after fees (est.)<I t="In-pocket if sold today: sale price minus marketplace final-value fees plus $0.30 — the seller's real number, not the sticker." a="fair-range" />
           </div>) : null; })()}
-        <div className="lbl" style={{ marginTop: 2 }}>ask median · delivered<I t="Today's eBay asking median: fixed-price listings only, delivered price (item + shipping), scam-vocabulary filtered. Asks, not sales." a="prices" /></div>
+        <div className="lbl" style={{ marginTop: 2 }}>{x.basis === "tcgplayer"
+          ? <>TCGplayer market<I t="TCGplayer market price: their average of recent completed sales on the US marketplace. It is an item price and excludes shipping." a="the TCG figure" /></>
+          : <>eBay ask median · delivered<I t="Today's eBay asking median: fixed-price listings only, delivered price (item + shipping), scam-vocabulary filtered. Asks, not sales." a="prices" /></>}</div>
         {pctIn != null && (
           <div style={{ margin: "16px 0 2px" }}>
             <div style={{ position: "relative", height: 6, background: "var(--raised)", borderRadius: 99 }}>
               <div style={{ position: "absolute", left: 0, width: `${pctIn}%`, top: 0, bottom: 0, background: "var(--green)", borderRadius: 99 }} />
             </div>
             <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }} className="esub">
-              <span>lowest ask {fmt(x.lowestAsk)}</span><span>median {fmt(x.price)}</span><span>high {fmt(x.high)}</span>
+              <span>{x.basis === "tcgplayer" ? "low" : "eBay low"} {fmt(x.lowestAsk)}</span><span>{x.basis === "tcgplayer" ? "TCGplayer" : "eBay median"} {fmt(x.price)}</span><span>{x.basis === "tcgplayer" ? "high" : "eBay high"} {fmt(x.high)}</span>
             </div>
           </div>)}
         {x.basis === "tcgplayer" && (

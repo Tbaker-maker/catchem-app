@@ -102,6 +102,7 @@ padding:14px;margin-bottom:10px;display:flex;gap:12px}
 .c3b{flex:1;min-width:0}
 .c3t{display:flex;align-items:center;gap:8px}
 .nm{font-size:13.5px;font-weight:600;display:block;margin:3px 0 1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nm-set{display:block;color:var(--dim);font-size:11px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hero{font:700 23px var(--mono);font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:10px}
 .spk{margin-left:auto;flex:none}
 .strip{display:flex;gap:6px;margin:7px 0 6px;flex-wrap:wrap}
@@ -789,6 +790,7 @@ export default function Ticker() {
         <div className="c3t"><span className="lbl">{x.subtype || "sealed"}</span>
           {x.chip ? <Chip cls={x.chip} onTap={() => showReceipts(x.name, x.provenance)} /> : null}{compact && line ? <I t={line} /> : null}<Star id={x.id} /></div>
         <span className="nm" onClick={() => ix.has(x.id) && openProduct(x.id)} style={ix.has(x.id) ? { cursor: "pointer" } : null}>{x.name}</span>
+        {x.set ? <span className="nm-set">{x.set}</span> : null}
         <div className="hero">{fmt(x.price)} <Delta d={deltaFor(feed, x.id)} /><Spark pts={seriesFor(feed, x.id)} /></div>
         {srcLabel ? <div className="lbl" style={{ marginTop: 2 }}>{srcLabel}</div> : null}
         <div className="strip">
